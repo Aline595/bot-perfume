@@ -51,7 +51,6 @@ async function buscar() {
             return bateClima && batePeriodo && bateVibe && bateNota;
         });
 
-        // 3. Substitui o skeleton pelos resultados reais
         exibirCards(filtro, divResultado);
     }, 500); 
 }
@@ -65,15 +64,18 @@ function surpreender() {
 
     if (possiveis.length > 0) {
         const p = possiveis[Math.floor(Math.random() * possiveis.length)];
-        const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
+        
+        // AQUI ESTÁ O SEGREDO: Use ${p.imagem} com o $ na frente.
+        const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/d/${p.imagem}` : '';
 
         divResultado.innerHTML = `
             <p><strong>🎲 Sua sorte do dia:</strong></p>
             <div class="card-perfume" style="border: 2px solid #ff9800; background: #fffde7;">
-                ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}">` : ''}
+                ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+na+Imagem'">` : ''}
                 <div>
                     <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
-                    <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
+                    ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
                     <small>Marca: ${p.marca}</small>
                 </div>
             </div>
@@ -84,13 +86,15 @@ function surpreender() {
 function exibirCards(lista, container) {
     if (lista.length > 0) {
         container.innerHTML = lista.map(p => {
-            const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
+            // Ajustei a URL para o padrão atual do Google Drive/User Content
+            const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/d/${p.imagem}` : '';
             return `
                 <div class="card-perfume">
-                    ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Ajustar+Permissão'">` : ''}
+                    ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+na+Imagem'">` : ''}
                     <div>
                         <strong style="color: #6a1b9a; font-size: 1.1em;">${p.nome}</strong>
-                        <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
+                        ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
+                        <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
                         <p style="font-size: 0.8em; color: #999;">${p.marca || ''}</p>
                     </div>
                 </div>
@@ -103,7 +107,6 @@ function exibirCards(lista, container) {
 
 function mostrarSkeleton() {
     const divResultado = document.getElementById('resultado');
-    // Cria 3 cards de esqueleto para preencher o grid inicial
     const skeletons = Array(3).fill(`
         <div class="skeleton-card">
             <div class="skeleton-img"></div>
@@ -115,5 +118,4 @@ function mostrarSkeleton() {
     divResultado.innerHTML = skeletons;
 }
 
-// Inicia o processo
 carregarDados();
