@@ -2,107 +2,82 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Meu Consultor de Perfumes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Consultor Pessoal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="tela-inicial">
-    <div class="boas-vindas">
-        <span style="font-size: 50px;">✨</span>
-        <h1>O que você busca hoje?</h1>
-        <p>Escolha uma categoria para começar sua consultoria personalizada.</p>
-        
-        <div class="botoes-home">
-            <button onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
-            <button onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
+    <div id="tela-inicial">
+        <div class="boas-vindas">
+            <span style="font-size: 50px;">✨</span>
+            <h1>O que você busca hoje?</h1>
+            <p>Escolha uma categoria para começar sua consultoria personalizada.</p>
+            
+            <div class="botoes-home">
+                <button onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
+                <button onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
+            </div>
         </div>
     </div>
-</div>
-
-<div class="container">
-    <div id="conteudo-perfumes" class="secao-aba">
-    <div style="text-align: left;">
-        <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-    </div>
-    </div>
-
-<div id="conteudo-colares" class="secao-aba" style="display: none;">
-    <div style="text-align: left;">
-        <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-    </div>
-    </div>
-    
-    <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="margin-bottom: 10px;">
-        🌓 Alternar Tema
-    </button>
-    <h2>🌸 Consultor de Perfumes</h2>
-    
-    <div style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
-        Estação: 
-        <select id="estacao-manual" onchange="atualizarEstacao()" style="display: inline; width: auto; padding: 5px; margin: 0;">
-            <option value="Outono">🍂 Outono</option>
-            <option value="Inverno">❄️ Inverno</option>
-            <option value="Primavera">🌸 Primavera</option>
-            <option value="Verão">☀️ Verão</option>
-        </select>
-    </div>
-
-    <select id="periodo">
-        <option value="dia">Dia</option>
-        <option value="noite">Noite</option>
-        <option value="ambos">Ambos</option>
-    </select>
-
-    <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce)">
-    <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa)">
-    
-    <button onclick="buscar()">Encontrar Perfume</button>
-    <button onclick="surpreender()" style="background: #ff9800; margin-top: 0;">
-        ✨ Me surpreenda!
-    </button>
-    <div id="resultado"></div>
 
     <div class="container" style="display: none;">
-    <div class="menu-tabs">
-        <button id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
-        <button id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
-    </div>
-
-    <div id="conteudo-perfumes" class="secao-aba">
-        <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-        <h2>Consultor de Perfumes</h2>
+        
+        <div class="menu-tabs">
+            <button id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
+            <button id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
         </div>
 
-    <div id="conteudo-colares" class="secao-aba" style="display: none;">
-        <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-        <h2>Consultor de Colares</h2>
+        <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="margin-bottom: 20px; width: auto; padding: 5px 15px;">
+            🌓 Alternar Tema
+        </button>
+
+        <div id="conteudo-perfumes" class="secao-aba">
+            <div style="text-align: left;">
+                <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            </div>
+            <h2>🌸 Consultor de Perfumes</h2>
+            
+            <div style="margin-bottom: 15px; font-size: 0.9em;">
+                Estação: 
+                <select id="estacao-manual" onchange="atualizarEstacao()" style="display: inline; width: auto; padding: 5px;">
+                    <option value="Outono">🍂 Outono</option>
+                    <option value="Inverno">❄️ Inverno</option>
+                    <option value="Primavera">🌸 Primavera</option>
+                    <option value="Verão">☀️ Verão</option>
+                </select>
+            </div>
+
+            <select id="periodo">
+                <option value="dia">Dia</option>
+                <option value="noite">Noite</option>
+                <option value="ambos">Ambos</option>
+            </select>
+
+            <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce)">
+            <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa)">
+            
+            <button onclick="buscar()">Encontrar Perfume</button>
+            <button onclick="surpreender()" style="background: #ff9800; margin-top: 0;">
+                ✨ Me surpreenda!
+            </button>
+        </div>
+
+        <div id="conteudo-colares" class="secao-aba" style="display: none;">
+            
+            <div style="text-align: left; margin-bottom: 20px;">
+                <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            </div>
+            
+            <h2>📿 Colares</h2>
+            
+            <img src="assets/colar.jpg" alt="Catálogo de Colares" class="img-exibicao-colar">
+
+        </div>
+
+        <div id="resultado"></div>
         
-        <label>Material:</label>
-        <select id="material-colar">
-            <option value="todos">Todos os materiais</option>
-            <option value="prata">Prata 925</option>
-            <option value="ouro">Banhado a Ouro</option>
-            <option value="pedra">Pedras Naturais</option>
-        </select>
-
-        <label>Ocasião:</label>
-        <select id="ocasiao-colar">
-            <option value="diario">Uso Diário</option>
-            <option value="festa">Festa / Elegante</option>
-            <option value="religioso">Religioso / Proteção</option>
-        </select>
-
-        <input type="text" id="pingente-colar" placeholder="Busque por pingente (ex: coração, cruz)">
-        
-        <button onclick="buscarColares()" style="background: #2e7d32;">Encontrar Colar</button>
-    </div>
-
-    <div id="resultado"></div>
-</div>
-</div>
-
-<script src="script.js"></script>
+    </div> <script src="script.js"></script>
 
 </body>
 </html>

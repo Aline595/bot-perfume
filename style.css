@@ -350,3 +350,13 @@ body.dark-mode .perfume-duracao {
 #conteudo-colares button:hover {
     filter: brightness(1.1);
 }
+/* Estilo para a imagem de exibição de colares */
+.img-exibicao-colar {
+    display: block; /* Essencial para centralização */
+    width: 90%; /* Largura que ocupa a maior parte do card */
+    max-width: 380px; /* Limite para não estourar em telas grandes */
+    height: auto; /* Mantém a proporção da imagem */
+    border-radius: 12px; /* Cantos arredondados suavizados */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Sombra elegante */
+    margin: 20px auto 0 auto; /* Centralização horizontal automática */
+}
