@@ -58,14 +58,15 @@
 
 <script>
     let perfumes = [];
-    // Sua URL do Gist
-    const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/4ee581ea35019574542a7d0870408d5b86f730ad/lista_itens.json";
+    // URL do seu Gist (certifique-se de que é a versão Raw mais recente)
+    const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
     
     async function carregarDados() {
         try {
-            const resposta = await fetch(urlGist);
+            // Adicionamos um timestamp para evitar cache do navegador e pegar os IDs novos
+            const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
             perfumes = await resposta.json();
-            console.log("✅ Dados do Gist carregados!");
+            console.log("✅ Dados do Gist carregados!", perfumes);
         } catch (erro) {
             console.error("❌ Erro ao carregar Gist:", erro);
         }
@@ -103,28 +104,28 @@
 
         if (filtro.length > 0) {
             divResultado.innerHTML = filtro.map(p => {
-                // LÓGICA PARA CONVERTER O LINK DO DRIVE
-                let urlFinal = p.imagem || "";
-                if (urlFinal.includes("drive.google.com")) {
-                    // Extrai o ID entre /d/ e /view
-                    const id = urlFinal.match(/\/d\/(.+?)\//);
-                    if (id && id[1]) {
-                        urlFinal = `https://drive.google.com/uc?export=view&id=${id[1]}`;
-                    }
-                }
+                // NOVA LÓGICA: Como o JSON agora tem apenas o ID, montamos o link direto aqui
+                // Usamos o servidor googleusercontent que é mais estável para sites
+                const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
 
                 return `
                     <div class="card-perfume">
-                        ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Imagem+Privada'">` : ''}
+                        ${urlFinal ? `
+                            <img src="${urlFinal}" 
+                                 class="img-perfume" 
+                                 alt="${p.nome}" 
+                                 onerror="this.src='https://via.placeholder.com/200?text=Ajustar+Permissão'">
+                        ` : ''}
                         <div>
                             <strong style="color: #6a1b9a; font-size: 1.1em;">${p.nome}</strong>
                             <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
+                            <p style="font-size: 0.8em; color: #999;">${p.marca || ''}</p>
                         </div>
                     </div>
                 `;
             }).join('');
         } else {
-            divResultado.innerHTML = "<p style='color: #999;'>❌ Nenhum perfume encontrado.</p>";
+            divResultado.innerHTML = "<p style='color: #999;'>❌ Nenhum perfume encontrado para os critérios selecionados.</p>";
         }
     }
 </script>

@@ -1,80 +1,68 @@
 [
-    {
-        "id": 1,
-        "nome": "Flor de carambola",
-        "imagem": "https://drive.google.com/file/d/1WLc_ILZvgY31dXW-1CM5NZt_Mb6fTPW3/view?usp=drive_link",
-        "notas": [""],
-        "vibe": ["frutado", "tropical", "fresco", "citrico", "rosa"],
-        "clima": ["Primavera", "Verão"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "Loccitane",
-        "duracao": 4
-        
-    },
-    {
-        "id": 2,
-        "nome": "Intense",
-        "imagem": "https://drive.google.com/file/d/16nR9fzn5S6O2mgDrbyOmkxJIfsImTofn/view?usp=drive_link",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "baunilha", "ambar", "amaderado"],
-        "clima": ["Inverno", "Outono", "Primavera"],
-        "periodo": ["dia", "noite"],
-        "intensidade": "forte",
-        "marca": "boticario",
-        "duracao": 7
-        
-    },
-    {
-        "id": 3,
-        "nome": "Good girl hair mist",
-        "imagem": "https://drive.google.com/file/d/1FDtu6wusKLmjaX8NTh1O3fZ-BXSSHS48/view?usp=drive_link",
-        "notas":[""],
-        "vibe": ["floral branco", "doce", "citrico", "baunilha", "picante"],
-        "clima": ["Inverno", "Primavera", "Verão", "Outono"],
-        "periodo": ["dia", "noite"],
-        "intensidade": "forte",
-        "marca": "Carolina Herreira",
-        "duracao": 6
-        
-    },
-    {
-        "id": 4,
-        "nome": "Florata red blosson",
-        "imagem": "https://drive.google.com/file/d/1VNddag2p-gGCbRRj6525GXC3L_b-OYEV/view?usp=drive_link",
-        "notas":[""],
-        "vibe": ["frutado", "fresco", "floral branco", "atalcado", "doce"],
-        "clima": ["Primavera", "Verão"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "boticario",
-        "duracao": 5
-        
-    },
-    {
-        "id": 5,
-        "nome": "Hello Kitty estilosa",
-        "imagem": "https://drive.google.com/file/d/1huc8p45DrpiWbgnZmyqMZiwuG31oyRfk/view?usp=drive_link",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "caramelo", "amendoa", "floral"],
-        "clima": ["Primavera"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "jequiti",
-        "duracao": 4
-        
-    },
-    {
-        "id": 6,
-        "nome": "Cuide se bem morango e leite",
-        "imagem": "https://drive.google.com/file/d/1f4mh_9Vc_7Zab1IH5NCHpWSkgm84M3IW/view?usp=drive_link",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "baunilha", "verde", "fresco"],
-        "clima": ["Primavera"],
-        "periodo": ["dia"],
-        "intensidade": "moderado",
-        "marca": "boticario",
-        "duracao": 5
-        
-    }
+  {
+    "id": 1,
+    "nome": "Flor de carambola",
+    "imagem": "1WLc_ILZvgY31dXW-1CM5NZt_Mb6fTPW3",
+    "vibe": ["frutado", "tropical", "fresco", "citrico", "rosa"],
+    "clima": ["Primavera", "Verão"],
+    "periodo": ["dia"],
+    "intensidade": "Moderado",
+    "marca": "Loccitane",
+    "duracao": 4
+  },
+  {
+    "id": 2,
+    "nome": "Intense",
+    "imagem": "16nR9fzn5S6O2mgDrbyOmkxJIfsImTofn",
+    "vibe": ["frutado", "doce", "baunilha", "ambar", "amaderado"],
+    "clima": ["Inverno", "Outono", "Primavera"],
+    "periodo": ["dia", "noite"],
+    "intensidade": "forte",
+    "marca": "boticario",
+    "duracao": 7
+  },
+  {
+    "id": 3,
+    "nome": "Good girl hair mist",
+    "imagem": "1FDtu6wusKLmjaX8NTh1O3fZ-BXSSHS48",
+    "vibe": ["floral branco", "doce", "citrico", "baunilha", "picante"],
+    "clima": ["Inverno", "Primavera", "Verão", "Outono"],
+    "periodo": ["dia", "noite"],
+    "intensidade": "forte",
+    "marca": "Carolina Herreira",
+    "duracao": 6
+  },
+  {
+    "id": 4,
+    "nome": "Florata red blosson",
+    "imagem": "1VNddag2p-gGCbRRj6525GXC3L_b-OYEV",
+    "vibe": ["frutado", "fresco", "floral branco", "atalcado", "doce"],
+    "clima": ["Primavera", "Verão"],
+    "periodo": ["dia"],
+    "intensidade": "Moderado",
+    "marca": "boticario",
+    "duracao": 5
+  },
+  {
+    "id": 5,
+    "nome": "Hello Kitty estilosa",
+    "imagem": "1huc8p45DrpiWbgnZmyqMZiwuG31oyRfk",
+    "vibe": ["frutado", "doce", "caramelo", "amendoa", "floral"],
+    "clima": ["Primavera"],
+    "periodo": ["dia"],
+    "intensidade": "Moderado",
+    "marca": "jequiti",
+    "duracao": 4
+  },
+  {
+    "id": 6,
+    "nome": "Cuide se bem morango e leite",
+    "imagem": "1f4mh_9Vc_7Zab1IH5NCHpWSkgm84M3IW",
+    "vibe": ["frutado", "doce", "baunilha", "verde", "fresco"],
+    "clima": ["Primavera"],
+    "periodo": ["dia"],
+    "intensidade": "moderado",
+    "marca": "boticario",
+    "duracao": 5
+  }
 ]
