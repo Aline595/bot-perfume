@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Consultor de Perfumes</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        select, input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; }
+        button { background: #6a1b9a; color: white; border: none; cursor: pointer; font-weight: bold; }
+        #resultado { margin-top: 20px; padding: 10px; border-top: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌸 Consultor de Perfumes</h2>
+    <p id="estacao-texto"></p>
+
+    <select id="periodo">
+        <option value="dia">Dia</option>
+        <option value="noite">Noite</option>
+        <option value="ambos">Ambos</option>
+    </select>
+
+    <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce)">
+    
+    <button onclick="buscar()">Encontrar Perfume</button>
+
+    <div id="resultado"></div>
+</div>
+
+<script>
+    const perfumes = [
+    {
+        "id": 1,
+        "nome": "Flor de carambola",
+        "imagem": "",
+        "notas": [""],
+        "vibe": ["frutado", "tropical", "fresco", "citrico", "rosa"],
+        "clima": ["Primavera", "Verão"],
+        "periodo": ["dia"],
+        "intensidade": "Moderado",
+        "marca": "Loccitane",
+        "duracao": 4
+        
+    },
+    {
+        "id": 2,
+        "nome": "Intense",
+        "imagem": "",
+        "notas":[""],
+        "vibe": ["frutado", "doce", "baunilha", "ambar", "amaderado"],
+        "clima": ["Inverno", "Outono", "Primavera"],
+        "periodo": ["dia", "noite"],
+        "intensidade": "forte",
+        "marca": "boticario",
+        "duracao": 7
+        
+    },
+    {
+        "id": 3,
+        "nome": "Good girl hair mist",
+        "imagem": "",
+        "notas":[""],
+        "vibe": ["floral branco", "doce", "citrico", "baunilha", "picante"],
+        "clima": ["Inverno", "Primavera", "Verão", "Outono"],
+        "periodo": ["dia", "noite"],
+        "intensidade": "forte",
+        "marca": "Carolina Herreira",
+        "duracao": 6
+        
+    },
+    {
+        "id": 4,
+        "nome": "Florata red blosson",
+        "imagem": "",
+        "notas":[""],
+        "vibe": ["frutado", "fresco", "floral branco", "atalcado", "doce"],
+        "clima": ["Primavera", "Verão"],
+        "periodo": ["dia"],
+        "intensidade": "Moderado",
+        "marca": "boticario",
+        "duracao": 5
+        
+    },
+    {
+        "id": 5,
+        "nome": "Hello Kitty estilosa",
+        "imagem": "",
+        "notas":[""],
+        "vibe": ["frutado", "doce", "caramelo", "amendoa", "floral"],
+        "clima": ["Primavera"],
+        "periodo": ["dia"],
+        "intensidade": "Moderado",
+        "marca": "jequiti",
+        "duracao": 4
+        
+    },
+    {
+        "id": 6,
+        "nome": "Cuide se bem morango e leite",
+        "imagem": "",
+        "notas":[""],
+        "vibe": ["frutado", "doce", "baunilha", "verde", "fresco"],
+        "clima": ["Primavera"],
+        "periodo": ["dia"],
+        "intensidade": "moderado",
+        "marca": "boticario",
+        "duracao": 5
+        
+    }
+];
+
+    function calcularEstacao() {
+        const mes = new Date().getMonth() + 1;
+        if (mes >= 3 && mes <= 5) return "Outono";
+        if (mes >= 6 && mes <= 8) return "Inverno";
+        if (mes >= 9 && mes <= 11) return "Primavera";
+        return "Verão";
+    }
+
+    const estacaoAtual = calcularEstacao();
+    document.getElementById('estacao-texto').innerText = "Estamos no " + estacaoAtual;
+
+    function buscar() {
+        const periodo = document.getElementById('periodo').value;
+       // const vibe = document.getElementById('vibe').value.toLowerCase();
+        const divResultado = document.getElementById('resultado');
+
+        const filtro = perfumes.filter(p => {
+            const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
+            const periodoList = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
+            //const vibeList = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
+
+            const bateClima = clima.some(c => c.toLowerCase() === estacaoAtual.toLowerCase());
+            const batePeriodo = (periodo === 'ambos') ? true : periodoList.some(per => per.toLowerCase() === periodo);
+            //const bateVibe = vibeList.some(v => v.toLowerCase().includes(vibe));
+
+            return bateClima && batePeriodo
+        });
+
+        if (filtro.length > 0) {
+            divResultado.innerHTML = filtro.map(p => `<strong>✨ ${p.nome}</strong>`).join('<br>');
+        } else {
+            divResultado.innerHTML = "❌ Nada encontrado.";
+        }
+    }
+</script>
+
+</body>
+</html>
