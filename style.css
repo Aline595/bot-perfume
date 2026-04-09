@@ -1,56 +1,94 @@
+/* 1. Definição de Variáveis (Cores) */
+:root {
+    --bg-body: #f4f4f9;
+    --bg-container: white;
+    --bg-card: #fafafa;
+    --text-main: #333;
+    --text-secondary: #777;
+    --border-color: #eee;
+    --input-bg: white;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Cores do Modo Escuro */
+body.dark-mode {
+    --bg-body: #121212;
+    --bg-container: #1e1e1e;
+    --bg-card: #2a2a2a;
+    --text-main: #f0f0f0;
+    --text-secondary: #bbb;
+    --border-color: #444;
+    --input-bg: #333;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* 2. Estilos Gerais */
 body { 
     font-family: sans-serif; 
-    background: #f4f4f9; 
+    background: var(--bg-body); 
+    color: var(--text-main);
     padding: 20px; 
     text-align: center; 
+    transition: background 0.3s, color 0.3s;
 }
 
 .container { 
     max-width: 400px; 
     margin: auto; 
-    background: white; 
+    background: var(--bg-container); 
     padding: 20px; 
     border-radius: 15px; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    box-shadow: 0 4px 10px var(--shadow); 
 }
 
-select, input, button { 
+/* 3. Inputs e Botões */
+select, input { 
     width: 100%; 
     padding: 10px; 
     margin: 10px 0; 
     border-radius: 5px; 
-    border: 1px solid #ddd; 
+    border: 1px solid var(--border-color); 
+    background-color: var(--input-bg);
+    color: var(--text-main);
 }
 
 button { 
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 5px;
     background: #6a1b9a; 
     color: white; 
     border: none; 
     cursor: pointer; 
-    font-weight: bold; 
+    font-weight: bold;
+    transition: filter 0.2s;
 }
 
+button:hover {
+    filter: brightness(1.2);
+}
+
+/* 4. Grid de Resultados */
 #resultado {
     margin-top: 20px;
     padding: 10px;
-    border-top: 1px solid #eee;
-    
-    /* Configuração do Grid */
+    border-top: 1px solid var(--border-color);
     display: grid;
-    /* Cria colunas automáticas com no mínimo 160px cada */
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 15px; /* Espaço entre os cards */
+    gap: 15px; 
     justify-content: center;
 }
 
+/* 5. Card de Perfume */
 .card-perfume {
     padding: 15px;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
     border-radius: 12px;
-    background: #fafafa;
+    background: var(--bg-card);
     transition: transform 0.2s;
     display: flex;
-    flex-direction: column; /* Organiza conteúdo de cima para baixo */
+    flex-direction: column; 
     align-items: center;
     text-align: center;
 }
@@ -61,17 +99,17 @@ button {
 
 .img-perfume {
     width: 100%;
-    max-width: 150px; /* Diminuímos um pouco para caber mais na linha */
+    max-width: 150px;
     height: 150px;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: block; /* Garante que ela seja tratada como bloco */
+    margin: 0 auto 12px auto;
 }
 
 .card-perfume strong {
     font-size: 1em;
-    color: #6a1b9a;
+    color: #9c4dcc; /* Roxo um pouco mais claro para ler melhor no dark */
     display: block;
     margin-bottom: 5px;
 }
@@ -79,59 +117,21 @@ button {
 .card-perfume p {
     font-size: 0.8em;
     margin: 2px 0;
-    color: #777;
+    color: var(--text-secondary);
 }
 
-/* Efeito de brilho pulsante */
-@keyframes skeleton-loading {
-    0% { background-color: #eff1f3; }
-    50% { background-color: #e2e5e7; }
-    100% { background-color: #eff1f3; }
-}
-
-.skeleton-card {
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    background: #fafafa;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.skeleton-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    animation: skeleton-loading 1.5s infinite;
-}
-
-.skeleton-text {
-    width: 80%;
-    height: 15px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    animation: skeleton-loading 1.5s infinite;
-}
-
-.skeleton-text.short {
-    width: 50%;
-}
-
-
+/* 6. Badge de Intensidade (Sempre vibrante) */
 .badge-intensity {
     display: inline-block;
     padding: 4px 12px;
-    font-family: sans-serif;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
     color: white;
     border-radius: 4px;
     background: linear-gradient(135deg, #ff8c00 0%, #ff0000 100%);
     box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
     animation: pulse-glow 2s infinite ease-in-out;
-    margin-top: 10px;
+    margin-top: 8px;
     text-transform: uppercase;
 }
 
@@ -139,4 +139,78 @@ button {
     0% { transform: scale(1); opacity: 0.9; }
     50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(255, 69, 0, 0.8); }
     100% { transform: scale(1); opacity: 0.9; }
+}
+
+/* 7. Skeleton Loading */
+@keyframes skeleton-loading {
+    0% { background-color: var(--border-color); opacity: 0.5; }
+    50% { background-color: var(--border-color); opacity: 1; }
+    100% { background-color: var(--border-color); opacity: 0.5; }
+}
+
+.skeleton-card {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skeleton-img, .skeleton-text {
+    background-color: var(--border-color);
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-img { width: 150px; height: 150px; border-radius: 8px; margin-bottom: 12px; }
+.skeleton-text { width: 80%; height: 15px; border-radius: 4px; margin-bottom: 8px; }
+.skeleton-text.short { width: 50%; }
+
+.badge-intensity {
+    display: inline-block;
+    padding: 4px 12px;
+    font-weight: bold;
+    font-size: 11px;
+    color: white;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff0000 100%) !important;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    animation: pulse-glow 2s infinite ease-in-out;
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(255, 69, 0, 0.8); }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+.perfume-marca {
+    display: block;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6a1b9a;
+    letter-spacing: 1px;
+}
+
+body.dark-mode .perfume-marca {
+    color: #bb86fc;
+}
+
+.perfume-duracao {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.05);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-top: 10px;
+    color: var(--text-secondary);
+}
+
+body.dark-mode .perfume-duracao {
+    background: rgba(255,255,255,0.1);
 }

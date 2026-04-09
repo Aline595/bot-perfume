@@ -8,6 +8,10 @@
 <body>
 
 <div class="container">
+    
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="margin-bottom: 10px;">
+        🌓 Alternar Tema
+    </button>
     <h2>🌸 Consultor de Perfumes</h2>
     
     <div style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
@@ -33,12 +37,7 @@
     <button onclick="surpreender()" style="background: #ff9800; margin-top: 0;">
         ✨ Me surpreenda!
     </button>
-    <div id="resultado">
-        <header>
-        <h1>Perfil do Usuário</h1>
-        <span class="badge-intensity">INTENSIDADE</span>
-    </header>
-    </div>
+    <div id="resultado"></div>
 </div>
 
 <script src="script.js"></script>

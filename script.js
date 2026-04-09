@@ -55,6 +55,41 @@ async function buscar() {
     }, 500); 
 }
 
+function exibirCards(lista, container) {
+    if (lista.length > 0) {
+        container.innerHTML = lista.map(p => {
+            // Se p.imagem já for um link (http...), ele usa direto. 
+            // Se for só o código, ele monta a URL.
+            const imagemSrc = p.imagem.startsWith('http') 
+                ? p.imagem 
+                : `https://lh3.googleusercontent.com/d/${p.imagem}`;
+
+            return `
+                <div class="card-perfume">
+                    <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
+                    <div>
+                        <span class="perfume-marca">${p.marca || ''}</span>
+                        <strong style="color: var(--text-main); font-size: 1.1em;">${p.nome}</strong>
+                        
+                        ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
+                        
+                        <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                            ✨ Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}
+                        </p>
+
+                        <div class="perfume-duracao">
+                            <span>⏱️ Duração:</span>
+                            <strong>${p.duracao || 'N/A'}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        container.innerHTML = "<p style='color: #999;'>❌ Nada encontrado.</p>";
+    }
+}
+
 function surpreender() {
     const divResultado = document.getElementById('resultado');
     const possiveis = perfumes.filter(p => {
@@ -64,44 +99,26 @@ function surpreender() {
 
     if (possiveis.length > 0) {
         const p = possiveis[Math.floor(Math.random() * possiveis.length)];
-        
-        // AQUI ESTÁ O SEGREDO: Use ${p.imagem} com o $ na frente.
-        const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/d/${p.imagem}` : '';
+        const imagemSrc = p.imagem.startsWith('http') 
+            ? p.imagem 
+            : `https://lh3.googleusercontent.com/d/${p.imagem}`;
 
         divResultado.innerHTML = `
             <p><strong>🎲 Sua sorte do dia:</strong></p>
-            <div class="card-perfume" style="border: 2px solid #ff9800; background: #fffde7;">
-                ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+na+Imagem'">` : ''}
+            <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);">
+                <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
                 <div>
+                    <span class="perfume-marca" style="color: #e65100;">${p.marca || ''}</span>
                     <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
                     ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
-                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
-                    <small>Marca: ${p.marca}</small>
+                    <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
+                    <div class="perfume-duracao">
+                        <span>⏱️ Fixação:</span>
+                        <strong>${p.duracao || 'N/A'}</strong>
+                    </div>
                 </div>
             </div>
         `;
-    }
-}
-
-function exibirCards(lista, container) {
-    if (lista.length > 0) {
-        container.innerHTML = lista.map(p => {
-            // Ajustei a URL para o padrão atual do Google Drive/User Content
-            const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/d/${p.imagem}` : '';
-            return `
-                <div class="card-perfume">
-                    ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+na+Imagem'">` : ''}
-                    <div>
-                        <strong style="color: #6a1b9a; font-size: 1.1em;">${p.nome}</strong>
-                        ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
-                        <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
-                        <p style="font-size: 0.8em; color: #999;">${p.marca || ''}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    } else {
-        container.innerHTML = "<p style='color: #999;'>❌ Nada encontrado.</p>";
     }
 }
 
@@ -116,6 +133,10 @@ function mostrarSkeleton() {
     `).join('');
     
     divResultado.innerHTML = skeletons;
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
 }
 
 carregarDados();
