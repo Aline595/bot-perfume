@@ -27,31 +27,33 @@ function atualizarEstacao() {
     estacaoSelecionada = document.getElementById('estacao-manual').value;
 }
 
-function buscar() {
-    const periodo = document.getElementById('periodo').value;
-    const vibeInput = document.getElementById('vibe').value.toLowerCase();
-    const notaInput = document.getElementById('nota').value.toLowerCase(); // Captura a nota
+async function buscar() {
     const divResultado = document.getElementById('resultado');
 
-    const filtro = perfumes.filter(p => {
-        const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
-        const periodos = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
-        const vibes = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
-        const notas = Array.isArray(p.notas) ? p.notas : [p.notas]; // Garante que notas seja array
+    mostrarSkeleton();
 
-        const bateClima = climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-        const batePeriodo = (periodo === 'ambos') ? true : periodos.some(per => per.toLowerCase() === periodo);
-        
-        // Filtro de Vibe
-        const bateVibe = vibeInput === "" ? true : vibes.some(v => v.toLowerCase().includes(vibeInput));
-        
-        // Filtro de Notas Olfativas
-        const bateNota = notaInput === "" ? true : notas.some(n => n.toLowerCase().includes(notaInput));
+    setTimeout(() => {
+        const periodo = document.getElementById('periodo').value;
+        const vibeInput = document.getElementById('vibe').value.toLowerCase();
+        const notaInput = document.getElementById('nota').value.toLowerCase();
 
-        return bateClima && batePeriodo && bateVibe && bateNota;
-    });
+        const filtro = perfumes.filter(p => {
+            const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
+            const periodos = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
+            const vibes = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
+            const notas = Array.isArray(p.notas) ? p.notas : [p.notas];
 
-    exibirCards(filtro, divResultado);
+            const bateClima = climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
+            const batePeriodo = (periodo === 'ambos') ? true : periodos.some(per => per.toLowerCase() === periodo);
+            const bateVibe = vibeInput === "" ? true : vibes.some(v => v.toLowerCase().includes(vibeInput));
+            const bateNota = notaInput === "" ? true : notas.some(n => n.toLowerCase().includes(notaInput));
+
+            return bateClima && batePeriodo && bateVibe && bateNota;
+        });
+
+        // 3. Substitui o skeleton pelos resultados reais
+        exibirCards(filtro, divResultado);
+    }, 500); 
 }
 
 function surpreender() {
@@ -97,6 +99,20 @@ function exibirCards(lista, container) {
     } else {
         container.innerHTML = "<p style='color: #999;'>❌ Nada encontrado.</p>";
     }
+}
+
+function mostrarSkeleton() {
+    const divResultado = document.getElementById('resultado');
+    // Cria 3 cards de esqueleto para preencher o grid inicial
+    const skeletons = Array(3).fill(`
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text short"></div>
+        </div>
+    `).join('');
+    
+    divResultado.innerHTML = skeletons;
 }
 
 // Inicia o processo

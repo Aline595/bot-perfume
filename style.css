@@ -81,3 +81,40 @@ button {
     margin: 2px 0;
     color: #777;
 }
+
+/* Efeito de brilho pulsante */
+@keyframes skeleton-loading {
+    0% { background-color: #eff1f3; }
+    50% { background-color: #e2e5e7; }
+    100% { background-color: #eff1f3; }
+}
+
+.skeleton-card {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skeleton-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-text {
+    width: 80%;
+    height: 15px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-text.short {
+    width: 50%;
+}
