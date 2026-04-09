@@ -3,45 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Meu Consultor de Perfumes</title>
-    <style>
-        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        select, input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; }
-        button { background: #6a1b9a; color: white; border: none; cursor: pointer; font-weight: bold; }
-        #resultado { margin-top: 20px; padding: 10px; border-top: 1px solid #eee; }
-        
-        .card-perfume {
-            margin-top: 15px;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            background: #fafafa;
-            transition: transform 0.2s;
-        }
-
-        .card-perfume:hover {
-            transform: scale(1.02);
-        }
-
-        .img-perfume {
-            width: 100%;
-            max-width: 200px;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
     <h2>🌸 Consultor de Perfumes</h2>
-    <p id="estacao-texto"></p>
+    
+    <div style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
+        Estação: 
+        <select id="estacao-manual" onchange="atualizarEstacao()" style="display: inline; width: auto; padding: 5px; margin: 0;">
+            <option value="Outono">🍂 Outono</option>
+            <option value="Inverno">❄️ Inverno</option>
+            <option value="Primavera">🌸 Primavera</option>
+            <option value="Verão">☀️ Verão</option>
+        </select>
+    </div>
 
     <select id="periodo">
         <option value="dia">Dia</option>
@@ -62,28 +39,37 @@
     let perfumes = [];
     const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
     
+    // Variável que guardará a estação que o usuário quer consultar
+    let estacaoSelecionada = "";
+
     async function carregarDados() {
         try {
             const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
             perfumes = await resposta.json();
             console.log("✅ Dados do Gist carregados!", perfumes);
+            
+            // Após carregar, define a estação inicial baseada na data real
+            definirEstacaoInicial();
         } catch (erro) {
             console.error("❌ Erro ao carregar Gist:", erro);
         }
     }
 
-    carregarDados();
-
-    function calcularEstacao() {
+    function definirEstacaoInicial() {
         const mes = new Date().getMonth() + 1;
-        if (mes >= 3 && mes <= 5) return "Outono";
-        if (mes >= 6 && mes <= 8) return "Inverno";
-        if (mes >= 9 && mes <= 11) return "Primavera";
-        return "Verão";
+        let inicial = "Verão";
+        if (mes >= 3 && mes <= 5) inicial = "Outono";
+        else if (mes >= 6 && mes <= 8) inicial = "Inverno";
+        else if (mes >= 9 && mes <= 11) inicial = "Primavera";
+        
+        estacaoSelecionada = inicial;
+        document.getElementById('estacao-manual').value = inicial;
     }
 
-    const estacaoAtual = calcularEstacao();
-    document.getElementById('estacao-texto').innerText = "Estamos no " + estacaoAtual;
+    function atualizarEstacao() {
+        estacaoSelecionada = document.getElementById('estacao-manual').value;
+        console.log("Estação alterada para:", estacaoSelecionada);
+    }
 
     function buscar() {
         const periodo = document.getElementById('periodo').value;
@@ -95,25 +81,54 @@
             const periodoList = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
             const vibeList = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
 
-            const bateClima = clima.some(c => c.toLowerCase() === estacaoAtual.toLowerCase());
+            // Filtra usando a estação selecionada no menu
+            const bateClima = clima.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
             const batePeriodo = (periodo === 'ambos') ? true : periodoList.some(per => per.toLowerCase() === periodo);
             const bateVibe = vibeInput === "" ? true : vibeList.some(v => v.toLowerCase().includes(vibeInput));
 
             return bateClima && batePeriodo && bateVibe;
         });
 
-        if (filtro.length > 0) {
-            divResultado.innerHTML = filtro.map(p => {
-                const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
+        exibirCards(filtro, divResultado);
+    }
 
+    function surpreender() {
+        const divResultado = document.getElementById('resultado');
+        
+        // Filtra apenas pelo clima selecionado
+        const possiveis = perfumes.filter(p => {
+            const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
+            return clima.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
+        });
+
+        if (possiveis.length > 0) {
+            const p = possiveis[Math.floor(Math.random() * possiveis.length)];
+            const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
+
+            divResultado.innerHTML = `
+                <p><strong>🎲 Sua sorte do dia:</strong></p>
+                <div class="card-perfume" style="border: 2px solid #ff9800; background: #fffde7;">
+                    ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}">` : ''}
+                    <div>
+                        <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
+                        <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
+                        <small>Marca: ${p.marca}</small>
+                    </div>
+                </div>
+            `;
+        } else {
+            divResultado.innerHTML = "❌ Sem perfumes para " + estacaoSelecionada;
+        }
+    }
+
+    // Função auxiliar para evitar repetição de código
+    function exibirCards(lista, container) {
+        if (lista.length > 0) {
+            container.innerHTML = lista.map(p => {
+                const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
                 return `
                     <div class="card-perfume">
-                        ${urlFinal ? `
-                            <img src="${urlFinal}" 
-                                 class="img-perfume" 
-                                 alt="${p.nome}" 
-                                 onerror="this.src='https://via.placeholder.com/200?text=Ajustar+Permissão'">
-                        ` : ''}
+                        ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Ajustar+Permissão'">` : ''}
                         <div>
                             <strong style="color: #6a1b9a; font-size: 1.1em;">${p.nome}</strong>
                             <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
@@ -123,40 +138,11 @@
                 `;
             }).join('');
         } else {
-            divResultado.innerHTML = "<p style='color: #999;'>❌ Nenhum perfume encontrado para os critérios selecionados.</p>";
+            container.innerHTML = "<p style='color: #999;'>❌ Nada encontrado.</p>";
         }
     }
 
-    function surpreender() {
-    const divResultado = document.getElementById('resultado');
-    
-    // Filtramos primeiro pelo clima atual para a sugestão ser coerente
-    const possiveis = perfumes.filter(p => {
-        const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
-        return clima.some(c => c.toLowerCase() === estacaoAtual.toLowerCase());
-    });
-
-    if (possiveis.length > 0) {
-        const indiceAleatorio = Math.floor(Math.random() * possiveis.length);
-        const p = possiveis[indiceAleatorio];
-
-        const urlFinal = p.imagem ? `https://lh3.googleusercontent.com/u/0/d/${p.imagem}` : '';
-
-        divResultado.innerHTML = `
-            <p><strong>Sua escolha da sorte é:</strong></p>
-            <div class="card-perfume" style="border: 2px solid #ff9800; background: #fffde7;">
-                ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}">` : ''}
-                <div>
-                    <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
-                    <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
-                    <small>Marca: ${p.marca}</small>
-                </div>
-            </div>
-        `;
-    } else {
-        divResultado.innerHTML = "❌ Não encontrei perfumes para o clima atual.";
-    }
-}
+    carregarDados();
 </script>
 
 </body>

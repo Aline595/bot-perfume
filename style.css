@@ -1,0 +1,63 @@
+body { 
+    font-family: sans-serif; 
+    background: #f4f4f9; 
+    padding: 20px; 
+    text-align: center; 
+}
+
+.container { 
+    max-width: 400px; 
+    margin: auto; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 15px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+}
+
+select, input, button { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 10px 0; 
+    border-radius: 5px; 
+    border: 1px solid #ddd; 
+}
+
+button { 
+    background: #6a1b9a; 
+    color: white; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+#resultado { 
+    margin-top: 20px; 
+    padding: 10px; 
+    border-top: 1px solid #eee; 
+}
+
+.card-perfume {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #fafafa;
+    transition: transform 0.2s;
+}
+
+.card-perfume:hover {
+    transform: scale(1.02);
+}
+
+.img-perfume {
+    width: 100%;
+    max-width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
