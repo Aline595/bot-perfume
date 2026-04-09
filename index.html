@@ -31,86 +31,21 @@
 </div>
 
 <script>
-    const perfumes = [
-    {
-        "id": 1,
-        "nome": "Flor de carambola",
-        "imagem": "",
-        "notas": [""],
-        "vibe": ["frutado", "tropical", "fresco", "citrico", "rosa"],
-        "clima": ["Primavera", "Verão"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "Loccitane",
-        "duracao": 4
-        
-    },
-    {
-        "id": 2,
-        "nome": "Intense",
-        "imagem": "",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "baunilha", "ambar", "amaderado"],
-        "clima": ["Inverno", "Outono", "Primavera"],
-        "periodo": ["dia", "noite"],
-        "intensidade": "forte",
-        "marca": "boticario",
-        "duracao": 7
-        
-    },
-    {
-        "id": 3,
-        "nome": "Good girl hair mist",
-        "imagem": "",
-        "notas":[""],
-        "vibe": ["floral branco", "doce", "citrico", "baunilha", "picante"],
-        "clima": ["Inverno", "Primavera", "Verão", "Outono"],
-        "periodo": ["dia", "noite"],
-        "intensidade": "forte",
-        "marca": "Carolina Herreira",
-        "duracao": 6
-        
-    },
-    {
-        "id": 4,
-        "nome": "Florata red blosson",
-        "imagem": "",
-        "notas":[""],
-        "vibe": ["frutado", "fresco", "floral branco", "atalcado", "doce"],
-        "clima": ["Primavera", "Verão"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "boticario",
-        "duracao": 5
-        
-    },
-    {
-        "id": 5,
-        "nome": "Hello Kitty estilosa",
-        "imagem": "",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "caramelo", "amendoa", "floral"],
-        "clima": ["Primavera"],
-        "periodo": ["dia"],
-        "intensidade": "Moderado",
-        "marca": "jequiti",
-        "duracao": 4
-        
-    },
-    {
-        "id": 6,
-        "nome": "Cuide se bem morango e leite",
-        "imagem": "",
-        "notas":[""],
-        "vibe": ["frutado", "doce", "baunilha", "verde", "fresco"],
-        "clima": ["Primavera"],
-        "periodo": ["dia"],
-        "intensidade": "moderado",
-        "marca": "boticario",
-        "duracao": 5
-        
+    let perfumes = [];
+    const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/4ee581ea35019574542a7d0870408d5b86f730ad/lista_itens.json";
+    
+    async function carregarDados() {
+        try {
+            const resposta = await fetch(urlGist);
+            perfumes = await resposta.json();
+            console.log("✅ Dados do Gist carregados!");
+        } catch (erro) {
+            console.error("❌ Erro ao carregar Gist:", erro);
+        }
     }
-];
+
+    // Chama a função assim que o site abre
+    carregarDados();
 
     function calcularEstacao() {
         const mes = new Date().getMonth() + 1;
@@ -137,7 +72,7 @@
             const batePeriodo = (periodo === 'ambos') ? true : periodoList.some(per => per.toLowerCase() === periodo);
             //const bateVibe = vibeList.some(v => v.toLowerCase().includes(vibe));
 
-            return bateClima && batePeriodo
+            return bateClima && batePeriodo;
         });
 
         if (filtro.length > 0) {
