@@ -30,18 +30,25 @@ function atualizarEstacao() {
 function buscar() {
     const periodo = document.getElementById('periodo').value;
     const vibeInput = document.getElementById('vibe').value.toLowerCase();
+    const notaInput = document.getElementById('nota').value.toLowerCase(); // Captura a nota
     const divResultado = document.getElementById('resultado');
 
     const filtro = perfumes.filter(p => {
-        const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
-        const periodoList = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
-        const vibeList = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
+        const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
+        const periodos = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
+        const vibes = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
+        const notas = Array.isArray(p.notas) ? p.notas : [p.notas]; // Garante que notas seja array
 
-        const bateClima = clima.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-        const batePeriodo = (periodo === 'ambos') ? true : periodoList.some(per => per.toLowerCase() === periodo);
-        const bateVibe = vibeInput === "" ? true : vibeList.some(v => v.toLowerCase().includes(vibeInput));
+        const bateClima = climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
+        const batePeriodo = (periodo === 'ambos') ? true : periodos.some(per => per.toLowerCase() === periodo);
+        
+        // Filtro de Vibe
+        const bateVibe = vibeInput === "" ? true : vibes.some(v => v.toLowerCase().includes(vibeInput));
+        
+        // Filtro de Notas Olfativas
+        const bateNota = notaInput === "" ? true : notas.some(n => n.toLowerCase().includes(notaInput));
 
-        return bateClima && batePeriodo && bateVibe;
+        return bateClima && batePeriodo && bateVibe && bateNota;
     });
 
     exibirCards(filtro, divResultado);

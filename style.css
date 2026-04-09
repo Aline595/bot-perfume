@@ -30,19 +30,29 @@ button {
     font-weight: bold; 
 }
 
-#resultado { 
-    margin-top: 20px; 
-    padding: 10px; 
-    border-top: 1px solid #eee; 
+#resultado {
+    margin-top: 20px;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    
+    /* Configuração do Grid */
+    display: grid;
+    /* Cria colunas automáticas com no mínimo 160px cada */
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px; /* Espaço entre os cards */
+    justify-content: center;
 }
 
 .card-perfume {
-    margin-top: 15px;
     padding: 15px;
     border: 1px solid #eee;
     border-radius: 12px;
     background: #fafafa;
     transition: transform 0.2s;
+    display: flex;
+    flex-direction: column; /* Organiza conteúdo de cima para baixo */
+    align-items: center;
+    text-align: center;
 }
 
 .card-perfume:hover {
@@ -51,13 +61,23 @@ button {
 
 .img-perfume {
     width: 100%;
-    max-width: 200px;
-    height: 200px;
+    max-width: 150px; /* Diminuímos um pouco para caber mais na linha */
+    height: 150px;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 12px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-perfume strong {
+    font-size: 1em;
+    color: #6a1b9a;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    margin-bottom: 5px;
+}
+
+.card-perfume p {
+    font-size: 0.8em;
+    margin: 2px 0;
+    color: #777;
 }
