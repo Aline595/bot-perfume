@@ -9,6 +9,32 @@
         select, input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; }
         button { background: #6a1b9a; color: white; border: none; cursor: pointer; font-weight: bold; }
         #resultado { margin-top: 20px; padding: 10px; border-top: 1px solid #eee; }
+
+        .card-perfume {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            background: #fafafa;
+            transition: transform 0.2s;
+        }
+
+        .card-perfume:hover {
+            transform: scale(1.02);
+        }
+
+        .img-perfume {
+            width: 100%;
+            max-width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
@@ -32,6 +58,7 @@
 
 <script>
     let perfumes = [];
+    // Sua URL do Gist
     const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/4ee581ea35019574542a7d0870408d5b86f730ad/lista_itens.json";
     
     async function carregarDados() {
@@ -44,7 +71,6 @@
         }
     }
 
-    // Chama a função assim que o site abre
     carregarDados();
 
     function calcularEstacao() {
@@ -60,25 +86,45 @@
 
     function buscar() {
         const periodo = document.getElementById('periodo').value;
-       // const vibe = document.getElementById('vibe').value.toLowerCase();
+        const vibeInput = document.getElementById('vibe').value.toLowerCase();
         const divResultado = document.getElementById('resultado');
 
         const filtro = perfumes.filter(p => {
             const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
             const periodoList = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
-            //const vibeList = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
+            const vibeList = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
 
             const bateClima = clima.some(c => c.toLowerCase() === estacaoAtual.toLowerCase());
             const batePeriodo = (periodo === 'ambos') ? true : periodoList.some(per => per.toLowerCase() === periodo);
-            //const bateVibe = vibeList.some(v => v.toLowerCase().includes(vibe));
+            const bateVibe = vibeInput === "" ? true : vibeList.some(v => v.toLowerCase().includes(vibeInput));
 
-            return bateClima && batePeriodo;
+            return bateClima && batePeriodo && bateVibe;
         });
 
         if (filtro.length > 0) {
-            divResultado.innerHTML = filtro.map(p => `<strong>✨ ${p.nome}</strong>`).join('<br>');
+            divResultado.innerHTML = filtro.map(p => {
+                // LÓGICA PARA CONVERTER O LINK DO DRIVE
+                let urlFinal = p.imagem || "";
+                if (urlFinal.includes("drive.google.com")) {
+                    // Extrai o ID entre /d/ e /view
+                    const id = urlFinal.match(/\/d\/(.+?)\//);
+                    if (id && id[1]) {
+                        urlFinal = `https://drive.google.com/uc?export=view&id=${id[1]}`;
+                    }
+                }
+
+                return `
+                    <div class="card-perfume">
+                        ${urlFinal ? `<img src="${urlFinal}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Imagem+Privada'">` : ''}
+                        <div>
+                            <strong style="color: #6a1b9a; font-size: 1.1em;">${p.nome}</strong>
+                            <p style="font-size: 0.9em; color: #666;">Vibe: ${p.vibe ? p.vibe.join(', ') : 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         } else {
-            divResultado.innerHTML = "❌ Nada encontrado.";
+            divResultado.innerHTML = "<p style='color: #999;'>❌ Nenhum perfume encontrado.</p>";
         }
     }
 </script>
