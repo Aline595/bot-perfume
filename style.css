@@ -1,86 +1,109 @@
-/* 1. Definição de Variáveis (Cores) */
+/* 1. RESET E VARIÁVEIS */
 :root {
     --bg-body: #f4f4f9;
-    --bg-container: white;
+    --bg-container: #ffffff;
     --bg-card: #fafafa;
-    --text-main: #333;
-    --text-secondary: #777;
-    --border-color: #eee;
-    --input-bg: white;
+    --text-main: #333333;
+    --text-secondary: #777777;
+    --border-color: #eeeeee;
+    --input-bg: #ffffff;
     --shadow: rgba(0, 0, 0, 0.1);
+    --primary-color: #6a1b9a;
+    --secondary-color: #9c4dcc;
 }
 
-/* Cores do Modo Escuro */
 body.dark-mode {
     --bg-body: #121212;
     --bg-container: #1e1e1e;
     --bg-card: #2a2a2a;
     --text-main: #f0f0f0;
-    --text-secondary: #bbb;
-    --border-color: #444;
-    --input-bg: #333;
+    --text-secondary: #bbbbbb;
+    --border-color: #444444;
+    --input-bg: #333333;
     --shadow: rgba(0, 0, 0, 0.5);
 }
 
-/* 2. Estilos Gerais */
+/* 2. LAYOUT BASE (AJUSTADO PARA ROLAGEM) */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%; /* Permite que o corpo cresça com o conteúdo */
+}
+
 body { 
-    font-family: sans-serif; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background: var(--bg-body); 
     color: var(--text-main);
-    padding: 20px; 
-    text-align: center; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Centraliza horizontalmente */
+    justify-content: flex-start; /* Alinha sempre pelo topo */
+    padding: 20px;           /* Espaço de respiro nas bordas */
     transition: background 0.3s, color 0.3s;
+    box-sizing: border-box;
 }
 
+/* 3. CONTAINER PRINCIPAL */
 .container { 
-    max-width: 400px; 
-    margin: auto; 
+    width: 100%;
+    max-width: 450px; 
     background: var(--bg-container); 
-    padding: 20px; 
-    border-radius: 15px; 
-    box-shadow: 0 4px 10px var(--shadow); 
+    padding: 30px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px var(--shadow); 
+    box-sizing: border-box; 
+    
+    /* Removemos o margin: auto para ele não brigar com o flex do body */
+    margin-bottom: 40px; 
+    text-align: center;
 }
-
-/* 3. Inputs e Botões */
+/* 4. ELEMENTOS DE FORMULÁRIO */
 select, input { 
     width: 100%; 
-    padding: 10px; 
+    padding: 12px; 
     margin: 10px 0; 
-    border-radius: 5px; 
+    border-radius: 8px; 
     border: 1px solid var(--border-color); 
     background-color: var(--input-bg);
     color: var(--text-main);
+    box-sizing: border-box;
+    font-size: 16px; /* Evita zoom automático no iOS */
 }
 
 button { 
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     margin: 10px 0;
-    border-radius: 5px;
-    background: #6a1b9a; 
+    border-radius: 8px;
+    background: var(--primary-color); 
     color: white; 
     border: none; 
     cursor: pointer; 
     font-weight: bold;
-    transition: filter 0.2s;
+    font-size: 1rem;
+    transition: transform 0.1s, filter 0.2s;
 }
 
 button:hover {
     filter: brightness(1.2);
 }
 
-/* 4. Grid de Resultados */
+button:active {
+    transform: scale(0.98);
+}
+
+/* 5. RESULTADOS E CARDS */
 #resultado {
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 25px;
+    padding-top: 15px;
     border-top: 1px solid var(--border-color);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 15px; 
     justify-content: center;
 }
 
-/* 5. Card de Perfume */
 .card-perfume {
     padding: 15px;
     border: 1px solid var(--border-color);
@@ -94,54 +117,83 @@ button:hover {
 }
 
 .card-perfume:hover {
-    transform: scale(1.02);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px var(--shadow);
 }
 
 .img-perfume {
     width: 100%;
-    max-width: 150px;
-    height: 150px;
+    height: 140px;
     object-fit: cover;
     border-radius: 8px;
-    display: block; /* Garante que ela seja tratada como bloco */
-    margin: 0 auto 12px auto;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.perfume-marca {
+    display: block;
+    font-size: 0.7em;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--primary-color);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+body.dark-mode .perfume-marca {
+    color: #bb86fc;
 }
 
 .card-perfume strong {
     font-size: 1em;
-    color: #9c4dcc; /* Roxo um pouco mais claro para ler melhor no dark */
+    color: var(--secondary-color);
     display: block;
-    margin-bottom: 5px;
 }
 
 .card-perfume p {
-    font-size: 0.8em;
-    margin: 2px 0;
+    font-size: 0.85em;
+    margin: 4px 0;
     color: var(--text-secondary);
 }
 
-/* 6. Badge de Intensidade (Sempre vibrante) */
+/* 6. COMPONENTES ESPECÍFICOS */
 .badge-intensity {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 4px 10px;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 10px;
     color: white;
     border-radius: 4px;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff0000 100%);
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+    background: linear-gradient(135deg, #ff8c00 0%, #ff0000 100%) !important;
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.4);
     animation: pulse-glow 2s infinite ease-in-out;
-    margin-top: 8px;
+    margin: 8px 0;
     text-transform: uppercase;
 }
 
+.perfume-duracao {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.05);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-top: 8px;
+    color: var(--text-secondary);
+}
+
+body.dark-mode .perfume-duracao {
+    background: rgba(255,255,255,0.1);
+}
+
+/* 7. ANIMAÇÕES E SKELETON */
 @keyframes pulse-glow {
     0% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(255, 69, 0, 0.8); }
+    50% { transform: scale(1.05); opacity: 1; }
     100% { transform: scale(1); opacity: 0.9; }
 }
 
-/* 7. Skeleton Loading */
 @keyframes skeleton-loading {
     0% { background-color: var(--border-color); opacity: 0.5; }
     50% { background-color: var(--border-color); opacity: 1; }
@@ -150,7 +202,6 @@ button:hover {
 
 .skeleton-card {
     padding: 15px;
-    border: 1px solid var(--border-color);
     border-radius: 12px;
     background: var(--bg-card);
     display: flex;
@@ -158,59 +209,144 @@ button:hover {
     align-items: center;
 }
 
-.skeleton-img, .skeleton-text {
-    background-color: var(--border-color);
-    animation: skeleton-loading 1.5s infinite;
+.skeleton-img { 
+    width: 100%; height: 140px; border-radius: 8px; 
+    margin-bottom: 12px; animation: skeleton-loading 1.5s infinite; 
 }
 
-.skeleton-img { width: 150px; height: 150px; border-radius: 8px; margin-bottom: 12px; }
-.skeleton-text { width: 80%; height: 15px; border-radius: 4px; margin-bottom: 8px; }
-.skeleton-text.short { width: 50%; }
+.skeleton-text { 
+    width: 80%; height: 12px; border-radius: 4px; 
+    margin-bottom: 8px; animation: skeleton-loading 1.5s infinite; 
+}
 
-.badge-intensity {
-    display: inline-block;
-    padding: 4px 12px;
-    font-weight: bold;
-    font-size: 11px;
+/* 8. RESPONSIVIDADE */
+@media (max-width: 480px) {
+    body {
+        align-items: flex-start; /* No mobile, começa do topo para facilitar scroll */
+        padding: 10px;
+    }
+    .container {
+        margin: 10px auto;
+        padding: 20px;
+        width: 100%;
+        border-radius: 15px;
+    }
+}
+
+/* Estilos da Tela Inicial */
+#tela-inicial {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Garante que fique em cima de tudo */
     color: white;
-    border-radius: 4px;
-    background: linear-gradient(135deg, #ff8c00 0%, #ff0000 100%) !important;
-    box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
-    animation: pulse-glow 2s infinite ease-in-out;
-    margin-top: 8px;
-    text-transform: uppercase;
+    text-align: center;
+    transition: opacity 0.6s ease, visibility 0.6s;
 }
 
-@keyframes pulse-glow {
-    0% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(255, 69, 0, 0.8); }
-    100% { transform: scale(1); opacity: 0.9; }
+.boas-vindas {
+    max-width: 320px;
+    padding: 20px;
+    animation: zoomIn 0.8s ease;
 }
-.perfume-marca {
-    display: block;
-    font-size: 0.7em;
-    text-transform: uppercase;
+
+.boas-vindas h1 {
+    font-size: 2rem;
+    margin: 20px 0;
+    line-height: 1.2;
+}
+
+.boas-vindas p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
+}
+
+.btn-entrar {
+    background: white !important;
+    color: #6a1b9a !important;
+    font-size: 1.1rem !important;
+    padding: 15px !important;
+    border-radius: 50px !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+}
+
+/* Animação de entrada */
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Classe para esconder a tela */
+.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Container dos botões na home */
+.botoes-home {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-home {
+    background: white !important;
+    color: #6a1b9a !important;
+    font-size: 1.1rem !important;
+    padding: 18px !important;
+    border-radius: 15px !important;
+    border: none !important;
+    cursor: pointer;
     font-weight: bold;
-    color: #6a1b9a;
-    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
 }
 
-body.dark-mode .perfume-marca {
-    color: #bb86fc;
+.btn-colar-home {
+    color: #2e7d32 !important; /* Cor verde para colares na home */
 }
 
-.perfume-duracao {
+.btn-home:hover {
+    transform: scale(1.05);
+}
+
+/* Esconder a tela inicial */
+.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.btn-voltar {
+    width: auto !important; /* Não deixa ocupar a largura toda */
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    padding: 5px 10px !important;
+    margin: 0 0 10px 0 !important;
+    font-size: 0.8rem !important;
+    border: 1px solid var(--border-color) !important;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    background: rgba(0,0,0,0.05);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.75em;
-    margin-top: 10px;
-    color: var(--text-secondary);
+    cursor: pointer;
 }
 
-body.dark-mode .perfume-duracao {
-    background: rgba(255,255,255,0.1);
+.btn-voltar:hover {
+    background: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+#conteudo-colares button {
+    background: #2e7d32; /* Verde esmeralda para colares */
+}
+
+#conteudo-colares button:hover {
+    filter: brightness(1.1);
 }

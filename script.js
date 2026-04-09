@@ -122,6 +122,93 @@ function surpreender() {
     }
 }
 
+// Função que vem da Home
+function entrarNoApp(categoria) {
+    const splash = document.getElementById('tela-inicial');
+    const container = document.querySelector('.container');
+
+    splash.classList.add('fade-out');
+    container.style.display = 'block';
+
+    if (categoria === 'perfumes') {
+        const btn = document.getElementById('tab-perfumes');
+        alternarAba('perfumes', btn);
+    } else {
+        const btn = document.getElementById('tab-colares');
+        alternarAba('colares', btn);
+    }
+}
+
+// Função de Busca de Colares
+async function buscarColares() {
+    const divResultado = document.getElementById('resultado');
+    mostrarSkeleton(); // Usa o mesmo skeleton dos perfumes
+
+    setTimeout(() => {
+        const material = document.getElementById('material-colar').value;
+        const ocasiao = document.getElementById('ocasiao-colar').value;
+        const pingente = document.getElementById('pingente-colar').value.toLowerCase();
+
+        // Filtro (Assumindo que você terá um array 'colares' ou usará o mesmo 'perfumes' adaptado)
+        // Aqui você filtraria seus dados de colares
+        const filtro = colares.filter(c => {
+            const bateMaterial = (material === 'todos') ? true : c.material.toLowerCase() === material;
+            const batePingente = pingente === "" ? true : c.pingente.toLowerCase().includes(pingente);
+            return bateMaterial && batePingente;
+        });
+
+        exibirCardsColares(filtro, divResultado);
+    }, 500);
+}
+
+// Função para exibir os cards de colares (pode usar a mesma estrutura dos perfumes)
+function exibirCardsColares(lista, container) {
+    if (lista.length === 0) {
+        container.innerHTML = "<p>Nenhum colar encontrado.</p>";
+        return;
+    }
+    
+    container.innerHTML = lista.map(c => `
+        <div class="card-perfume">
+            <img src="${c.imagem}" class="img-perfume" onerror="this.src='https://via.placeholder.com/200?text=Colar'">
+            <div>
+                <span class="perfume-marca" style="color: #2e7d32;">${c.material}</span>
+                <strong style="color: var(--text-main);">${c.nome}</strong>
+                <p style="font-size: 0.8em; margin-top: 5px;">${c.descricao}</p>
+                <div class="perfume-duracao">✨ Estilo: ${c.estilo}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Mantenha a sua função alternarAba que já usamos antes:
+function alternarAba(tipo, botao) {
+    document.getElementById('conteudo-perfumes').style.display = (tipo === 'perfumes') ? 'block' : 'none';
+    document.getElementById('conteudo-colares').style.display = (tipo === 'colares') ? 'block' : 'none';
+
+    // Remove classe ativa de todos e adiciona no clicado
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    botao.classList.add('active');
+    
+    // Limpa resultados ao trocar
+    document.getElementById('resultado').innerHTML = '';
+}
+
+function voltarParaHome() {
+    const splash = document.getElementById('tela-inicial');
+    const container = document.querySelector('.container');
+
+    // 1. Remove a classe que esconde a tela inicial
+    splash.classList.remove('fade-out');
+
+    // 2. Esconde o container principal após uma pequena animação
+    setTimeout(() => {
+        container.style.display = 'none';
+        // Opcional: Limpa os resultados ao voltar para a home
+        document.getElementById('resultado').innerHTML = '';
+    }, 300); // Tempo para sincronizar com o efeito visual
+}
+
 function mostrarSkeleton() {
     const divResultado = document.getElementById('resultado');
     const skeletons = Array(3).fill(`
