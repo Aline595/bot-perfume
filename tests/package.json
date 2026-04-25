@@ -1,0 +1,16 @@
+{
+  "name": "bot-perfume-tests",
+  "version": "1.0.0",
+  "description": "Testes automatizados para o aplicativo Meu Consultor Pessoal",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/setupTests.js"]
+  }
+}
