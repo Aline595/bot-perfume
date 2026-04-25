@@ -3,44 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consultor pessoal para perfumes e colares. Encontre recomendações personalizadas.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>Meu Consultor Pessoal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="tela-inicial">
+    <header id="tela-inicial">
         <div class="boas-vindas">
             <span style="font-size: 50px;">✨</span>
             <h1>O que você busca hoje?</h1>
             <p>Escolha uma categoria para começar sua consultoria personalizada.</p>
-            
-            <div class="botoes-home">
-                <button onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
-                <button onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
-            </div>
+            <nav class="botoes-home">
+                <button type="button" onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
+                <button type="button" onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
+            </nav>
         </div>
-    </div>
+    </header>
 
-    <div class="container" style="display: none;">
-        
-        <div class="menu-tabs">
-            <button id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
-            <button id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
-        </div>
+    <main class="container" style="display: none;">
+        <nav class="menu-tabs">
+            <button type="button" id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
+            <button type="button" id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
+        </nav>
 
-        <button id="dark-mode-toggle" onclick="toggleDarkMode()" style="margin-bottom: 20px; width: auto; padding: 5px 15px;">
+        <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()" class="btn-toggle">
             🌓 Alternar Tema
         </button>
 
-        <div id="conteudo-perfumes" class="secao-aba">
-            <div style="text-align: left;">
-                <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            </div>
+        <section id="conteudo-perfumes" class="secao-aba">
+            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>🌸 Consultor de Perfumes</h2>
             
-            <div style="margin-bottom: 15px; font-size: 0.9em;">
-                Estação: 
-                <select id="estacao-manual" onchange="atualizarEstacao()" style="display: inline; width: auto; padding: 5px;">
+            <div class="estacao-selector">
+                <label for="estacao-manual">Estação:</label>
+                <select id="estacao-manual" onchange="atualizarEstacao()">
                     <option value="Outono">🍂 Outono</option>
                     <option value="Inverno">❄️ Inverno</option>
                     <option value="Primavera">🌸 Primavera</option>
@@ -48,36 +45,34 @@
                 </select>
             </div>
 
+            <label for="periodo">Período:</label>
             <select id="periodo">
                 <option value="dia">Dia</option>
                 <option value="noite">Noite</option>
                 <option value="ambos">Ambos</option>
             </select>
 
+            <label for="vibe">Vibe:</label>
             <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce)">
+            
+            <label for="nota">Nota:</label>
             <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa)">
             
-            <button onclick="buscar()">Encontrar Perfume</button>
-            <button onclick="surpreender()" style="background: #ff9800; margin-top: 0;">
+            <button type="button" onclick="buscar()">Encontrar Perfume</button>
+            <button type="button" onclick="surpreender()" class="btn-surprise">
                 ✨ Me surpreenda!
             </button>
-        </div>
+        </section>
 
-        <div id="conteudo-colares" class="secao-aba" style="display: none;">
-            
-            <div style="text-align: left; margin-bottom: 20px;">
-                <button onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            </div>
-            
+        <section id="conteudo-colares" class="secao-aba" style="display: none;">
+            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>📿 Colares</h2>
-            
-            <img src="assets/colar.jpg" alt="Catálogo de Colares" class="img-exibicao-colar">
-
-        </div>
+            <img src="assets/colar.jpg" alt="Catálogo de colares com designs variados para diferentes estilos" class="img-exibicao-colar">
+        </section>
 
         <div id="resultado"></div>
-        
-    </div> <script src="script.js"></script>
-
+    </main>
+    
+    <script src="script.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@
     --shadow: rgba(0, 0, 0, 0.1);
     --primary-color: #6a1b9a;
     --secondary-color: #9c4dcc;
+    --focus-outline: 2px solid #6a1b9a;
 }
 
 body.dark-mode {
@@ -21,6 +22,7 @@ body.dark-mode {
     --border-color: #444444;
     --input-bg: #333333;
     --shadow: rgba(0, 0, 0, 0.5);
+    --focus-outline: 2px solid #bb86fc;
 }
 
 /* 2. LAYOUT BASE (AJUSTADO PARA ROLAGEM) */
@@ -28,7 +30,7 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    min-height: 100%; /* Permite que o corpo cresça com o conteúdo */
+    min-height: 100%;
 }
 
 body { 
@@ -37,9 +39,9 @@ body {
     color: var(--text-main);
     display: flex;
     flex-direction: column;
-    align-items: center;     /* Centraliza horizontalmente */
-    justify-content: flex-start; /* Alinha sempre pelo topo */
-    padding: 20px;           /* Espaço de respiro nas bordas */
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px;
     transition: background 0.3s, color 0.3s;
     box-sizing: border-box;
 }
@@ -53,11 +55,10 @@ body {
     border-radius: 20px; 
     box-shadow: 0 10px 30px var(--shadow); 
     box-sizing: border-box; 
-    
-    /* Removemos o margin: auto para ele não brigar com o flex do body */
     margin-bottom: 40px; 
     text-align: center;
 }
+
 /* 4. ELEMENTOS DE FORMULÁRIO */
 select, input { 
     width: 100%; 
@@ -68,7 +69,14 @@ select, input {
     background-color: var(--input-bg);
     color: var(--text-main);
     box-sizing: border-box;
-    font-size: 16px; /* Evita zoom automático no iOS */
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.2);
 }
 
 button { 
@@ -82,7 +90,7 @@ button {
     cursor: pointer; 
     font-weight: bold;
     font-size: 1rem;
-    transition: transform 0.1s, filter 0.2s;
+    transition: transform 0.1s, filter 0.2s, background 0.3s;
 }
 
 button:hover {
@@ -91,6 +99,10 @@ button:hover {
 
 button:active {
     transform: scale(0.98);
+}
+
+button:focus {
+    outline: var(--focus-outline);
 }
 
 /* 5. RESULTADOS E CARDS */
@@ -109,7 +121,7 @@ button:active {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     background: var(--bg-card);
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column; 
     align-items: center;
@@ -222,7 +234,7 @@ body.dark-mode .perfume-duracao {
 /* 8. RESPONSIVIDADE */
 @media (max-width: 480px) {
     body {
-        align-items: flex-start; /* No mobile, começa do topo para facilitar scroll */
+        align-items: flex-start;
         padding: 10px;
     }
     .container {
@@ -231,9 +243,24 @@ body.dark-mode .perfume-duracao {
         width: 100%;
         border-radius: 15px;
     }
+    #resultado {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
 }
 
-/* Estilos da Tela Inicial */
+@media (min-width: 768px) {
+    .container {
+        max-width: 600px;
+        padding: 40px;
+    }
+    #resultado {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+    }
+}
+
+/* 9. TELA INICIAL */
 #tela-inicial {
     position: fixed;
     top: 0;
@@ -244,7 +271,7 @@ body.dark-mode .perfume-duracao {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Garante que fique em cima de tudo */
+    z-index: 9999;
     color: white;
     text-align: center;
     transition: opacity 0.6s ease, visibility 0.6s;
@@ -269,27 +296,24 @@ body.dark-mode .perfume-duracao {
 }
 
 .btn-entrar {
-    background: white !important;
-    color: #6a1b9a !important;
-    font-size: 1.1rem !important;
-    padding: 15px !important;
-    border-radius: 50px !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+    background: white;
+    color: #6a1b9a;
+    font-size: 1.1rem;
+    padding: 15px;
+    border-radius: 50px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-/* Animação de entrada */
 @keyframes zoomIn {
     from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
 }
 
-/* Classe para esconder a tela */
 .fade-out {
     opacity: 0;
     visibility: hidden;
 }
 
-/* Container dos botões na home */
 .botoes-home {
     display: flex;
     flex-direction: column;
@@ -298,27 +322,30 @@ body.dark-mode .perfume-duracao {
 }
 
 .btn-home {
-    background: white !important;
-    color: #6a1b9a !important;
-    font-size: 1.1rem !important;
-    padding: 18px !important;
-    border-radius: 15px !important;
-    border: none !important;
+    background: white;
+    color: #6a1b9a;
+    font-size: 1.1rem;
+    padding: 18px;
+    border-radius: 15px;
+    border: none;
     cursor: pointer;
     font-weight: bold;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: transform 0.2s;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.btn-home:focus {
+    outline: 2px solid white;
 }
 
 .btn-colar-home {
-    color: #2e7d32 !important; /* Cor verde para colares na home */
+    color: #2e7d32;
 }
 
 .btn-home:hover {
     transform: scale(1.05);
 }
 
-/* Esconder a tela inicial */
 .fade-out {
     opacity: 0;
     visibility: hidden;
@@ -326,37 +353,46 @@ body.dark-mode .perfume-duracao {
 }
 
 .btn-voltar {
-    width: auto !important; /* Não deixa ocupar a largura toda */
+    width: auto;
     background: transparent !important;
-    color: var(--text-secondary) !important;
-    padding: 5px 10px !important;
-    margin: 0 0 10px 0 !important;
-    font-size: 0.8rem !important;
-    border: 1px solid var(--border-color) !important;
+    color: var(--text-secondary);
+    padding: 5px 10px;
+    margin: 0 0 10px 0;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
     display: inline-flex;
     align-items: center;
     cursor: pointer;
+    transition: background 0.3s, color 0.3s;
 }
 
 .btn-voltar:hover {
-    background: var(--border-color) !important;
-    color: var(--text-main) !important;
+    background: var(--border-color);
+    color: var(--text-main);
+}
+
+.btn-voltar:focus {
+    outline: var(--focus-outline);
 }
 
 #conteudo-colares button {
-    background: #2e7d32; /* Verde esmeralda para colares */
+    background: #2e7d32;
 }
 
 #conteudo-colares button:hover {
     filter: brightness(1.1);
 }
-/* Estilo para a imagem de exibição de colares */
+
+#conteudo-colares button:focus {
+    outline: 2px solid #2e7d32;
+}
+
 .img-exibicao-colar {
-    display: block; /* Essencial para centralização */
-    width: 90%; /* Largura que ocupa a maior parte do card */
-    max-width: 380px; /* Limite para não estourar em telas grandes */
-    height: auto; /* Mantém a proporção da imagem */
-    border-radius: 12px; /* Cantos arredondados suavizados */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Sombra elegante */
-    margin: 20px auto 0 auto; /* Centralização horizontal automática */
+    display: block;
+    width: 90%;
+    max-width: 380px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin: 20px auto 0 auto;
 }

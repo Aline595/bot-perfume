@@ -1,15 +1,19 @@
 let perfumes = [];
-let colare = [];
+let colares = []; // Corrigido: inicializar array para colares
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
 async function carregarDados() {
     try {
         const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
+        if (!resposta.ok) throw new Error("Falha ao carregar dados do Gist");
         perfumes = await resposta.json();
+        // Assumindo que colares podem vir do mesmo Gist ou de outro; ajustar se necessário
+        // colares = await carregarColares(); // Adicionar função se houver fonte separada
         definirEstacaoInicial();
     } catch (erro) {
-        console.error("❌ Erro ao carregar Gist:", erro);
+        console.error("❌ Erro ao carregar dados:", erro);
+        alert("Erro ao carregar dados. Tente recarregar a página.");
     }
 }
 
@@ -30,13 +34,13 @@ function atualizarEstacao() {
 
 async function buscar() {
     const divResultado = document.getElementById('resultado');
+    const vibeInput = document.getElementById('vibe').value.toLowerCase().trim();
+    const notaInput = document.getElementById('nota').value.toLowerCase().trim();
 
     mostrarSkeleton();
 
     setTimeout(() => {
         const periodo = document.getElementById('periodo').value;
-        const vibeInput = document.getElementById('vibe').value.toLowerCase();
-        const notaInput = document.getElementById('nota').value.toLowerCase();
 
         const filtro = perfumes.filter(p => {
             const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
@@ -52,42 +56,54 @@ async function buscar() {
             return bateClima && batePeriodo && bateVibe && bateNota;
         });
 
-        exibirCards(filtro, divResultado);
+        exibirCards(filtro, divResultado, 'perfume');
     }, 500); 
 }
 
-function exibirCards(lista, container) {
+function exibirCards(lista, container, tipo) {
     if (lista.length > 0) {
-        container.innerHTML = lista.map(p => {
-            // Se p.imagem já for um link (http...), ele usa direto. 
-            // Se for só o código, ele monta a URL.
-            const imagemSrc = p.imagem.startsWith('http') 
-                ? p.imagem 
-                : `https://lh3.googleusercontent.com/d/${p.imagem}`;
+        container.innerHTML = lista.map(item => {
+            const imagemSrc = item.imagem.startsWith('http') 
+                ? item.imagem 
+                : `https://lh3.googleusercontent.com/d/${item.imagem}`;
 
-            return `
-                <div class="card-perfume">
-                    <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
-                    <div>
-                        <span class="perfume-marca">${p.marca || ''}</span>
-                        <strong style="color: var(--text-main); font-size: 1.1em;">${p.nome}</strong>
-                        
-                        ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
-                        
-                        <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
-                            ✨ Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}
-                        </p>
+            if (tipo === 'perfume') {
+                return `
+                    <div class="card-perfume" role="article" aria-labelledby="nome-${item.nome.replace(/\s+/g, '-')}">
+                        <img src="${imagemSrc}" class="img-perfume" alt="${item.nome}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
+                        <div>
+                            <span class="perfume-marca">${item.marca || ''}</span>
+                            <strong id="nome-${item.nome.replace(/\s+/g, '-')}" style="color: var(--text-main); font-size: 1.1em;">${item.nome}</strong>
+                            
+                            ${item.intensidade ? `<br><span class="badge-intensity">${item.intensidade}</span>` : ''}
+                            
+                            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                                ✨ Vibe: ${item.vibe ? (Array.isArray(item.vibe) ? item.vibe.join(', ') : item.vibe) : 'N/A'}
+                            </p>
 
-                        <div class="perfume-duracao">
-                            <span>⏱️ Duração:</span>
-                            <strong>${p.duracao || 'N/A'}</strong>
+                            <div class="perfume-duracao">
+                                <span>⏱️ Duração:</span>
+                                <strong>${item.duracao || 'N/A'}</strong>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else if (tipo === 'colar') {
+                return `
+                    <div class="card-perfume" role="article" aria-labelledby="nome-${item.nome.replace(/\s+/g, '-')}">
+                        <img src="${imagemSrc}" class="img-perfume" alt="${item.nome}" onerror="this.src='https://via.placeholder.com/200?text=Colar'">
+                        <div>
+                            <span class="perfume-marca" style="color: #2e7d32;">${item.material}</span>
+                            <strong id="nome-${item.nome.replace(/\s+/g, '-')}" style="color: var(--text-main);">${item.nome}</strong>
+                            <p style="font-size: 0.8em; margin-top: 5px;">${item.descricao}</p>
+                            <div class="perfume-duracao">✨ Estilo: ${item.estilo}</div>
+                        </div>
+                    </div>
+                `;
+            }
         }).join('');
     } else {
-        container.innerHTML = "<p style='color: #999;'>❌ Nada encontrado.</p>";
+        container.innerHTML = "<p style='color: #999;' role='alert'>❌ Nada encontrado.</p>";
     }
 }
 
@@ -106,7 +122,7 @@ function surpreender() {
 
         divResultado.innerHTML = `
             <p><strong>🎲 Sua sorte do dia:</strong></p>
-            <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);">
+            <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);" role="article">
                 <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
                 <div>
                     <span class="perfume-marca" style="color: #e65100;">${p.marca || ''}</span>
@@ -120,10 +136,11 @@ function surpreender() {
                 </div>
             </div>
         `;
+    } else {
+        divResultado.innerHTML = "<p style='color: #999;' role='alert'>❌ Nenhum perfume disponível para esta estação.</p>";
     }
 }
 
-// Função que vem da Home
 function entrarNoApp(categoria) {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
@@ -140,58 +157,36 @@ function entrarNoApp(categoria) {
     }
 }
 
-// Função de Busca de Colares
 async function buscarColares() {
     const divResultado = document.getElementById('resultado');
-    mostrarSkeleton(); // Usa o mesmo skeleton dos perfumes
+    const material = document.getElementById('material-colar')?.value || 'todos';
+    const pingente = document.getElementById('pingente-colar')?.value.toLowerCase().trim() || '';
+
+    if (colares.length === 0) {
+        alert("Dados de colares não carregados. Verifique a fonte.");
+        return;
+    }
+
+    mostrarSkeleton();
 
     setTimeout(() => {
-        const material = document.getElementById('material-colar').value;
-        const ocasiao = document.getElementById('ocasiao-colar').value;
-        const pingente = document.getElementById('pingente-colar').value.toLowerCase();
-
-        // Filtro (Assumindo que você terá um array 'colares' ou usará o mesmo 'perfumes' adaptado)
-        // Aqui você filtraria seus dados de colares
         const filtro = colares.filter(c => {
             const bateMaterial = (material === 'todos') ? true : c.material.toLowerCase() === material;
             const batePingente = pingente === "" ? true : c.pingente.toLowerCase().includes(pingente);
             return bateMaterial && batePingente;
         });
 
-        exibirCardsColares(filtro, divResultado);
+        exibirCards(filtro, divResultado, 'colar');
     }, 500);
 }
 
-// Função para exibir os cards de colares (pode usar a mesma estrutura dos perfumes)
-function exibirCardsColares(lista, container) {
-    if (lista.length === 0) {
-        container.innerHTML = "<p>Nenhum colar encontrado.</p>";
-        return;
-    }
-    
-    container.innerHTML = lista.map(c => `
-        <div class="card-perfume">
-            <img src="${c.imagem}" class="img-perfume" onerror="this.src='https://via.placeholder.com/200?text=Colar'">
-            <div>
-                <span class="perfume-marca" style="color: #2e7d32;">${c.material}</span>
-                <strong style="color: var(--text-main);">${c.nome}</strong>
-                <p style="font-size: 0.8em; margin-top: 5px;">${c.descricao}</p>
-                <div class="perfume-duracao">✨ Estilo: ${c.estilo}</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// Mantenha a sua função alternarAba que já usamos antes:
 function alternarAba(tipo, botao) {
     document.getElementById('conteudo-perfumes').style.display = (tipo === 'perfumes') ? 'block' : 'none';
     document.getElementById('conteudo-colares').style.display = (tipo === 'colares') ? 'block' : 'none';
 
-    // Remove classe ativa de todos e adiciona no clicado
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     botao.classList.add('active');
     
-    // Limpa resultados ao trocar
     document.getElementById('resultado').innerHTML = '';
 }
 
@@ -199,21 +194,18 @@ function voltarParaHome() {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
 
-    // 1. Remove a classe que esconde a tela inicial
     splash.classList.remove('fade-out');
 
-    // 2. Esconde o container principal após uma pequena animação
     setTimeout(() => {
         container.style.display = 'none';
-        // Opcional: Limpa os resultados ao voltar para a home
         document.getElementById('resultado').innerHTML = '';
-    }, 300); // Tempo para sincronizar com o efeito visual
+    }, 300);
 }
 
 function mostrarSkeleton() {
     const divResultado = document.getElementById('resultado');
     const skeletons = Array(3).fill(`
-        <div class="skeleton-card">
+        <div class="skeleton-card" role="presentation">
             <div class="skeleton-img"></div>
             <div class="skeleton-text"></div>
             <div class="skeleton-text short"></div>
