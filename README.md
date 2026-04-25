@@ -1,1 +1,47 @@
+# Meu Consultor Pessoal
+
+Um aplicativo web interativo para consultar recomendações de perfumes e colares personalizadas com base em estação, período, vibe e notas. Inclui modo escuro, responsividade para dispositivos móveis, tablet e PC, e uma interface amigável.
+
+## Funcionalidades
+
+- **Consulta de Perfumes**: Filtre por estação, período (dia/noite), vibe e notas olfativas.
+- **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
+- **Seção de Colares**: Visualize catálogo de colares (expansível para filtros futuros).
+- **Modo Escuro**: Alternância entre temas claro e escuro.
+- **Responsivo**: Otimizado para celular, tablet e PC.
+- **Acessibilidade**: Suporte a navegação por teclado e leitores de tela.
+
+## Como Usar
+
+1. Abra o aplicativo no navegador.
+2. Na tela inicial, clique em "🌸 Perfumes" ou "📿 Colares".
+3. Para perfumes: Selecione estação, período, digite vibe/nota e clique em "Encontrar Perfume".
+4. Use "Me Surpreenda" para uma sugestão aleatória.
+5. Para colares: Visualize a imagem do catálogo.
+6. Clique em "⬅ Voltar" para retornar à home.
+7. Use o botão "🌓 Alternar Tema" para mudar o modo.
+
+## Tecnologias
+
+- HTML5, CSS3 (com variáveis CSS), JavaScript (ES6+)
+- Fetch API para carregar dados de um Gist GitHub
+- Responsividade com Media Queries
+- Acessibilidade com ARIA roles
+
+## Link do Projeto
+
 link: https://aline595.github.io/bot-perfume/
+
+## Instalação Local
+
+1. Clone ou baixe os arquivos.
+2. Abra `index.html` em um navegador (recomendado usar um servidor local para evitar problemas com CORS em file://).
+3. Para desenvolvimento, use um servidor como Live Server no VS Code.
+
+## Contribuição
+
+Sinta-se à vontade para sugerir melhorias ou reportar bugs.
+
+## Licença
+
+Este projeto é para fins educacionais e pessoais.
