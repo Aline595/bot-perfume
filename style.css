@@ -472,16 +472,6 @@ body.dark-mode .perfume-duracao {
     outline: 2px solid #2e7d32;
 }
 
-.img-exibicao-colar {
-    display: block;
-    width: 90%;
-    max-width: 380px;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    margin: 20px auto 0 auto;
-}
-
 /* Suporte a navegação por teclado */
 button:focus-visible, select:focus-visible, input:focus-visible {
     outline: 2px solid var(--primary-color);
