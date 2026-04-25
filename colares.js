@@ -1,3 +1,4 @@
+// Função para buscar colares/decotes com base no tipo de blusa
 function buscarColares() {
     const divResultado = document.getElementById('resultado');
     const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';
@@ -11,13 +12,16 @@ function buscarColares() {
 
     setTimeout(() => {
         const filtro = decotes.filter(d => {
-            return tipoBlusa === 'todos' ? true : d.formato === tipoBlusa;
+            const atendeTipo = tipoBlusa === 'todos' ? true : d.formato === tipoBlusa;
+            const possuiNoGuardaRoupa = d.possui_no_guarda_roupa !== false;
+            return atendeTipo && possuiNoGuardaRoupa;
         });
 
         exibirCards(filtro, divResultado, 'decote');
     }, 500);
 }
 
+// Função para surpreender com um decote aleatório disponível no guarda-roupa
 function surpreenderColares() {
     const divResultado = document.getElementById('resultado');
     const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';

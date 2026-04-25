@@ -1,8 +1,10 @@
+// Variáveis globais para armazenar dados carregados
 let perfumes = [];
 let decotes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
+// Função para carregar dados de perfumes e decotes
 async function carregarDados() {
     try {
         const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
@@ -28,6 +30,7 @@ async function carregarDados() {
     definirEstacaoInicial();
 }
 
+// Define a estação inicial baseada no mês atual
 function definirEstacaoInicial() {
     const mes = new Date().getMonth() + 1;
     let inicial = "Verão";
@@ -39,10 +42,12 @@ function definirEstacaoInicial() {
     document.getElementById('estacao-manual').value = inicial;
 }
 
+// Atualiza a estação selecionada
 function atualizarEstacao() {
     estacaoSelecionada = document.getElementById('estacao-manual').value;
 }
 
+// Exibe cards de resultados (perfumes ou decotes)
 function exibirCards(lista, container, tipo) {
     if (lista.length > 0) {
         container.innerHTML = lista.map(item => {
@@ -71,7 +76,7 @@ function exibirCards(lista, container, tipo) {
             } else if (tipo === 'decote') {
                 return `
                     <div class="card-perfume" role="article" aria-labelledby="formato-${item.id}">
-                        <img src="assets/colar.jpg" class="img-perfume" alt="Imagem de colar para ${item.formato}">
+                        <img src="assets/decotes/${item.id}.png" class="img-perfume" alt="Imagem de colar para ${item.formato}" onerror="this.src='https://via.placeholder.com/200?text=Imagem+Nao+Encontrada'">
                         <div>
                             <strong id="formato-${item.id}" style="color: var(--text-main); font-size: 1.1em;">${item.formato}</strong>
                             <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">${item.descricao}</p>
@@ -99,6 +104,7 @@ function exibirCards(lista, container, tipo) {
     }
 }
 
+// Mostra skeleton de carregamento
 function mostrarSkeleton() {
     const divResultado = document.getElementById('resultado');
     const skeletons = Array(3).fill(`
@@ -112,10 +118,12 @@ function mostrarSkeleton() {
     divResultado.innerHTML = skeletons;
 }
 
+// Alterna modo escuro
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
 }
 
+// Entra na aplicação, escondendo splash
 function entrarNoApp(categoria) {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
@@ -132,6 +140,7 @@ function entrarNoApp(categoria) {
     }
 }
 
+// Alterna entre abas de perfumes e colares
 function alternarAba(tipo, botao) {
     document.getElementById('conteudo-perfumes').style.display = (tipo === 'perfumes') ? 'block' : 'none';
     document.getElementById('conteudo-colares').style.display = (tipo === 'colares') ? 'block' : 'none';
@@ -140,6 +149,7 @@ function alternarAba(tipo, botao) {
     document.getElementById('resultado').innerHTML = '';
 }
 
+// Volta para a tela inicial
 function voltarParaHome() {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');

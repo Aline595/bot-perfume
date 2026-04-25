@@ -1,3 +1,4 @@
+// Função para buscar perfumes com base nos filtros
 async function buscar() {
     const divResultado = document.getElementById('resultado');
     const vibeInput = document.getElementById('vibe').value.toLowerCase().trim();
@@ -26,6 +27,7 @@ async function buscar() {
     }, 500);
 }
 
+// Função para surpreender com um perfume aleatório
 function surpreender() {
     const divResultado = document.getElementById('resultado');
     const possiveis = perfumes.filter(p => {

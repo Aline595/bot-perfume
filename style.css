@@ -1,4 +1,5 @@
 /* 1. RESET E VARIÁVEIS */
+/* Variáveis CSS para cores e estilos, com suporte a modo escuro */
 :root {
     --bg-body: #f4f4f9;
     --bg-container: #ffffff;
@@ -26,6 +27,7 @@ body.dark-mode {
 }
 
 /* 2. LAYOUT BASE (AJUSTADO PARA ROLAGEM) */
+/* Estilos base para body e html */
 html, body {
     margin: 0;
     padding: 0;
@@ -47,6 +49,7 @@ body {
 }
 
 /* 3. CONTAINER PRINCIPAL */
+/* Estilo do container principal da aplicação */
 .container { 
     width: 100%;
     max-width: 450px; 
@@ -60,6 +63,7 @@ body {
 }
 
 /* 4. ELEMENTOS DE FORMULÁRIO */
+/* Estilos para inputs, selects e botões */
 select, input { 
     width: 100%; 
     padding: 12px; 
@@ -106,6 +110,7 @@ button:focus {
 }
 
 /* 5. RESULTADOS E CARDS */
+/* Estilos para a área de resultados e cards */
 #resultado {
     margin-top: 25px;
     padding-top: 15px;
@@ -170,6 +175,7 @@ body.dark-mode .perfume-marca {
 }
 
 /* 6. COMPONENTES ESPECÍFICOS */
+/* Estilos específicos para badges e durações */
 .badge-intensity {
     display: inline-block;
     padding: 4px 10px;
@@ -201,6 +207,7 @@ body.dark-mode .perfume-duracao {
 }
 
 /* 7. ANIMAÇÕES E SKELETON */
+/* Animações para skeleton e glow */
 @keyframes pulse-glow {
     0% { transform: scale(1); opacity: 0.9; }
     50% { transform: scale(1.05); opacity: 1; }
@@ -233,6 +240,7 @@ body.dark-mode .perfume-duracao {
 }
 
 /* 8. RESPONSIVIDADE */
+/* Media queries para diferentes tamanhos de tela */
 @media (max-width: 480px) {
     body {
         align-items: flex-start;
@@ -335,6 +343,7 @@ body.dark-mode .perfume-duracao {
 }
 
 /* 9. TELA INICIAL */
+/* Estilos para a tela inicial (splash) */
 #tela-inicial {
     position: fixed;
     top: 0;

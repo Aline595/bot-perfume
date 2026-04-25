@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <!-- Metadados e configurações da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Consultor pessoal para perfumes e colares. Encontre recomendações personalizadas.">
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Tela inicial com splash screen -->
     <header id="tela-inicial">
         <div class="boas-vindas">
             <span style="font-size: 50px;">✨</span>
@@ -21,16 +23,20 @@
         </div>
     </header>
 
+    <!-- Container principal da aplicação -->
     <main class="container" style="display: none;">
+        <!-- Navegação por abas -->
         <nav class="menu-tabs">
             <button type="button" id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
             <button type="button" id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
         </nav>
 
+        <!-- Botão para alternar modo escuro -->
         <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()" class="btn-toggle">
             🌓 Alternar Tema
         </button>
 
+        <!-- Seção de perfumes -->
         <section id="conteudo-perfumes" class="secao-aba">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>🌸 Consultor de Perfumes</h2>
@@ -64,6 +70,7 @@
             </button>
         </section>
 
+        <!-- Seção de colares -->
         <section id="conteudo-colares" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>📿 Colares</h2>
@@ -92,9 +99,11 @@
             <img src="assets/colar.jpg" alt="Catálogo de colares com designs variados para diferentes estilos" class="img-exibicao-colar">
         </section>
 
+        <!-- Área para exibir resultados -->
         <div id="resultado"></div>
     </main>
     
+    <!-- Scripts JavaScript -->
     <script src="script.js"></script>
     <script src="perfumes.js"></script>
     <script src="colares.js"></script>
