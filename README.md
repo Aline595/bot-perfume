@@ -5,6 +5,7 @@ Um aplicativo web interativo para consultar recomendações de perfumes e colare
 ## Funcionalidades
 
 - **Consulta de Perfumes**: Filtre por estação, período (dia/noite), vibe e notas olfativas.
+- **Consulta de Colares/Decotes**: Filtre por tipo de blusa para recomendações de colar, brinco e penteado ideais, com imagens ilustrativas.
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
 - **Seção de Colares**: Visualize catálogo de colares (expansível para filtros futuros).
 - **Modo Escuro**: Alternância entre temas claro e escuro.
@@ -16,15 +17,15 @@ Um aplicativo web interativo para consultar recomendações de perfumes e colare
 1. Abra o aplicativo no navegador.
 2. Na tela inicial, clique em "🌸 Perfumes" ou "📿 Colares".
 3. Para perfumes: Selecione estação, período, digite vibe/nota e clique em "Encontrar Perfume".
-4. Use "Me Surpreenda" para uma sugestão aleatória.
-5. Para colares: Visualize a imagem do catálogo.
+4. Para colares: Selecione tipo de blusa e clique em "Encontrar Colar" para ver recomendações.
+5. Use "Me Surpreenda" para uma sugestão aleatória.
 6. Clique em "⬅ Voltar" para retornar à home.
 7. Use o botão "🌓 Alternar Tema" para mudar o modo.
 
 ## Tecnologias
 
 - HTML5, CSS3 (com variáveis CSS), JavaScript (ES6+)
-- Fetch API para carregar dados de um Gist GitHub
+- Fetch API para carregar dados de Gists GitHub
 - Responsividade com Media Queries
 - Acessibilidade com ARIA roles
 

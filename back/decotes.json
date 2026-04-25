@@ -1,0 +1,98 @@
+[
+  {
+    "id": 1,
+    "formato": "T-shirt",
+    "descricao": "Camiseta clássica de mangas curtas e gola redonda.",
+    "colar_ideal": "Maxicolares ou correntes curtas de elos grossos.",
+    "brinco_ideal": "Brincos de argola média ou botões minimalistas.",
+    "penteado_ideal": "Rabo de cavalo alto ou cabelo solto com ondas naturais."
+  },
+  {
+    "id": 2,
+    "formato": "Blusa Gola V",
+    "descricao": "Blusa com decote em formato de V, que alonga a silhueta.",
+    "colar_ideal": "Colares com pingentes que acompanham o formato em V.",
+    "brinco_ideal": "Brincos pendentes e alongados para reforçar a linha vertical.",
+    "penteado_ideal": "Cabelo jogado para a lateral ou semi-preso."
+  },
+  {
+    "id": 3,
+    "formato": "Regata",
+    "descricao": "Blusa sem mangas, ideal para climas quentes.",
+    "colar_ideal": "Colares delicados em camadas (necklaces layering).",
+    "brinco_ideal": "Brincos pequenos com brilho ou ear cuffs.",
+    "penteado_ideal": "Trança espinha de peixe ou coque bagunçado (messy bun)."
+  },
+  {
+    "id": 4,
+    "formato": "Blusa Ciganinha",
+    "descricao": "Modelo ombro a ombro, geralmente com elástico no decote.",
+    "colar_ideal": "Chokers (gargantilhas) ou colares curtos que não escondam os ombros.",
+    "brinco_ideal": "Argolas grandes ou brincos de franja (tassel).",
+    "penteado_ideal": "Coque alto ou cabelo totalmente preso para valorizar o colo."
+  },
+  {
+    "id": 5,
+    "formato": "Polo",
+    "descricao": "Blusa com gola estruturada e carcela com botões.",
+    "colar_ideal": "Geralmente usada sem colar ou com correntes muito finas por dentro.",
+    "brinco_ideal": "Brincos de pérola ou pontos de luz discretos.",
+    "penteado_ideal": "Cabelo liso e polido ou rabo de cavalo baixo."
+  },
+  {
+    "id": 6,
+    "formato": "Cache-coeur",
+    "descricao": "Modelo transpasse que se cruza na frente do corpo.",
+    "colar_ideal": "Colares curtos e discretos ou pingentes pequenos.",
+    "brinco_ideal": "Brincos de tamanho médio com formas orgânicas.",
+    "penteado_ideal": "Ondas estilo vintage ou coque baixo lateral."
+  },
+  {
+    "id": 7,
+    "formato": "Blusa Gola Alta",
+    "descricao": "Também conhecida como gola rolê ou turtleneck.",
+    "colar_ideal": "Colares longos ou escapulários para alongar o tronco.",
+    "brinco_ideal": "Brincos de botão grandes ou modelos que fiquem rentes à orelha.",
+    "penteado_ideal": "Coque donnut ou cabelo ultra liso atrás das orelhas."
+  },
+  {
+    "id": 8,
+    "formato": "Blusa Peplum",
+    "descricao": "Blusa ajustada que possui um babado na região da cintura.",
+    "colar_ideal": "Colares médios e estruturados para equilibrar o volume inferior.",
+    "brinco_ideal": "Brincos geométricos de tamanho moderado.",
+    "penteado_ideal": "Semi-preso com volume no topo (estilo sessentinha)."
+  },
+  {
+    "id": 9,
+    "formato": "Bata",
+    "descricao": "Blusa de modelagem solta e fluida, geralmente de tecidos leves.",
+    "colar_ideal": "Colares de estilo boho, com pedras naturais ou miçangas.",
+    "brinco_ideal": "Brincos de argola com pingentes ou estilo artesanal.",
+    "penteado_ideal": "Cabelo solto com mini tranças frontais ou estilo beach waves."
+  },
+  {
+    "id": 10,
+    "formato": "Crop Top",
+    "descricao": "Blusa de comprimento curto, que termina acima da linha da cintura.",
+    "colar_ideal": "Body chains (colares de corpo) ou correntes de comprimento médio.",
+    "brinco_ideal": "Argolas finas e grandes ou brincos modernos e assimétricos.",
+    "penteado_ideal": "Space buns (dois coques altos) ou rabo de cavalo com bolhas (bubble ponytail)."
+  },
+  {
+    "id": 11,
+    "formato": "Blusa Manga Bufante",
+    "descricao": "Modelo com volume acentuado nas mangas, estilo vitoriano.",
+    "colar_ideal": "Colares minimalistas para não sobrecarregar o visual.",
+    "brinco_ideal": "Brincos pequenos e fixos para manter o foco nas mangas.",
+    "penteado_ideal": "Cabelo preso em um coque minimalista ou rabo de cavalo bem esticado."
+  },
+  {
+    "id": 12,
+    "formato": "Frente Única",
+    "descricao": "Blusa que se amarra ou fecha atrás do pescoço, deixando as costas nuas.",
+    "colar_ideal": "Brincos grandes em vez de colar, ou colares de costas (back necklaces).",
+    "brinco_ideal": "Brincos de impacto (statement earrings) ou modelos cascatas.",
+    "penteado_ideal": "Coque alto despojado ou trança lateral embutida."
+  }
+]

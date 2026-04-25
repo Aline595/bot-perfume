@@ -1,5 +1,6 @@
 let perfumes = [];
-let colares = []; // Corrigido: inicializar array para colares
+let colares = [];
+let decotes = []; // Novo array para decotes
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
@@ -8,8 +9,10 @@ async function carregarDados() {
         const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
         if (!resposta.ok) throw new Error("Falha ao carregar dados do Gist");
         perfumes = await resposta.json();
-        // Assumindo que colares podem vir do mesmo Gist ou de outro; ajustar se necessário
-        // colares = await carregarColares(); // Adicionar função se houver fonte separada
+        // Carregar decotes do Gist
+        const respostaDecotes = await fetch('https://gist.githubusercontent.com/Aline595/5ac2d0a8490669152acf0d2ea5899620/raw/');
+        decotes = await respostaDecotes.json();
+        console.log('Decotes carregados:', decotes.length); // Debug
         definirEstacaoInicial();
     } catch (erro) {
         console.error("❌ Erro ao carregar dados:", erro);
@@ -100,6 +103,28 @@ function exibirCards(lista, container, tipo) {
                         </div>
                     </div>
                 `;
+            } else if (tipo === 'decote') {
+                return `
+                    <div class="card-perfume" role="article" aria-labelledby="formato-${item.id}">
+                        <img src="assets/colar.jpg" class="img-perfume" alt="Imagem de colar para ${item.formato}">
+                        <div>
+                            <strong id="formato-${item.id}" style="color: var(--text-main); font-size: 1.1em;">${item.formato}</strong>
+                            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">${item.descricao}</p>
+                            <div class="perfume-duracao">
+                                <span>📿 Colar Ideal:</span>
+                                <strong>${item.colar_ideal}</strong>
+                            </div>
+                            <div class="perfume-duracao">
+                                <span>💍 Brinco Ideal:</span>
+                                <strong>${item.brinco_ideal}</strong>
+                            </div>
+                            <div class="perfume-duracao">
+                                <span>💇‍♀️ Penteado Ideal:</span>
+                                <strong>${item.penteado_ideal}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }).join('');
     } else {
@@ -159,24 +184,26 @@ function entrarNoApp(categoria) {
 
 async function buscarColares() {
     const divResultado = document.getElementById('resultado');
-    const material = document.getElementById('material-colar')?.value || 'todos';
-    const pingente = document.getElementById('pingente-colar')?.value.toLowerCase().trim() || '';
+    const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';
 
-    if (colares.length === 0) {
-        alert("Dados de colares não carregados. Verifique a fonte.");
+    console.log('Buscando colares para:', tipoBlusa, 'Decotes:', decotes.length); // Debug
+
+    if (decotes.length === 0) {
+        alert("Dados de decotes não carregados. Verifique a fonte.");
         return;
     }
 
     mostrarSkeleton();
 
     setTimeout(() => {
-        const filtro = colares.filter(c => {
-            const bateMaterial = (material === 'todos') ? true : c.material.toLowerCase() === material;
-            const batePingente = pingente === "" ? true : c.pingente.toLowerCase().includes(pingente);
-            return bateMaterial && batePingente;
+        const filtro = decotes.filter(d => {
+            const bateTipoBlusa = (tipoBlusa === 'todos') ? true : d.formato === tipoBlusa;
+            return bateTipoBlusa;
         });
 
-        exibirCards(filtro, divResultado, 'colar');
+        console.log('Filtro:', filtro); // Debug
+
+        exibirCards(filtro, divResultado, 'decote');
     }, 500);
 }
 
