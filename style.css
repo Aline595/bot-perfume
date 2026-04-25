@@ -136,7 +136,8 @@ button:focus {
 .img-perfume {
     width: 100%;
     height: 140px;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
     border-radius: 8px;
     margin-bottom: 12px;
     box-shadow: 0 2px 8px var(--shadow);
@@ -247,16 +248,89 @@ body.dark-mode .perfume-duracao {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 10px;
     }
+    .boas-vindas h1 {
+        font-size: 1.5rem;
+    }
+    .boas-vindas p {
+        font-size: 0.9rem;
+    }
+    .btn-home {
+        font-size: 1rem;
+        padding: 15px;
+    }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 481px) and (max-width: 767px) {
+    /* Tablet pequeno */
+    .container {
+        max-width: 500px;
+        padding: 25px;
+    }
+    #resultado {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    .botoes-home {
+        gap: 12px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Tablet */
     .container {
         max-width: 600px;
-        padding: 40px;
+        padding: 35px;
     }
     #resultado {
         grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 18px;
+    }
+    .boas-vindas {
+        max-width: 400px;
+    }
+    .botoes-home {
+        justify-content: center;
+        gap: 15px;
+    }
+    .btn-home {
+        flex: 1;
+        max-width: 200px;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* PC */
+    .container {
+        max-width: 800px;
+        padding: 40px;
+    }
+    #resultado {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 20px;
+    }
+    .boas-vindas {
+        max-width: 500px;
+    }
+    .boas-vindas h1 {
+        font-size: 2.5rem;
+    }
+    .botoes-home {
+        gap: 20px;
+    }
+    .btn-home {
+        flex: 1;
+        max-width: 250px;
+        padding: 20px;
+        font-size: 1.2rem;
+    }
+    .menu-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    .tab-btn {
+        flex: 1;
+        max-width: 200px;
     }
 }
 
@@ -316,7 +390,9 @@ body.dark-mode .perfume-duracao {
 
 .botoes-home {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 15px;
     margin-top: 20px;
 }
@@ -395,4 +471,22 @@ body.dark-mode .perfume-duracao {
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     margin: 20px auto 0 auto;
+}
+
+/* Suporte a navegação por teclado */
+button:focus-visible, select:focus-visible, input:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+@media (prefers-contrast: high) {
+    :root {
+        --bg-body: #ffffff;
+        --text-main: #000000;
+        --border-color: #000000;
+    }
+    body.dark-mode {
+        --bg-body: #000000;
+        --text-main: #ffffff;
+    }
 }
