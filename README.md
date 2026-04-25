@@ -7,7 +7,7 @@ Um aplicativo web interativo para consultar recomendações de perfumes e colare
 
 <!-- Lista de funcionalidades principais -->
 - **Consulta de Perfumes**: Filtre por estação, período (dia/noite), vibe e notas olfativas.
-- **Consulta de Colares/Decotes**: Filtre por tipo de blusa para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
+- **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
 - **Seção de Colares**: Visualize catálogo de colares (expansível para filtros futuros).
 - **Modo Escuro**: Alternância entre temas claro e escuro.

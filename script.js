@@ -4,6 +4,32 @@ let decotes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
+// Função para popular o select de tipo de blusa com dados do JSON
+function popularSelectBlusas(decotes) {
+    const select = document.getElementById('tipo-blusa');
+    if (!select) return;
+
+    // Limpar opções existentes
+    select.innerHTML = '';
+
+    // Adicionar opção "Todos"
+    const optionTodos = document.createElement('option');
+    optionTodos.value = 'todos';
+    optionTodos.textContent = 'Todos';
+    select.appendChild(optionTodos);
+
+    // Obter formatos únicos e ordenar
+    const formatosUnicos = [...new Set(decotes.map(d => d.formato))].sort();
+
+    // Adicionar opções
+    formatosUnicos.forEach(formato => {
+        const option = document.createElement('option');
+        option.value = formato;
+        option.textContent = formato;
+        select.appendChild(option);
+    });
+}
+
 // Função para carregar dados de perfumes e decotes
 async function carregarDados() {
     try {
@@ -22,6 +48,8 @@ async function carregarDados() {
         if (!respostaDecotes.ok) throw new Error("Falha ao carregar decotes do Gist");
         decotes = await respostaDecotes.json();
         console.log('Decotes carregados:', decotes.length);
+        // Popular select após carregar decotes
+        popularSelectBlusas(decotes);
     } catch (erro) {
         decotes = [];
         console.warn("⚠️ Não foi possível carregar decotes:", erro);
