@@ -1,6 +1,5 @@
 let perfumes = [];
-let colares = [];
-let decotes = []; // Novo array para decotes
+let decotes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
@@ -9,15 +8,24 @@ async function carregarDados() {
         const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
         if (!resposta.ok) throw new Error("Falha ao carregar dados do Gist");
         perfumes = await resposta.json();
-        // Carregar decotes do Gist
-        const respostaDecotes = await fetch('https://gist.githubusercontent.com/Aline595/5ac2d0a8490669152acf0d2ea5899620/raw/');
-        decotes = await respostaDecotes.json();
-        console.log('Decotes carregados:', decotes.length); // Debug
-        definirEstacaoInicial();
     } catch (erro) {
-        console.error("❌ Erro ao carregar dados:", erro);
-        alert("Erro ao carregar dados. Tente recarregar a página.");
+        console.error("❌ Erro ao carregar dados de perfumes:", erro);
+        document.getElementById('resultado').innerHTML = "<p style='color: #999;'>❌ Erro ao carregar dados de perfumes. Recarregue a página.</p>";
+        alert("Erro ao carregar dados de perfumes. Tente recarregar a página.");
+        return;
     }
+
+    try {
+        const respostaDecotes = await fetch("https://gist.githubusercontent.com/Aline595/5ac2d0a8490669152acf0d2ea5899620/raw/");
+        if (!respostaDecotes.ok) throw new Error("Falha ao carregar decotes do Gist");
+        decotes = await respostaDecotes.json();
+        console.log('Decotes carregados:', decotes.length);
+    } catch (erro) {
+        decotes = [];
+        console.warn("⚠️ Não foi possível carregar decotes:", erro);
+    }
+
+    definirEstacaoInicial();
 }
 
 function definirEstacaoInicial() {
@@ -35,38 +43,10 @@ function atualizarEstacao() {
     estacaoSelecionada = document.getElementById('estacao-manual').value;
 }
 
-async function buscar() {
-    const divResultado = document.getElementById('resultado');
-    const vibeInput = document.getElementById('vibe').value.toLowerCase().trim();
-    const notaInput = document.getElementById('nota').value.toLowerCase().trim();
-
-    mostrarSkeleton();
-
-    setTimeout(() => {
-        const periodo = document.getElementById('periodo').value;
-
-        const filtro = perfumes.filter(p => {
-            const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
-            const periodos = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
-            const vibes = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
-            const notas = Array.isArray(p.notas) ? p.notas : [p.notas];
-
-            const bateClima = climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-            const batePeriodo = (periodo === 'ambos') ? true : periodos.some(per => per.toLowerCase() === periodo);
-            const bateVibe = vibeInput === "" ? true : vibes.some(v => v.toLowerCase().includes(vibeInput));
-            const bateNota = notaInput === "" ? true : notas.some(n => n.toLowerCase().includes(notaInput));
-
-            return bateClima && batePeriodo && bateVibe && bateNota;
-        });
-
-        exibirCards(filtro, divResultado, 'perfume');
-    }, 500); 
-}
-
 function exibirCards(lista, container, tipo) {
     if (lista.length > 0) {
         container.innerHTML = lista.map(item => {
-            const imagemSrc = item.imagem.startsWith('http') 
+            const imagemSrc = item.imagem && item.imagem.startsWith('http') 
                 ? item.imagem 
                 : `https://lh3.googleusercontent.com/d/${item.imagem}`;
 
@@ -77,29 +57,14 @@ function exibirCards(lista, container, tipo) {
                         <div>
                             <span class="perfume-marca">${item.marca || ''}</span>
                             <strong id="nome-${item.nome.replace(/\s+/g, '-')}" style="color: var(--text-main); font-size: 1.1em;">${item.nome}</strong>
-                            
                             ${item.intensidade ? `<br><span class="badge-intensity">${item.intensidade}</span>` : ''}
-                            
                             <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
                                 ✨ Vibe: ${item.vibe ? (Array.isArray(item.vibe) ? item.vibe.join(', ') : item.vibe) : 'N/A'}
                             </p>
-
                             <div class="perfume-duracao">
                                 <span>⏱️ Duração:</span>
                                 <strong>${item.duracao || 'N/A'}</strong>
                             </div>
-                        </div>
-                    </div>
-                `;
-            } else if (tipo === 'colar') {
-                return `
-                    <div class="card-perfume" role="article" aria-labelledby="nome-${item.nome.replace(/\s+/g, '-')}">
-                        <img src="${imagemSrc}" class="img-perfume" alt="${item.nome}" onerror="this.src='https://via.placeholder.com/200?text=Colar'">
-                        <div>
-                            <span class="perfume-marca" style="color: #2e7d32;">${item.material}</span>
-                            <strong id="nome-${item.nome.replace(/\s+/g, '-')}" style="color: var(--text-main);">${item.nome}</strong>
-                            <p style="font-size: 0.8em; margin-top: 5px;">${item.descricao}</p>
-                            <div class="perfume-duracao">✨ Estilo: ${item.estilo}</div>
                         </div>
                     </div>
                 `;
@@ -125,6 +90,8 @@ function exibirCards(lista, container, tipo) {
                         </div>
                     </div>
                 `;
+            } else {
+                return '';
             }
         }).join('');
     } else {
@@ -132,38 +99,21 @@ function exibirCards(lista, container, tipo) {
     }
 }
 
-function surpreender() {
+function mostrarSkeleton() {
     const divResultado = document.getElementById('resultado');
-    const possiveis = perfumes.filter(p => {
-        const clima = Array.isArray(p.clima) ? p.clima : [p.clima];
-        return clima.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-    });
+    const skeletons = Array(3).fill(`
+        <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text short"></div>
+        </div>
+    `).join('');
+    
+    divResultado.innerHTML = skeletons;
+}
 
-    if (possiveis.length > 0) {
-        const p = possiveis[Math.floor(Math.random() * possiveis.length)];
-        const imagemSrc = p.imagem.startsWith('http') 
-            ? p.imagem 
-            : `https://lh3.googleusercontent.com/d/${p.imagem}`;
-
-        divResultado.innerHTML = `
-            <p><strong>🎲 Sua sorte do dia:</strong></p>
-            <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);" role="article">
-                <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
-                <div>
-                    <span class="perfume-marca" style="color: #e65100;">${p.marca || ''}</span>
-                    <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
-                    ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
-                    <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
-                    <div class="perfume-duracao">
-                        <span>⏱️ Fixação:</span>
-                        <strong>${p.duracao || 'N/A'}</strong>
-                    </div>
-                </div>
-            </div>
-        `;
-    } else {
-        divResultado.innerHTML = "<p style='color: #999;' role='alert'>❌ Nenhum perfume disponível para esta estação.</p>";
-    }
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
 }
 
 function entrarNoApp(categoria) {
@@ -182,38 +132,11 @@ function entrarNoApp(categoria) {
     }
 }
 
-async function buscarColares() {
-    const divResultado = document.getElementById('resultado');
-    const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';
-
-    console.log('Buscando colares para:', tipoBlusa, 'Decotes:', decotes.length); // Debug
-
-    if (decotes.length === 0) {
-        alert("Dados de decotes não carregados. Verifique a fonte.");
-        return;
-    }
-
-    mostrarSkeleton();
-
-    setTimeout(() => {
-        const filtro = decotes.filter(d => {
-            const bateTipoBlusa = (tipoBlusa === 'todos') ? true : d.formato === tipoBlusa;
-            return bateTipoBlusa;
-        });
-
-        console.log('Filtro:', filtro); // Debug
-
-        exibirCards(filtro, divResultado, 'decote');
-    }, 500);
-}
-
 function alternarAba(tipo, botao) {
     document.getElementById('conteudo-perfumes').style.display = (tipo === 'perfumes') ? 'block' : 'none';
     document.getElementById('conteudo-colares').style.display = (tipo === 'colares') ? 'block' : 'none';
-
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     botao.classList.add('active');
-    
     document.getElementById('resultado').innerHTML = '';
 }
 
@@ -227,23 +150,6 @@ function voltarParaHome() {
         container.style.display = 'none';
         document.getElementById('resultado').innerHTML = '';
     }, 300);
-}
-
-function mostrarSkeleton() {
-    const divResultado = document.getElementById('resultado');
-    const skeletons = Array(3).fill(`
-        <div class="skeleton-card" role="presentation">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-text"></div>
-            <div class="skeleton-text short"></div>
-        </div>
-    `).join('');
-    
-    divResultado.innerHTML = skeletons;
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
 }
 
 carregarDados();
