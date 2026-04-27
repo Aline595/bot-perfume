@@ -39,11 +39,28 @@
         <!-- Seção de perfumes -->
         <section id="conteudo-perfumes" class="secao-aba">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            <h2>🌸 Consultor de Perfumes</h2>
+            <h2 style="margin-bottom: 5px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🌸 Consultor de Perfumes</h2>
+            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 0; margin-bottom: 20px;">Descubra o aroma perfeito para você</p>
             
-            <div class="estacao-selector">
-                <label for="estacao-manual">Estação:</label>
+            <!-- Filtros de seleção -->
+            <div style="display: flex; gap: 15px; justify-content: center; margin: 15px 0; align-items: center; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox" id="filtro-estacao" checked onchange="atualizarFiltros()">
+                    <span style="font-size: 0.9em;">Por Estação</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="checkbox" id="filtro-temperatura" onchange="atualizarFiltros()">
+                    <span style="font-size: 0.9em;">Por Temperatura 🌡️</span>
+                </label>
+                <div id="temperatura-atual" style="font-size: 0.9em; font-weight: bold; color: var(--primary-color);">
+                    🌡️ Carregando temperatura...
+                </div>
+            </div>
+            
+            <div class="estacao-selector" id="secao-estacao">
+                <label for="estacao-manual" style="font-weight: 600; display: block; margin-bottom: 8px;">🍂 Estação:</label>
                 <select id="estacao-manual" onchange="atualizarEstacao()">
+                    <option value="todos">Todos</option>
                     <option value="Outono">🍂 Outono</option>
                     <option value="Inverno">❄️ Inverno</option>
                     <option value="Primavera">🌸 Primavera</option>
@@ -51,20 +68,20 @@
                 </select>
             </div>
 
-            <label for="periodo">Período:</label>
+            <label for="periodo" style="font-weight: 600; display: block; margin-top: 15px;">⏰ Período:</label>
             <select id="periodo">
-                <option value="dia">Dia</option>
-                <option value="noite">Noite</option>
-                <option value="ambos">Ambos</option>
+                <option value="dia">☀️ Dia</option>
+                <option value="noite">🌙 Noite</option>
+                <option value="ambos">✨ Ambos</option>
             </select>
 
-            <label for="vibe">Vibe:</label>
-            <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce)">
+            <label for="vibe" style="font-weight: 600; display: block; margin-top: 15px;">✨ Vibe:</label>
+            <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce, floral, fresco)">
             
-            <label for="nota">Nota:</label>
-            <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa)">
+            <label for="nota" style="font-weight: 600; display: block; margin-top: 15px;">🎵 Nota Olfativa:</label>
+            <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa, citrus)">
             
-            <button type="button" onclick="buscar()">Encontrar Perfume</button>
+            <button type="button" onclick="buscar()" style="margin-top: 20px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%);">🔍 Encontrar Perfume</button>
             <button type="button" onclick="surpreender()" class="btn-surprise">
                 ✨ Me surpreenda!
             </button>
@@ -73,15 +90,18 @@
         <!-- Seção de colares -->
         <section id="conteudo-colares" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            <h2>📿 Colares</h2>
+            <h2 style="margin-bottom: 5px; background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📿 Consultor de Colares</h2>
+            <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 0; margin-bottom: 20px;">Encontre o acessório perfeito para seu decote</p>
             
-            <label for="tipo-blusa">Tipo de Blusa:</label>
-            <select id="tipo-blusa">
-                <!-- Opções serão populadas dinamicamente -->
-            </select>
+            <div class="estacao-selector" style="background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%); border-left-color: #2e7d32;">
+                <label for="tipo-blusa" style="font-weight: 600; display: block; margin-bottom: 8px;">👕 Tipo de Blusa:</label>
+                <select id="tipo-blusa" style="border: 2px solid var(--border-color);">
+                    <!-- Opções serão populadas dinamicamente -->
+                </select>
+            </div>
             
-            <button type="button" onclick="buscarColares()">Encontrar Colar</button>
-            <button type="button" onclick="surpreenderColares()" class="btn-surprise">
+            <button type="button" onclick="buscarColares()" style="margin-top: 20px; background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%); box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);">🔍 Encontrar Recomendação</button>
+            <button type="button" onclick="surpreenderColares()" class="btn-surprise" style="background: linear-gradient(135deg, #00897b 0%, #00695c 100%); box-shadow: 0 4px 15px rgba(0, 137, 123, 0.4);">
                 ✨ Me surpreenda!
             </button>
         </section>

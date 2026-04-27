@@ -23,6 +23,17 @@ describe('Funções de perfumes', () => {
     expect(document.getElementById('resultado').innerHTML).toContain('Perfume1');
   });
 
+  test('buscar filtra perfumes corretamente com estação "todos"', () => {
+    estacaoSelecionada = 'todos';
+    document.getElementById('periodo').value = 'dia';
+    document.getElementById('vibe').value = 'doce';
+    document.getElementById('nota').value = 'baunilha';
+
+    buscar();
+    jest.runAllTimers();
+    expect(document.getElementById('resultado').innerHTML).toContain('Perfume1');
+  });
+
   test('surpreender seleciona perfume aleatório', () => {
     surpreender();
     expect(document.getElementById('resultado').innerHTML).toContain('Sua sorte do dia');

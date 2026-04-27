@@ -30,6 +30,25 @@ function popularSelectBlusas(decotes) {
     });
 }
 
+// Função para exibir temperatura atual
+async function exibirTemperaturaAtual() {
+    try {
+        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-23.68&longitude=-46.62&current_weather=true');
+        const data = await response.json();
+        const temp = data.current_weather.temperature;
+        const elementoTemp = document.getElementById('temperatura-atual');
+        if (elementoTemp) {
+            elementoTemp.textContent = `🌡️ ${temp}°C agora`;
+        }
+    } catch (error) {
+        console.error("Erro ao buscar temperatura:", error);
+        const elementoTemp = document.getElementById('temperatura-atual');
+        if (elementoTemp) {
+            elementoTemp.textContent = `🌡️ ~22°C (padrão)`;
+        }
+    }
+}
+
 // Função para carregar dados de perfumes e decotes
 async function carregarDados() {
     try {
@@ -56,6 +75,7 @@ async function carregarDados() {
     }
 
     definirEstacaoInicial();
+    exibirTemperaturaAtual(); // Exibir temperatura ao carregar
 }
 
 // Define a estação inicial baseada no mês atual
@@ -73,6 +93,23 @@ function definirEstacaoInicial() {
 // Atualiza a estação selecionada
 function atualizarEstacao() {
     estacaoSelecionada = document.getElementById('estacao-manual').value;
+}
+
+// Função para atualizar visibilidade dos filtros
+function atualizarFiltros() {
+    const filtroEstacao = document.getElementById('filtro-estacao').checked;
+    const filtroTemperatura = document.getElementById('filtro-temperatura').checked;
+    const secaoEstacao = document.getElementById('secao-estacao');
+    
+    // Se nenhum filtro está selecionado, ativar estação por padrão
+    if (!filtroEstacao && !filtroTemperatura) {
+        document.getElementById('filtro-estacao').checked = true;
+        secaoEstacao.style.display = 'block';
+        return;
+    }
+    
+    // Mostrar/ocultar seção de estação
+    secaoEstacao.style.display = filtroEstacao ? 'block' : 'none';
 }
 
 // Exibe cards de resultados (perfumes ou decotes)
@@ -98,6 +135,7 @@ function exibirCards(lista, container, tipo) {
                                 <span>⏱️ Duração:</span>
                                 <strong>${item.duracao || 'N/A'}</strong>
                             </div>
+                            ${item.temperatura_ideal ? `<div class="perfume-duracao"><span>🌡️ Temperatura:</span><strong>${item.temperatura_ideal}</strong></div>` : ''}
                         </div>
                     </div>
                 `;
@@ -191,3 +229,13 @@ function voltarParaHome() {
 }
 
 carregarDados();
+
+// Exports para testes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        exibirCards,
+        definirEstacaoInicial,
+        atualizarEstacao,
+        popularSelectBlusas
+    };
+}

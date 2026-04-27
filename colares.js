@@ -43,5 +43,16 @@ function surpreenderColares() {
     }
 
     const item = candidatos[Math.floor(Math.random() * candidatos.length)];
+    divResultado.innerHTML = `
+        <p><strong>🎲 Sua surpresa do dia:</strong></p>
+    `;
     exibirCards([item], divResultado, 'decote');
+}
+
+// Exports para testes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        buscarColares,
+        surpreenderColares
+    };
 }

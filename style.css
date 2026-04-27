@@ -80,7 +80,7 @@ select, input {
 select:focus, input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.2);
+    box-shadow: 0 0 0 3px rgba(106, 27, 154, 0.15);
 }
 
 button { 
@@ -94,11 +94,14 @@ button {
     cursor: pointer; 
     font-weight: bold;
     font-size: 1rem;
-    transition: transform 0.1s, filter 0.2s, background 0.3s;
+    transition: transform 0.1s, filter 0.2s, background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(106, 27, 154, 0.3);
 }
 
 button:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(106, 27, 154, 0.4);
+    transform: translateY(-2px);
 }
 
 button:active {
@@ -109,33 +112,62 @@ button:focus {
     outline: var(--focus-outline);
 }
 
+/* Estilo especial para botão de surpresa */
+.btn-surprise {
+    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+}
+
+.btn-surprise:hover {
+    box-shadow: 0 6px 25px rgba(255, 107, 157, 0.6);
+}
+
 /* 5. RESULTADOS E CARDS */
 /* Estilos para a área de resultados e cards */
 #resultado {
-    margin-top: 25px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-color);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px; 
+    gap: 18px; 
     justify-content: center;
 }
 
 .card-perfume {
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    padding: 18px;
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
     background: var(--bg-card);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     flex-direction: column; 
     align-items: center;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.card-perfume::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.card-perfume:hover::before {
+    left: 100%;
 }
 
 .card-perfume:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px var(--shadow);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(106, 27, 154, 0.2);
+    border-color: var(--primary-color);
 }
 
 .img-perfume {
@@ -143,9 +175,14 @@ button:focus {
     height: 140px;
     object-fit: contain;
     object-position: center;
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 12px;
-    box-shadow: 0 2px 8px var(--shadow);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card-perfume:hover .img-perfume {
+    transform: scale(1.08);
 }
 
 .perfume-marca {
@@ -470,6 +507,32 @@ body.dark-mode .perfume-duracao {
 
 #conteudo-colares button:focus {
     outline: 2px solid #2e7d32;
+}
+
+/* Estilos específicos para seção de colares */
+#conteudo-colares .estacao-selector {
+    background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%) !important;
+    border-left: 4px solid #2e7d32 !important;
+}
+
+#conteudo-colares .estacao-selector:hover {
+    border-color: #2e7d32 !important;
+}
+
+#conteudo-colares select {
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+#conteudo-colares select:hover {
+    border-color: #2e7d32;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+}
+
+#conteudo-colares select:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
 }
 
 /* Suporte a navegação por teclado */
