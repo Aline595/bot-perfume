@@ -45,11 +45,11 @@
             <!-- Filtros de seleção -->
             <div style="display: flex; gap: 15px; justify-content: center; margin: 15px 0; align-items: center; flex-wrap: wrap;">
                 <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                    <input type="checkbox" id="filtro-estacao" checked onchange="atualizarFiltros()">
+                    <input type="checkbox" id="filtro-estacao" onchange="atualizarFiltros()">
                     <span style="font-size: 0.9em;">Por Estação</span>
                 </label>
                 <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                    <input type="checkbox" id="filtro-temperatura" onchange="atualizarFiltros()">
+                    <input type="checkbox" id="filtro-temperatura" checked onchange="atualizarFiltros()">
                     <span style="font-size: 0.9em;">Por Temperatura 🌡️</span>
                 </label>
                 <div id="temperatura-atual" style="font-size: 0.9em; font-weight: bold; color: var(--primary-color);">
@@ -57,7 +57,7 @@
                 </div>
             </div>
             
-            <div class="estacao-selector" id="secao-estacao">
+            <div class="estacao-selector" id="secao-estacao" style="display: none;">
                 <label for="estacao-manual" style="font-weight: 600; display: block; margin-bottom: 8px;">🍂 Estação:</label>
                 <select id="estacao-manual" onchange="atualizarEstacao()">
                     <option value="todos">Todos</option>
