@@ -3,6 +3,7 @@ let perfumes = [];
 let decotes = [];
 let cremes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
+const urlCremes = "https://gist.githubusercontent.com/Aline595/5d3a031e9c8b6f31e4ecaa89a2c81c92/raw/144e3d28cd5f83b498a142112ae9d0bcdaa9a7a9/gistfile1.txt";
 let estacaoSelecionada = "";
 
 // Função para popular o select de tipo de blusa com dados do JSON
@@ -73,7 +74,7 @@ async function carregarDados() {
     // 3. NOVO: Carregar Cremes (Você pode criar um novo Gist para isso)
     try {
         // Substitua pela URL do seu novo Gist de cremes quando criar
-        const respostaCremes = await fetch("SUA_URL_DO_GIST_DE_CREMES_AQUI"); 
+        const respostaCremes = await fetch(urlCremes);
         cremes = await respostaCremes.json();
     } catch (erro) {
         console.warn("⚠️ Não foi possível carregar cremes:", erro);
