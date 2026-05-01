@@ -1,6 +1,7 @@
 // Variáveis globais para armazenar dados carregados
 let perfumes = [];
 let decotes = [];
+let cremes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 let estacaoSelecionada = "";
 
@@ -51,27 +52,36 @@ async function exibirTemperaturaAtual() {
 
 // Função para carregar dados de perfumes e decotes
 async function carregarDados() {
+    // 1. Carregar Perfumes
     try {
         const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
-        if (!resposta.ok) throw new Error("Falha ao carregar dados do Gist");
+        if (!resposta.ok) throw new Error("Falha ao carregar perfumes");
         perfumes = await resposta.json();
     } catch (erro) {
-        console.error("❌ Erro ao carregar dados de perfumes:", erro);
-        document.getElementById('resultado').innerHTML = "<p style='color: #999;'>❌ Erro ao carregar dados de perfumes. Recarregue a página.</p>";
-        alert("Erro ao carregar dados de perfumes. Tente recarregar a página.");
-        return;
+        console.error("❌ Erro ao carregar perfumes:", erro);
     }
 
+    // 2. Carregar Decotes
     try {
         const respostaDecotes = await fetch("https://gist.githubusercontent.com/Aline595/5ac2d0a8490669152acf0d2ea5899620/raw/");
-        if (!respostaDecotes.ok) throw new Error("Falha ao carregar decotes do Gist");
         decotes = await respostaDecotes.json();
-        console.log('Decotes carregados:', decotes.length);
-        // Popular select após carregar decotes
         popularSelectBlusas(decotes);
     } catch (erro) {
-        decotes = [];
-        console.warn("⚠️ Não foi possível carregar decotes:", erro);
+        console.warn("⚠️ Erro nos decotes:", erro);
+    }
+
+    // 3. NOVO: Carregar Cremes (Você pode criar um novo Gist para isso)
+    try {
+        // Substitua pela URL do seu novo Gist de cremes quando criar
+        const respostaCremes = await fetch("SUA_URL_DO_GIST_DE_CREMES_AQUI"); 
+        cremes = await respostaCremes.json();
+    } catch (erro) {
+        console.warn("⚠️ Não foi possível carregar cremes:", erro);
+        // Fallback local caso o Gist falhe
+        cremes = [
+            { "nome": "Baunilha Real", "marca": "Boticário", "temperatura": "frio", "vibe": "doce" },
+            { "nome": "Sorbet de Manga", "marca": "Natura", "temperatura": "calor", "vibe": "fresco" }
+        ];
     }
 
     definirEstacaoInicial();
@@ -197,21 +207,25 @@ function entrarNoApp(categoria) {
     splash.classList.add('fade-out');
     container.style.display = 'block';
 
-    if (categoria === 'perfumes') {
-        const btn = document.getElementById('tab-perfumes');
-        alternarAba('perfumes', btn);
-    } else {
-        const btn = document.getElementById('tab-colares');
-        alternarAba('colares', btn);
-    }
+    // Seleciona o botão da aba correta
+    const btnId = `tab-${categoria}`;
+    const btn = document.getElementById(btnId);
+    alternarAba(categoria, btn);
 }
 
 // Alterna entre abas de perfumes e colares
 function alternarAba(tipo, botao) {
-    document.getElementById('conteudo-perfumes').style.display = (tipo === 'perfumes') ? 'block' : 'none';
-    document.getElementById('conteudo-colares').style.display = (tipo === 'colares') ? 'block' : 'none';
+    // Esconde todas
+    document.getElementById('conteudo-perfumes').style.display = 'none';
+    document.getElementById('conteudo-colares').style.display = 'none';
+    document.getElementById('conteudo-cremes').style.display = 'none';
+
+    // Mostra a selecionada
+    document.getElementById(`conteudo-${tipo}`).style.display = 'block';
+
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    botao.classList.add('active');
+    if (botao) botao.classList.add('active');
+    
     document.getElementById('resultado').innerHTML = '';
 }
 
