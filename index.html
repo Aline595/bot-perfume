@@ -19,6 +19,7 @@
             <nav class="botoes-home">
                 <button type="button" onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
                 <button type="button" onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
+                <button type="button" onclick="entrarNoApp('cremes')" class="btn-home">🧴 Cremes</button>
             </nav>
         </div>
     </header>
@@ -105,6 +106,21 @@
                 ✨ Me surpreenda!
             </button>
         </section>
+
+        <section id="conteudo-cremes" class="secao-aba" style="display: none;">
+            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            <h2>🧴 Consultor de Cremes</h2>
+            <p>O hidratante ideal para o clima de hoje</p>
+            
+            <div id="info-clima-creme" class="status-temp">
+                <!-- Aqui aparecerá a temperatura capturada -->
+            </div>
+
+            <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme">
+                ✨ Qual creme usar agora?
+            </button>
+        </section>
+
 
         <!-- Área para exibir resultados -->
         <div id="resultado"></div>
