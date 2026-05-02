@@ -562,3 +562,11 @@ button:focus-visible, select:focus-visible, input:focus-visible {
     border: none;
     box-shadow: 0 4px 10px rgba(236, 64, 122, 0.3);
 }
+.ranges-legenda div:hover {
+    background-color: rgba(216, 27, 96, 0.05);
+    border-color: #d81b60 !important;
+}
+
+.ranges-legenda div:active {
+    transform: scale(0.95);
+}

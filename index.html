@@ -120,16 +120,26 @@
                 
                 <!-- Legenda de Ranges Visual -->
                 <div class="ranges-legenda" style="display: flex; justify-content: space-around; gap: 5px; font-size: 0.8em; text-align: center;">
-                    <div id="range-baixa" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                    <div id="range-baixa" onclick="selecionarRangeManualmente(20, 'range-baixa')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
                         ❄️ Baixa<br>(até 20°C)
                     </div>
-                    <div id="range-intermediaria" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                    <div id="range-intermediaria" onclick="selecionarRangeManualmente(23, 'range-intermediaria')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
                         ☁️ Média<br>(21°C - 25°C)
                     </div>
-                    <div id="range-alta" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                    <div id="range-alta" onclick="selecionarRangeManualmente(30, 'range-alta')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
                         ☀️ Alta<br>(26°C+)
                     </div>
                 </div>
+            </div>
+
+            <!-- Filtro de Período -->
+            <div class="periodo-selector" style="margin-top: 15px;">
+                <label for="periodo-creme" style="font-weight: 600; display: block; margin-bottom: 8px;">⏰ Momento do uso:</label>
+                <select id="periodo-creme" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main);">
+                    <option value="todos" selected>✨ Todos (Dia ou Noite)</option>
+                    <option value="dia">☀️ Dia</option>
+                    <option value="noite">🌙 Noite</option>
+                </select>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">

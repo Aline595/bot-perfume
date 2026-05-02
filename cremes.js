@@ -1,120 +1,125 @@
-async function recomendarCremePorClima() {
+async function recomendarCremePorClima(tempManual = null) {
     const divResultado = document.getElementById('resultado');
+    // Verifica se o elemento existe antes de pegar o valor
+    const elPeriodo = document.getElementById('periodo-creme');
+    const periodoSelecionado = elPeriodo ? elPeriodo.value : "todos";
+    
     mostrarSkeleton();
 
-    // 1. Pega a temperatura da API na tela
-    const tempTexto = document.getElementById('temperatura-atual').textContent;
-    const tempAtual = parseFloat(tempTexto.replace(/[^0-9.]/g, '')) || 22;
-
-    // 2. Define em qual "faixa" a temperatura atual se encaixa
-    let categoriaAtual = "";
-    if (tempAtual <= 20) {
-        categoriaAtual = "baixa"; // Range de Frio/Aconchego
-    } else if (tempAtual > 20 && tempAtual <= 25) {
-        categoriaAtual = "intermediaria"; // Range de Clima Ameno
+    let tempParaFiltrar;
+    if (tempManual) {
+        tempParaFiltrar = tempManual;
     } else {
-        categoriaAtual = "alta"; // Range de Calor/Refrescância
+        const tempTexto = document.getElementById('temperatura-creme').textContent;
+        tempParaFiltrar = parseFloat(tempTexto.replace(/[^0-9.]/g, '')) || 22;
     }
 
-    // 3. Filtra os cremes baseando-se no range de cada um
-    const sugestoes = cremes.filter(c => {
-        // Mapeia a temperatura do JSON para as categorias
-        let categoriaCreme = "";
-        if (c.temperatura <= 20) categoriaCreme = "baixa";
-        else if (c.temperatura > 20 && c.temperatura <= 25) categoriaCreme = "intermediaria";
-        else categoriaCreme = "alta";
+    let categoriaAtual = (tempParaFiltrar <= 20) ? "baixa" : (tempParaFiltrar <= 25) ? "intermediaria" : "alta";
 
-        return categoriaCreme === categoriaAtual;
+    const sugestoes = cremes.filter(c => {
+        let categoriaCreme = (c.temperatura <= 20) ? "baixa" : (c.temperatura <= 25) ? "intermediaria" : "alta";
+        const matchTemperatura = (categoriaCreme === categoriaAtual);
+        const matchPeriodo = (periodoSelecionado === "todos") || (c.periodo.includes(periodoSelecionado));
+
+        return matchTemperatura && matchPeriodo;
     });
 
-    // 4. Renderiza os resultados
     setTimeout(() => {
         if (sugestoes.length > 0) {
-            const rotulos = {
-                "baixa": "❄️ Clima Fresquinho (Hidratação Intensa)",
-                "intermediaria": "☁️ Clima Ameno (Equilíbrio)",
-                "alta": "☀️ Tá Calor! (Refrescância e Leveza)"
-            };
-
-            divResultado.innerHTML = `<h3 style="margin: 15px 0; color: #d81b60;">${rotulos[categoriaAtual]}</h3>`;
+            const txtPeriodo = periodoSelecionado === "todos" ? "" : ` para usar de ${periodoSelecionado}`;
+            divResultado.innerHTML = `<h3 style="margin: 15px 0; color: #d81b60;">Sugestões ${txtPeriodo}:</h3>`;
             
+            // Dentro da sua função recomendarCremePorClima, na parte do divResultado.innerHTML += sugestoes.map...
+
             divResultado.innerHTML += sugestoes.map(c => `
                 <div class="card-perfume">
                     <div style="font-size: 40px; margin-right: 15px;">🧴</div>
                     <div>
                         <span class="perfume-marca">${c.marca}</span>
-                        <strong style="color: var(--text-main); font-size: 1.1em; display: block;">${c.nome}</strong>
-                        <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
-                            <strong>Vibe:</strong> ${c.fragrancia}
-                            <br>✨ <strong>Notas:</strong> ${c.notas.join(', ')}
+                        <strong style="display:block;">${c.nome}</strong>
+                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-top:5px;">
+                            ${Array.isArray(c.notas) ? c.notas.join(', ') : c.notas}
                         </p>
-                        <div class="perfume-duracao">
-                            <span>🌡️ Ideal para:</span> <strong>${c.temperatura}°C</strong>
+                        
+                        <!-- Linha da Temperatura mantida aqui -->
+                        <div class="perfume-duracao" style="margin-top: 8px;">
+                            <span>🌡️ Ideal:</span>
+                            <strong>${c.temperatura}°C</strong>
+                        </div>
+
+                        <div style="margin-top:5px;">
+                            <span class="badge-intensity" style="background:#fce4ec; color:#d81b60; font-size:0.7em;">
+                                ${Array.isArray(c.periodo) ? c.periodo.join(' / ') : c.periodo}
+                            </span>
                         </div>
                     </div>
                 </div>
             `).join('');
         } else {
-            divResultado.innerHTML = `<p>Nenhum creme mapeado para a faixa de ${tempAtual}°C.</p>`;
+            divResultado.innerHTML = `<p>Nenhum creme encontrado para este período nesta temperatura.</p>`;
         }
     }, 500);
 }
 
 function surpreenderCremePorGraus() {
     const divResultado = document.getElementById('resultado');
+    const elPeriodo = document.getElementById('periodo-creme');
+    const periodoSelecionado = elPeriodo ? elPeriodo.value : "todos";
     
-    // 1. Verifica se os dados foram carregados do Gist
-    if (!cremes || cremes.length === 0) {
-        alert("Os cremes ainda estão sendo carregados. Tente novamente em 2 segundos!");
-        return;
-    }
-
+    if (!cremes || cremes.length === 0) return;
     mostrarSkeleton();
 
-    // 2. Pega a temperatura atual da tela
-    const tempTexto = document.getElementById('temperatura-atual').textContent;
+    const tempTexto = document.getElementById('temperatura-creme').textContent;
     const tempAtual = parseFloat(tempTexto.replace(/[^0-9.]/g, '')) || 22;
 
-    // 3. Define a categoria atual (Baseado nos seus ranges)
-    let categoriaAtual = "";
-    if (tempAtual <= 20) categoriaAtual = "baixa";
-    else if (tempAtual > 20 && tempAtual <= 25) categoriaAtual = "intermediaria";
-    else categoriaAtual = "alta";
+    let categoriaAtual = (tempAtual <= 20) ? "baixa" : (tempAtual <= 25) ? "intermediaria" : "alta";
 
-    // 4. Filtra os cremes que pertencem a esse range
+    // Filtra respeitando clima E período (apenas uma declaração aqui)
     const opcoesViaveis = cremes.filter(c => {
-        let categoriaCreme = "";
-        if (c.temperatura <= 20) categoriaCreme = "baixa";
-        else if (c.temperatura > 20 && c.temperatura <= 25) categoriaCreme = "intermediaria";
-        else categoriaCreme = "alta";
-        
-        return categoriaCreme === categoriaAtual;
+        let catCreme = (c.temperatura <= 20) ? "baixa" : (c.temperatura <= 25) ? "intermediaria" : "alta";
+        const matchPeriodo = (periodoSelecionado === "todos") || (c.periodo.includes(periodoSelecionado));
+        return (catCreme === categoriaAtual) && matchPeriodo;
     });
 
-    // 5. Sorteia UM creme dentro desse filtro
     setTimeout(() => {
         if (opcoesViaveis.length > 0) {
             const sorteado = opcoesViaveis[Math.floor(Math.random() * opcoesViaveis.length)];
 
             divResultado.innerHTML = `
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <h3 style="color: #d81b60;">✨ Sorteio Térmico (Para ${tempAtual}°C) ✨</h3>
+                    <h3 style="color: #d81b60;">✨ Sorteio para Range ${categoriaAtual.toUpperCase()} ✨</h3>
+                    <p style="font-size: 0.8em; color: var(--text-secondary);">Baseado em ${tempAtual}°C e período ${periodoSelecionado}</p>
                 </div>
-                <div class="card-perfume" style="border: 2px solid #ec407a; transform: scale(1.02);">
+                <div class="card-perfume" style="border: 2px solid #ec407a; transform: scale(1.02); box-shadow: 0 4px 20px rgba(236, 64, 122, 0.15);">
                     <div style="font-size: 40px; margin-right: 15px;">🧴</div>
                     <div>
                         <span class="perfume-marca">${sorteado.marca}</span>
                         <strong style="font-size: 1.2em; display: block;">${sorteado.nome}</strong>
                         <p style="font-size: 0.85em; color: var(--text-secondary); margin-top: 8px;">
-                            <strong>Vibe:</strong> ${sorteado.fragrancia} <br>
-                            <strong>Por que hoje?</strong> Porque sua textura é ideal para os ${sorteado.temperatura}°C que faz agora.
+                            <strong>Vibe:</strong> ${sorteado.fragrancia}<br>
+                            <strong>Notas:</strong> ${Array.isArray(sorteado.notas) ? sorteado.notas.join(', ') : sorteado.notas}
                         </p>
-                        <span class="badge-intensity" style="background: #fce4ec; color: #d81b60;">Sorteado da Vez</span>
+                        <span class="badge-intensity" style="background: #fce4ec; color: #d81b60;">Sorteado da Sorte</span>
                     </div>
                 </div>
             `;
         } else {
-            divResultado.innerHTML = `<p>Não há cremes no banco de dados para a faixa de ${tempAtual}°C para sortear.</p>`;
+            divResultado.innerHTML = `<p>Nenhum creme encontrado para o período "${periodoSelecionado}" neste clima.</p>`;
         }
     }, 600);
+}
+
+// Controle de temperatura manual
+let temperaturaManualAtiva = false;
+
+function selecionarRangeManualmente(tempSimulada, idRange) {
+    temperaturaManualAtiva = true;
+
+    const elTempCreme = document.getElementById('temperatura-creme');
+    if (elTempCreme) {
+        elTempCreme.innerHTML = `🌡️ ${tempSimulada}°C <span style="font-size: 0.6em; display:block;">(Seleção Manual)</span>`;
+    }
+
+    destacarRange(tempSimulada);
+    recomendarCremePorClima(tempSimulada);
 }
