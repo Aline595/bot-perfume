@@ -113,17 +113,19 @@
             <h2>🧴 Consultor de Cremes</h2>
             <p>O hidratante ideal para o clima de hoje</p>
             
-            <div id="info-clima-creme" class="status-temp">
-                <!-- Aqui aparecerá a temperatura capturada -->
+            <!-- Local onde a temperatura vai aparecer -->
+            <div id="temperatura-creme" style="font-size: 1.1em; font-weight: bold; color: #d81b60; margin: 15px 0;">
+                🌡️ Carregando temperatura...
             </div>
 
-            <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme">
-                ✨ Qual creme usar agora?
-            </button>
-
-            <button type="button" onclick="surpreenderCreme()" class="btn-surprise" style="background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%); margin-top: 10px;">
-                ✨ Me surpreenda com um creme!
-            </button>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" style="background: #d81b60;">
+                    🔍 Buscar por Clima
+                </button>
+                <button type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" style="background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);">
+                    ✨ Me surpreenda!
+                </button>
+            </div>
         </section>
 
 

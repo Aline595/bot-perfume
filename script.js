@@ -3,7 +3,7 @@ let perfumes = [];
 let decotes = [];
 let cremes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
-const urlCremes = "https://gist.githubusercontent.com/Aline595/5d3a031e9c8b6f31e4ecaa89a2c81c92/raw/144e3d28cd5f83b498a142112ae9d0bcdaa9a7a9/gistfile1.txt";
+const urlCremes = "https://gist.githubusercontent.com/Aline595/5d3a031e9c8b6f31e4ecaa89a2c81c92/raw/";
 let estacaoSelecionada = "";
 
 // Função para popular o select de tipo de blusa com dados do JSON
@@ -38,16 +38,24 @@ async function exibirTemperaturaAtual() {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-23.68&longitude=-46.62&current_weather=true');
         const data = await response.json();
         const temp = data.current_weather.temperature;
-        const elementoTemp = document.getElementById('temperatura-atual');
-        if (elementoTemp) {
-            elementoTemp.textContent = `🌡️ ${temp}°C agora`;
+        
+        // Atualiza na tela de Perfumes
+        const elementoTempPerfume = document.getElementById('temperatura-atual');
+        if (elementoTempPerfume) {
+            elementoTempPerfume.textContent = `🌡️ ${temp}°C agora`;
         }
+
+        // Atualiza na tela de Cremes
+        const elementoTempCreme = document.getElementById('temperatura-creme');
+        if (elementoTempCreme) {
+            elementoTempCreme.textContent = `🌡️ ${temp}°C em Diadema agora`;
+        }
+
     } catch (error) {
         console.error("Erro ao buscar temperatura:", error);
-        const elementoTemp = document.getElementById('temperatura-atual');
-        if (elementoTemp) {
-            elementoTemp.textContent = `🌡️ ~22°C (padrão)`;
-        }
+        const fallback = "🌡️ ~22°C (padrão)";
+        if (document.getElementById('temperatura-atual')) document.getElementById('temperatura-atual').textContent = fallback;
+        if (document.getElementById('temperatura-creme')) document.getElementById('temperatura-creme').textContent = fallback;
     }
 }
 
@@ -201,6 +209,7 @@ function toggleDarkMode() {
 }
 
 // Entra na aplicação, escondendo splash
+// Entra na aplicação, escondendo splash
 function entrarNoApp(categoria) {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
@@ -208,9 +217,10 @@ function entrarNoApp(categoria) {
     splash.classList.add('fade-out');
     container.style.display = 'block';
 
-    // Seleciona o botão da aba correta
-    const btnId = `tab-${categoria}`;
-    const btn = document.getElementById(btnId);
+    // Pega o botão da aba correspondente (tab-perfumes, tab-colares ou tab-cremes)
+    const btn = document.getElementById(`tab-${categoria}`);
+    
+    // Chama a função de alternar aba passando a categoria e o botão encontrado
     alternarAba(categoria, btn);
 }
 
