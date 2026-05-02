@@ -111,18 +111,32 @@
         <section id="conteudo-cremes" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>🧴 Consultor de Cremes</h2>
-            <p>O hidratante ideal para o clima de hoje</p>
             
-            <!-- Local onde a temperatura vai aparecer -->
-            <div id="temperatura-creme" style="font-size: 1.1em; font-weight: bold; color: #d81b60; margin: 15px 0;">
-                🌡️ Carregando temperatura...
+            <!-- Container de Clima e Ranges -->
+            <div class="clima-container" style="background: var(--bg-secondary); padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid var(--border-color);">
+                <div id="temperatura-creme" style="font-size: 1.4em; font-weight: bold; color: #d81b60; text-align: center; margin-bottom: 10px;">
+                    🌡️ Carregando...
+                </div>
+                
+                <!-- Legenda de Ranges Visual -->
+                <div class="ranges-legenda" style="display: flex; justify-content: space-around; gap: 5px; font-size: 0.8em; text-align: center;">
+                    <div id="range-baixa" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                        ❄️ Baixa<br>(até 20°C)
+                    </div>
+                    <div id="range-intermediaria" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                        ☁️ Média<br>(21°C - 25°C)
+                    </div>
+                    <div id="range-alta" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; opacity: 0.5;">
+                        ☀️ Alta<br>(26°C+)
+                    </div>
+                </div>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" style="background: #d81b60;">
-                    🔍 Buscar por Clima
+                <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" style="background: #d81b60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    🔍 Buscar Cremes do Momento
                 </button>
-                <button type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" style="background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);">
+                <button type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" style="background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                     ✨ Me surpreenda!
                 </button>
             </div>

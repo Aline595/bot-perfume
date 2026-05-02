@@ -39,23 +39,47 @@ async function exibirTemperaturaAtual() {
         const data = await response.json();
         const temp = data.current_weather.temperature;
         
-        // Atualiza na tela de Perfumes
-        const elementoTempPerfume = document.getElementById('temperatura-atual');
-        if (elementoTempPerfume) {
-            elementoTempPerfume.textContent = `🌡️ ${temp}°C agora`;
-        }
+        // 1. Atualiza os textos de temperatura
+        const elementos = ['temperatura-atual', 'temperatura-creme'];
+        elementos.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = `🌡️ ${temp}°C agora`;
+        });
 
-        // Atualiza na tela de Cremes
-        const elementoTempCreme = document.getElementById('temperatura-creme');
-        if (elementoTempCreme) {
-            elementoTempCreme.textContent = `🌡️ ${temp}°C em Diadema agora`;
-        }
+        // 2. Lógica para destacar o Range na tela de Cremes
+        destacarRange(temp);
 
     } catch (error) {
         console.error("Erro ao buscar temperatura:", error);
-        const fallback = "🌡️ ~22°C (padrão)";
-        if (document.getElementById('temperatura-atual')) document.getElementById('temperatura-atual').textContent = fallback;
-        if (document.getElementById('temperatura-creme')) document.getElementById('temperatura-creme').textContent = fallback;
+    }
+}
+
+function destacarRange(temp) {
+    // Reseta todos os ranges para o estado apagado
+    const IDs = ['range-baixa', 'range-intermediaria', 'range-alta'];
+    IDs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.opacity = "0.4";
+            el.style.border = "1px solid #ccc";
+            el.style.backgroundColor = "transparent";
+            el.style.color = "inherit";
+        }
+    });
+
+    // Identifica o range atual e aplica destaque
+    let idAtivo = "";
+    if (temp <= 20) idAtivo = "range-baixa";
+    else if (temp > 20 && temp <= 25) idAtivo = "range-intermediaria";
+    else idAtivo = "range-alta";
+
+    const elAtivo = document.getElementById(idAtivo);
+    if (elAtivo) {
+        elAtivo.style.opacity = "1";
+        elAtivo.style.border = "2px solid #d81b60";
+        elAtivo.style.backgroundColor = "rgba(216, 27, 96, 0.1)";
+        elAtivo.style.color = "#d81b60";
+        elAtivo.style.fontWeight = "bold";
     }
 }
 
