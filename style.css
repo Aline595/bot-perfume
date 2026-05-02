@@ -552,3 +552,13 @@ button:focus-visible, select:focus-visible, input:focus-visible {
         --text-main: #ffffff;
     }
 }
+.btn-surprise-creme {
+    background: linear-gradient(135deg, #ff4081, #c2185b);
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 10px rgba(236, 64, 122, 0.3);
+}
