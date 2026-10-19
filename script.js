@@ -4,10 +4,25 @@ let perfumesCarregados = false;
 let decotes = [];
 let cremes = [];
 let cremesCarregados = false;
+let perfumesCarregadosEm = null;
+let cremesCarregadosEm = null;
+let perfumesFonteCatalogo = 'GitHub Gist público';
 let temperaturaAmbienteAtual = 22;
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 const urlCremes = "https://gist.githubusercontent.com/Aline595/5d3a031e9c8b6f31e4ecaa89a2c81c92/raw/";
 let estacaoSelecionada = "";
+
+function textoStatusCatalogo(tipo, quantidade, fonte, carregadoEm) {
+    const substantivo = tipo === 'perfume' ? 'perfume' : 'creme';
+    const total = `${quantidade} ${substantivo}${quantidade === 1 ? '' : 's'}`;
+    const hora = new Intl.DateTimeFormat('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(carregadoEm);
+    return quantidade
+        ? `Catálogo carregado: ${total}. Fonte: ${fonte}. Carregado às ${hora}.`
+        : `O catálogo foi carregado, mas não há ${substantivo}s cadastrados. Fonte: ${fonte}. Carregado às ${hora}.`;
+}
 
 // Função para popular o select de tipo de blusa com dados do JSON
 function popularSelectBlusas(decotes) {
@@ -151,12 +166,16 @@ async function carregarPerfumes() {
             throw new Error('A resposta não contém uma lista válida de perfumes.');
         }
         perfumesCarregados = true;
+        perfumesCarregadosEm = new Date();
+        perfumesFonteCatalogo = apiBase
+            ? ['localhost', '127.0.0.1'].includes(new URL(apiBase).hostname)
+                ? 'backend local'
+                : 'backend online (GitHub Gist)'
+            : 'GitHub Gist público';
         atualizarBotoesBuscaPerfumes();
         document.dispatchEvent(new Event('perfumes-carregados'));
         if (status) {
-            status.textContent = perfumes.length
-                ? `Catálogo carregado: ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`
-                : 'O catálogo foi carregado, mas não há perfumes cadastrados.';
+            status.textContent = textoStatusCatalogo('perfume', perfumes.length, perfumesFonteCatalogo, perfumesCarregadosEm);
             status.className = 'perfume-load-status success';
         }
         return true;
@@ -193,13 +212,21 @@ function atualizarBotoesBuscaPerfumes() {
 
 document.addEventListener('perfumes-carregados', () => {
     perfumesCarregados = true;
+    perfumesCarregadosEm = new Date();
     atualizarBotoesBuscaPerfumes();
     const status = document.getElementById('perfume-load-status');
     if (!status || !Array.isArray(perfumes)) return;
-    status.textContent = perfumes.length
-        ? `Catálogo carregado: ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`
-        : 'O catálogo foi carregado, mas não há perfumes cadastrados.';
+    status.textContent = textoStatusCatalogo('perfume', perfumes.length, perfumesFonteCatalogo, perfumesCarregadosEm);
     status.className = 'perfume-load-status success';
+});
+
+document.addEventListener('cremes-carregados', () => {
+    cremesCarregados = true;
+    cremesCarregadosEm = new Date();
+    const status = document.getElementById('creme-load-status');
+    if (!status || !Array.isArray(cremes)) return;
+    status.textContent = textoStatusCatalogo('creme', cremes.length, 'GitHub Gist público', cremesCarregadosEm);
+    status.className = cremes.length ? 'perfume-load-status success' : 'perfume-load-status';
 });
 
 async function carregarDados() {
@@ -252,14 +279,13 @@ async function carregarCremes() {
         }
         cremes = dadosCremes;
         cremesCarregados = true;
+        cremesCarregadosEm = new Date();
         document.dispatchEvent(new Event('cremes-carregados'));
         searchButtons.forEach((button) => {
             if (button) button.disabled = cremes.length === 0;
         });
         if (status) {
-            status.textContent = cremes.length
-                ? `Catálogo carregado: ${cremes.length} ${cremes.length === 1 ? 'creme' : 'cremes'}.`
-                : 'O catálogo foi carregado, mas não há cremes cadastrados.';
+            status.textContent = textoStatusCatalogo('creme', cremes.length, 'GitHub Gist público', cremesCarregadosEm);
             status.className = cremes.length
                 ? 'perfume-load-status success'
                 : 'perfume-load-status';
@@ -269,7 +295,7 @@ async function carregarCremes() {
         document.dispatchEvent(new Event('cremes-carregamento-falhou'));
         if (status) {
             status.textContent = erro instanceof TypeError
-                ? `Não foi possível conectar ao catálogo de cremes. Verifique sua conexão com a internet e tente novamente.`
+                ? `Não foi possível conectar ao GitHub Gist para carregar os cremes. Verifique a internet e se o navegador não bloqueou a conexão por CORS; depois tente novamente.`
                 : `Não foi possível carregar o catálogo de cremes: ${erro.message}`;
             status.className = 'perfume-load-status error';
         }
@@ -439,8 +465,15 @@ function alternarAba(tipo, botao) {
     // Mostra a selecionada
     document.getElementById(`conteudo-${tipo}`).style.display = 'block';
 
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    if (botao) botao.classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
+    });
+    if (botao) {
+        botao.classList.add('active');
+        botao.setAttribute('aria-pressed', 'true');
+    }
+    document.querySelector(`#conteudo-${tipo} h2`)?.focus();
     
     document.getElementById('resultado').innerHTML = '';
 }

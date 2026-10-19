@@ -16,7 +16,7 @@
             <span>✨</span>
             <h1>O que você busca hoje?</h1>
             <p>Escolha uma categoria para começar sua consultoria personalizada.</p>
-            <nav class="botoes-home">
+            <nav class="botoes-home" aria-label="Escolher categoria">
                 <button type="button" onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
                 <button type="button" onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
                 <button type="button" onclick="entrarNoApp('cremes')" class="btn-home">🧴 Cremes</button>
@@ -27,10 +27,10 @@
     <!-- Container principal da aplicação -->
     <main class="container" style="display: none;">
         <!-- Navegação por abas -->
-        <nav class="menu-tabs">
-            <button type="button" id="tab-perfumes" class="tab-btn" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
-            <button type="button" id="tab-cremes" class="tab-btn" onclick="alternarAba('cremes', this)">🧴 Cremes</button>
-            <button type="button" id="tab-colares" class="tab-btn" onclick="alternarAba('colares', this)">📿 Colares</button>
+        <nav class="menu-tabs" aria-label="Categorias do consultor">
+            <button type="button" id="tab-perfumes" class="tab-btn" aria-controls="conteudo-perfumes" aria-pressed="false" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
+            <button type="button" id="tab-cremes" class="tab-btn" aria-controls="conteudo-cremes" aria-pressed="false" onclick="alternarAba('cremes', this)">🧴 Cremes</button>
+            <button type="button" id="tab-colares" class="tab-btn" aria-controls="conteudo-colares" aria-pressed="false" onclick="alternarAba('colares', this)">📿 Colares</button>
         </nav>
 
         <!-- Botão para alternar modo escuro -->
@@ -41,7 +41,7 @@
         <!-- Seção de perfumes -->
         <section id="conteudo-perfumes" class="secao-aba">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            <h2>🌸 Consultor de Perfumes</h2>
+            <h2 tabindex="-1">🌸 Consultor de Perfumes</h2>
             <p>Descubra o aroma perfeito para você</p>
             <div id="perfume-load-status" class="perfume-load-status" role="status" aria-live="polite">
                 Carregando catálogo de perfumes...
@@ -139,6 +139,8 @@
                 <div class="perfume-admin-maintenance">
                     <button id="perfume-admin-validate" type="button" disabled>Validar catálogo</button>
                     <button id="perfume-admin-export" type="button" disabled>Exportar cópia JSON</button>
+                    <button id="perfume-admin-import" type="button" disabled>Importar backup JSON</button>
+                    <input id="perfume-admin-import-file" class="visually-hidden" type="file" accept=".json,application/json" tabindex="-1" aria-label="Selecionar backup JSON de perfumes">
                 </div>
                 <p id="perfume-admin-maintenance-status" role="status" aria-live="polite"></p>
                 <label for="perfume-admin-search">Buscar por nome ou marca:</label>
@@ -151,7 +153,7 @@
         <!-- Seção de colares -->
         <section id="conteudo-colares" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            <h2>📿 Consultor de Colares</h2>
+            <h2 tabindex="-1">📿 Consultor de Colares</h2>
             <p>Encontre o acessório perfeito para seu decote</p>
             
             <div class="estacao-selector">
@@ -169,7 +171,7 @@
 
         <section id="conteudo-cremes" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
-            <h2>🧴 Consultor de Cremes</h2>
+            <h2 tabindex="-1">🧴 Consultor de Cremes</h2>
             <p class="search-intro">Encontre cremes adequados ao clima e ao momento de uso. Os filtros de temperatura, estação e fragrância são opcionais.</p>
             <div id="creme-load-status" class="perfume-load-status" role="status" aria-live="polite">Carregando catálogo de cremes...</div>
             <button id="creme-load-retry" type="button" class="perfume-load-retry" hidden>Tentar carregar novamente</button>
@@ -265,6 +267,8 @@
                 <div class="perfume-admin-maintenance">
                     <button id="creme-admin-validate" type="button" disabled>Validar catálogo</button>
                     <button id="creme-admin-export" type="button" disabled>Exportar cópia JSON</button>
+                    <button id="creme-admin-import" type="button" disabled>Importar backup JSON</button>
+                    <input id="creme-admin-import-file" class="visually-hidden" type="file" accept=".json,application/json" tabindex="-1" aria-label="Selecionar backup JSON de cremes">
                 </div>
                 <p id="creme-admin-maintenance-status" role="status" aria-live="polite"></p>
                 <label for="creme-admin-search">Buscar por nome ou marca:</label>
@@ -276,7 +280,7 @@
 
 
         <!-- Área para exibir resultados -->
-        <div id="resultado" role="region" aria-label="Resultados da recomendação" aria-live="polite" aria-busy="false" tabindex="-1"></div>
+        <div id="resultado" role="region" aria-label="Resultados da recomendação" aria-live="polite" aria-atomic="true" aria-busy="false" tabindex="-1"></div>
     </main>
     
     <!-- Scripts JavaScript -->

@@ -13,10 +13,10 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 - **Temperatura indisponível**: Se o serviço de clima falhar, a tela avisa e usa 22°C como referência para os filtros que dependem da temperatura.
 - **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Consulta de Cremes**: Filtre opcionalmente por faixa de temperatura, estação, período e fragrância/notas; os resultados explicam por que cada creme combina e oferecem uma opção para ampliar a busca.
-- **Feedback dos cremes**: A interface informa o estado do catálogo, permite tentar o carregamento novamente e avisa quando a temperatura atual não está disponível.
+- **Feedback dos catálogos**: A interface mostra a origem e o horário de carregamento, explica falhas de rede/CORS e permite tentar novamente.
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
 - - **CRUD de Perfumes e Cremes**: Cadastre, edite e exclua os dois catálogos nos respectivos Gists usando uma API protegida.
-- **Manutenção dos catálogos**: pesquise, valide os dados e exporte cópias JSON para backup.
+- **Manutenção dos catálogos**: pesquise, valide, exporte backups JSON e importe arquivos validados com confirmação antes de substituir o catálogo.
 - **Modo Escuro**: Alternância entre temas claro e escuro.
 - **Responsivo**: Otimizado para celular, tablet e PC.
 - **Acessibilidade**: Suporte a navegação por teclado e leitores de tela, feedback anunciado para carregamento e resultados, e respeito à preferência por movimento reduzido.
@@ -31,7 +31,7 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 5. Para colares, selecione o tipo de blusa e solicite uma recomendação.
 6. Na área de cremes, escolha o momento de uso e, opcionalmente, filtre por faixa de temperatura, estação ou fragrância/notas. Se não houver resultados, ajuste os filtros ou clique em **Ver todos os cremes**.
 7. Clique em **⬅ Voltar** para retornar à tela inicial ou use **🌓 Alternar Tema** para mudar o tema.
-8. Para administrar os catálogos, expanda **Gerenciar perfumes do Gist** ou **Gerenciar catálogo de cremes**. Cada área permite pesquisar, cadastrar, editar, excluir, validar e exportar seu próprio backup JSON. As alterações são compartilhadas pelo Gist correspondente.
+8. Para administrar os catálogos, expanda **Gerenciar perfumes do Gist** ou **Gerenciar catálogo de cremes**. Cada área permite pesquisar, cadastrar, editar, excluir, validar, exportar e importar seu backup JSON. A importação valida os registros e pede confirmação antes de substituir o catálogo compartilhado.
 
 ## Tecnologias
 
@@ -76,7 +76,7 @@ Configure `window.PERFUMES_API_URL` em `api-config.js` com a URL HTTPS do backen
 
 O Gist de cremes usa o arquivo `gistfile1.txt`, que contém JSON. O backend atualiza esse arquivo sem alterar o Gist de perfumes. O catálogo fornecido contém dois registros legados com campos vazios; eles são preservados até serem corrigidos ou excluídos pela administração.
 
-Depois de alterar o backend, publique/reimplante `server.js` no serviço Node antes de usar o gerenciamento de cremes no site. A URL do backend continua sendo a mesma; os novos endpoints são `/api/cremes` e `/api/cremes/:id`.
+Depois de alterar o backend, publique/reimplante `server.js` no serviço Node antes de usar o gerenciamento de cremes ou importar backups no site. A URL do backend continua sendo a mesma; os endpoints incluem `/api/cremes`, `/api/cremes/:id`, `/api/perfumes` e `/api/perfumes/:id`. `PUT /api/cremes` e `PUT /api/perfumes` substituem o catálogo após autenticação e validação do backup.
 
 Se a interface indicar que o backend online não pôde ser acessado, verifique se o serviço está ativo. Se ele estiver ativo, confirme se `ALLOWED_ORIGINS` contém exatamente a origem do site, incluindo protocolo e domínio, por exemplo `https://aline595.github.io`. Uma falha de conexão ou CORS não significa necessariamente que o catálogo do Gist esteja indisponível.
 

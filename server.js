@@ -208,6 +208,48 @@ function validateCreamList(value) {
     return value;
 }
 
+function validateCreamReplacement(value, current) {
+    if (!Array.isArray(value)) {
+        throw new HttpError(400, 'O backup precisa conter uma lista JSON de cremes.');
+    }
+    const ids = new Set();
+    const currentById = new Map(current.map((cream) => [cream.id, cream]));
+    for (const cream of value) {
+        if (!cream || !Number.isSafeInteger(cream.id) || cream.id < 1 || ids.has(cream.id)) {
+            throw new HttpError(400, 'O backup contém IDs de creme inválidos ou duplicados.');
+        }
+        ids.add(cream.id);
+        const { id, ...input } = cream;
+        try {
+            validateCreamInput(input);
+        } catch (error) {
+            const existing = currentById.get(id);
+            if (!existing || stableSerialize(existing) !== stableSerialize(cream)) {
+                throw new HttpError(400, `Creme ID ${id} inválido: ${error.message}`);
+            }
+        }
+    }
+    return value;
+}
+
+function validatePerfumeReplacement(value) {
+    try {
+        return validatePerfumeList(value, { validateRecords: true });
+    } catch (error) {
+        throw new HttpError(400, `Backup de perfumes inválido: ${error.message}`);
+    }
+}
+
+function stableSerialize(value) {
+    if (Array.isArray(value)) return `[${value.map(stableSerialize).join(',')}]`;
+    if (value && typeof value === 'object') {
+        return `{${Object.keys(value).sort().map((key) =>
+            `${JSON.stringify(key)}:${stableSerialize(value[key])}`
+        ).join(',')}}`;
+    }
+    return JSON.stringify(value);
+}
+
 function createServer({
     token,
     adminPassword,
@@ -251,11 +293,15 @@ function createServer({
         return collection.validateList(records);
     }
 
-    function writeCollection(collection, mutator) {
+    function writeCollection(collection, mutator, isReplacement = false) {
         const operation = writeQueue.then(async () => {
             const current = await readCollection(collection);
-            const updated = collection.validateList(mutator(current));
-            if (collection.validateResult) collection.validateResult(updated);
+            const proposed = mutator(current);
+            const updated = isReplacement && collection.validateReplacement
+                ? collection.validateReplacement(proposed, current)
+                : collection.validateList(proposed);
+            const validate = isReplacement ? null : collection.validateResult;
+            if (validate) validate(updated, current);
             const response = await fetchImpl(gistUrl(collection.gistId), {
                 method: 'PATCH',
                 headers: {
@@ -313,7 +359,9 @@ function createServer({
                     gistId: creamsGistId,
                     filename: CREAMS_GIST_FILENAME,
                     validateInput: validateCreamInput,
-                    validateList: validateCreamList
+                    validateList: validateCreamList,
+                    validateResult: validateCreamReplacement,
+                    validateReplacement: validateCreamReplacement
                 }
                 : {
                     plural: 'perfumes',
@@ -322,13 +370,14 @@ function createServer({
                     filename: GIST_FILENAME,
                     validateInput: validatePerfumeInput,
                     validateList: (records) => validatePerfumeList(records),
-                    validateResult: (records) => validatePerfumeList(records, { validateRecords: true })
+                    validateResult: (records) => validatePerfumeList(records, { validateRecords: true }),
+                    validateReplacement: validatePerfumeReplacement
                 };
             const collectionRoute = url.pathname === `/api/${collectionName}`;
             const itemMatch = url.pathname.match(new RegExp(`^/api/${collectionName}/(\\d+)$`));
             try {
                 const validMethod = collectionRoute
-                    ? ['GET', 'POST'].includes(request.method)
+                    ? ['GET', 'POST', 'PUT'].includes(request.method)
                     : ['PUT', 'DELETE'].includes(request.method);
                 if (!validMethod) {
                     sendJson(response, 405, { error: 'Método não permitido para esta rota.' });
@@ -351,6 +400,13 @@ function createServer({
                         return [...current, { id, ...record }];
                     });
                     sendJson(response, 201, { [collection.plural]: updated });
+                    return;
+                }
+
+                if (request.method === 'PUT' && collectionRoute) {
+                    const records = await readJsonBody(request);
+                    const updated = await writeCollection(collection, () => records, true);
+                    sendJson(response, 200, { [collection.plural]: updated });
                     return;
                 }
 

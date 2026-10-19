@@ -1070,6 +1070,15 @@ body.dark-mode .temperature-status-warning {
     #creme-admin-list .perfume-admin-item-actions {
         width: 100%;
     }
+
+    .perfume-admin-maintenance button {
+        flex-basis: 100%;
+    }
+
+    #perfume-admin-list .perfume-admin-item-actions button,
+    #creme-admin-list .perfume-admin-item-actions button {
+        flex: 1 1 0;
+    }
 }
 
 @media (max-width: 380px) {

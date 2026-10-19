@@ -251,6 +251,105 @@ test('protects cream CRUD and updates only the cream Gist file', async () => {
     });
 });
 
+test('validates and replaces a cream catalog from a backup without altering legacy records', async () => {
+    const creamGistId = DEFAULT_CREAMS_GIST_ID;
+    const legacyCream = {
+        id: 1,
+        nome: 'Registro antigo',
+        marca: 'Marca antiga',
+        temperatura: '',
+        notas: ['']
+    };
+    const validCream = {
+        id: 2,
+        nome: 'Creme de backup',
+        marca: 'Marca de teste',
+        imagem: '',
+        textura: ['Leve'],
+        fragrancia: ['Floral'],
+        notas: ['Rosa'],
+        funcao_principal: ['Hidratação'],
+        temperatura: 22,
+        clima: ['Primavera'],
+        periodo: ['dia']
+    };
+    const gist = makeGistFetch({
+        [creamGistId]: {
+            'gistfile1.txt': { content: JSON.stringify([legacyCream]) }
+        }
+    });
+
+    await withServer({
+        token: 'test-token',
+        adminPassword: 'test-password',
+        gistId: 'unused-perfume-gist',
+        creamsGistId: creamGistId,
+        fetchImpl: gist.fetchImpl
+    }, async (baseUrl) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-Admin-Password': 'test-password'
+        };
+        const invalid = await fetch(`${baseUrl}/api/cremes`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify([{ ...legacyCream, marca: '' }, validCream])
+        });
+        assert.equal(invalid.status, 400);
+        assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 0);
+
+        const imported = await fetch(`${baseUrl}/api/cremes`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify([legacyCream, validCream])
+        });
+        assert.equal(imported.status, 200);
+        assert.deepEqual((await imported.json()).cremes, [legacyCream, validCream]);
+        assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 1);
+    });
+});
+
+test('requires authentication and validates a full perfume backup before replacing the Gist', async () => {
+    const original = [{ id: 1, ...perfumeInput }];
+    const replacement = [{ id: 4, ...perfumeInput, nome: 'Perfume restaurado' }];
+    const gist = makeFetch(original);
+    await withServer({
+        token: 'test-token',
+        adminPassword: 'test-password',
+        gistId: 'test-perfume-gist',
+        fetchImpl: gist.fetchImpl
+    }, async (baseUrl) => {
+        const unauthorized = await fetch(`${baseUrl}/api/perfumes`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(replacement)
+        });
+        assert.equal(unauthorized.status, 401);
+
+        const invalid = await fetch(`${baseUrl}/api/perfumes`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Password': 'test-password'
+            },
+            body: JSON.stringify([{ id: 1, ...perfumeInput, vibe: [] }])
+        });
+        assert.equal(invalid.status, 400);
+        assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 0);
+
+        const imported = await fetch(`${baseUrl}/api/perfumes`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Password': 'test-password'
+            },
+            body: JSON.stringify(replacement)
+        });
+        assert.equal(imported.status, 200);
+        assert.deepEqual(gist.getPerfumes(), replacement);
+    });
+});
+
 test('protects Gist CRUD and preserves the current perfume data shape', async () => {
     const gist = makeFetch([
         { id: 1, ...perfumeInput, custom_note: 'Preservar este campo' },

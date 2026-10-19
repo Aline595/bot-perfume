@@ -8,6 +8,8 @@
     const count = document.getElementById('creme-admin-count');
     const validateButton = document.getElementById('creme-admin-validate');
     const exportButton = document.getElementById('creme-admin-export');
+    const importButton = document.getElementById('creme-admin-import');
+    const importFile = document.getElementById('creme-admin-import-file');
     const maintenanceStatus = document.getElementById('creme-admin-maintenance-status');
     const saveButton = document.getElementById('creme-admin-save');
     const cancelButton = document.getElementById('creme-admin-cancel');
@@ -32,6 +34,7 @@
         const loaded = cremesCarregados;
         validateButton.disabled = !loaded;
         exportButton.disabled = !loaded;
+        importButton.disabled = !loaded;
         const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
         const matches = cremes.filter((cream) =>
             `${cream.nome || ''} ${cream.marca || ''}`.toLocaleLowerCase('pt-BR').includes(query)
@@ -99,10 +102,10 @@
         return errors;
     }
 
-    function validateCatalog() {
+    function validateCatalog(catalog = cremes, allowUnchangedLegacy = false) {
         const errors = [];
         const ids = new Set();
-        cremes.forEach((cream, index) => {
+        catalog.forEach((cream, index) => {
             if (!cream || typeof cream !== 'object' || Array.isArray(cream)) {
                 errors.push(`Item ${index + 1}: registro inválido`);
                 return;
@@ -114,11 +117,27 @@
             } else {
                 ids.add(cream.id);
             }
+            const existing = allowUnchangedLegacy
+                ? cremes.find((item) => item.id === cream.id)
+                : null;
+            const isUnchangedLegacy = existing &&
+                stableSerialize(existing) === stableSerialize(cream);
+            if (isUnchangedLegacy) return;
             validateCream(cream).forEach((error) => {
                 errors.push(`Item ${index + 1} (ID ${cream.id ?? 'inválido'}): ${error}`);
             });
         });
         return errors;
+    }
+
+    function stableSerialize(value) {
+        if (Array.isArray(value)) return `[${value.map(stableSerialize).join(',')}]`;
+        if (value && typeof value === 'object') {
+            return `{${Object.keys(value).sort().map((key) =>
+                `${JSON.stringify(key)}:${stableSerialize(value[key])}`
+            ).join(',')}}`;
+        }
+        return JSON.stringify(value);
     }
 
     function splitList(value) {
@@ -169,15 +188,25 @@
 
     async function mutate(url, method, body) {
         if (!password.value) throw new Error('Informe a senha de administração.');
-        const response = await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Password': password.value
-            },
-            body: body ? JSON.stringify(body) : undefined
-        });
-        const result = await response.json();
+        let response;
+        try {
+            response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Admin-Password': password.value
+                },
+                body: body ? JSON.stringify(body) : undefined
+            });
+        } catch {
+            throw new Error('Não foi possível conectar ao backend. Verifique se o serviço está ativo e se CORS permite a origem deste site.');
+        }
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error(`O backend respondeu em formato inesperado (HTTP ${response.status}). Verifique os logs do serviço.`);
+        }
         if (!response.ok) throw new Error(result.error || `Erro HTTP ${response.status}.`);
         cremes = result.cremes;
         document.dispatchEvent(new Event('cremes-carregados'));
@@ -212,6 +241,41 @@
         window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
         maintenanceStatus.className = 'perfume-admin-maintenance-status success';
         maintenanceStatus.textContent = `Cópia JSON exportada com ${cremes.length} ${cremes.length === 1 ? 'creme' : 'cremes'}.`;
+    });
+
+    importButton.addEventListener('click', () => importFile.click());
+    importFile.addEventListener('change', async () => {
+        const file = importFile.files?.[0];
+        importFile.value = '';
+        if (!file) return;
+        if (file.size > 1024 * 1024) {
+            maintenanceStatus.textContent = 'O arquivo excede o limite de 1 MB.';
+            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+            return;
+        }
+
+        try {
+            const backup = JSON.parse(await file.text());
+            if (!Array.isArray(backup)) throw new Error('O arquivo precisa conter uma lista JSON de cremes.');
+            const errors = validateCatalog(backup, true);
+            if (errors.length) throw new Error(`Backup inválido: ${errors.join('; ')}.`);
+            if (!window.confirm(`Importar ${backup.length} cremes e substituir todo o catálogo atual? Esta alteração será compartilhada com todos os usuários.`)) return;
+
+            const base = apiBase();
+            if (!base) throw new Error('Configure a URL do backend em api-config.js para importar o catálogo.');
+            if (!password.value) throw new Error('Informe a senha de administração antes de importar.');
+
+            importButton.disabled = true;
+            await mutate(`${base}/api/cremes`, 'PUT', backup);
+            maintenanceStatus.className = 'perfume-admin-maintenance-status success';
+            maintenanceStatus.textContent = `Backup importado: ${cremes.length} ${cremes.length === 1 ? 'creme restaurado' : 'cremes restaurados'}.`;
+            setStatus('Catálogo de cremes restaurado do backup.');
+        } catch (error) {
+            maintenanceStatus.textContent = error.message || 'Não foi possível importar o backup.';
+            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+        } finally {
+            importButton.disabled = !cremesCarregados;
+        }
     });
     cancelButton.addEventListener('click', resetForm);
 
