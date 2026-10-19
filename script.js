@@ -3,6 +3,8 @@ let perfumes = [];
 let perfumesCarregados = false;
 let decotes = [];
 let cremes = [];
+let cremesCarregados = false;
+let temperaturaAmbienteAtual = 22;
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
 const urlCremes = "https://gist.githubusercontent.com/Aline595/5d3a031e9c8b6f31e4ecaa89a2c81c92/raw/";
 let estacaoSelecionada = "";
@@ -40,55 +42,59 @@ async function exibirTemperaturaAtual() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         const temp = data.current_weather.temperature;
+        if (typeof temp !== 'number' || !Number.isFinite(temp)) {
+            throw new Error('A resposta não contém uma temperatura válida.');
+        }
+        temperaturaAmbienteAtual = temp;
         
         // 1. Atualiza os textos de temperatura
-        const elementos = ['temperatura-atual', 'temperatura-creme'];
-        elementos.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = `🌡️ ${temp}°C agora`;
-        });
+        const perfumeTemperature = document.getElementById('temperatura-atual');
+        if (perfumeTemperature) perfumeTemperature.textContent = `🌡️ ${temp}°C agora`;
+        const creamTemperature = document.getElementById('temperatura-creme');
+        if (creamTemperature && !temperaturaManualAtiva) {
+            creamTemperature.textContent = `🌡️ ${temp}°C agora`;
+        }
         document.getElementById('temperatura-atual')?.classList.remove('temperature-status-warning');
+        if (!temperaturaManualAtiva) {
+            document.getElementById('temperatura-creme')?.classList.remove('temperature-status-warning');
+        }
 
         // 2. Lógica para destacar o Range na tela de Cremes
-        destacarRange(temp);
+        if (!temperaturaManualAtiva) destacarRange(temp);
 
     } catch (error) {
         console.error("Erro ao buscar temperatura:", error);
+        temperaturaAmbienteAtual = 22;
         const status = document.getElementById('temperatura-atual');
         if (status) {
             status.textContent = '🌡️ Temperatura indisponível; o filtro pode usar 22°C como referência.';
             status.classList.add('temperature-status-warning');
         }
+        const creamStatus = document.getElementById('temperatura-creme');
+        if (creamStatus && !temperaturaManualAtiva) {
+            creamStatus.textContent = '🌡️ Temperatura indisponível; usando 22°C como referência.';
+            creamStatus.classList.add('temperature-status-warning');
+            destacarRange(22);
+        }
     }
 }
 
 function destacarRange(temp) {
-    // Reseta todos os ranges para o estado apagado
     const IDs = ['range-baixa', 'range-intermediaria', 'range-alta'];
+    const idAtivo = temp <= 20
+        ? 'range-baixa'
+        : temp <= 25
+            ? 'range-intermediaria'
+            : 'range-alta';
+
     IDs.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.style.opacity = "0.4";
-            el.style.border = "1px solid #ccc";
-            el.style.backgroundColor = "transparent";
-            el.style.color = "inherit";
+            const ativo = id === idAtivo;
+            el.classList.toggle('active', ativo);
+            el.setAttribute('aria-pressed', String(ativo));
         }
     });
-
-    // Identifica o range atual e aplica destaque
-    let idAtivo = "";
-    if (temp <= 20) idAtivo = "range-baixa";
-    else if (temp > 20 && temp <= 25) idAtivo = "range-intermediaria";
-    else idAtivo = "range-alta";
-
-    const elAtivo = document.getElementById(idAtivo);
-    if (elAtivo) {
-        elAtivo.style.opacity = "1";
-        elAtivo.style.border = "2px solid #d81b60";
-        elAtivo.style.backgroundColor = "rgba(216, 27, 96, 0.1)";
-        elAtivo.style.color = "#d81b60";
-        elAtivo.style.fontWeight = "bold";
-    }
 }
 
 // Função para carregar dados de perfumes e decotes
@@ -209,28 +215,79 @@ async function carregarDados() {
         console.warn("⚠️ Erro nos decotes:", erro);
     }
 
-    // 3. NOVO: Carregar Cremes (Você pode criar um novo Gist para isso)
-    try {
-        // Substitua pela URL do seu novo Gist de cremes quando criar
-        const respostaCremes = await fetch(urlCremes);
-        cremes = await respostaCremes.json();
-    } catch (erro) {
-        console.warn("⚠️ Não foi possível carregar cremes:", erro);
-        // Fallback local caso o Gist falhe
-        cremes = [
-            { "nome": "Baunilha Real", "marca": "Boticário", "temperatura": "frio", "vibe": "doce" },
-            { "nome": "Sorbet de Manga", "marca": "Natura", "temperatura": "calor", "vibe": "fresco" }
-        ];
-    }
+    // 3. Carregar catálogo de cremes
+    await carregarCremes();
 
     definirEstacaoInicial();
     exibirTemperaturaAtual(); // Exibir temperatura ao carregar
+}
+
+async function carregarCremes() {
+    const status = document.getElementById('creme-load-status');
+    const retryButton = document.getElementById('creme-load-retry');
+    const searchButtons = [
+        document.getElementById('buscar-cremes'),
+        document.getElementById('surpreender-creme')
+    ];
+
+    cremesCarregados = false;
+    searchButtons.forEach((button) => {
+        if (button) button.disabled = true;
+    });
+    if (status) {
+        status.textContent = 'Carregando catálogo de cremes...';
+        status.className = 'perfume-load-status';
+    }
+    if (retryButton) retryButton.hidden = true;
+    atualizarFiltrosCreme();
+
+    try {
+        const respostaCremes = await fetch(urlCremes);
+        if (!respostaCremes.ok) {
+            throw new Error(`O catálogo respondeu com HTTP ${respostaCremes.status}.`);
+        }
+        const dadosCremes = await respostaCremes.json();
+        if (!Array.isArray(dadosCremes)) {
+            throw new Error('A resposta não contém uma lista válida de cremes.');
+        }
+        cremes = dadosCremes;
+        cremesCarregados = true;
+        document.dispatchEvent(new Event('cremes-carregados'));
+        searchButtons.forEach((button) => {
+            if (button) button.disabled = cremes.length === 0;
+        });
+        if (status) {
+            status.textContent = cremes.length
+                ? `Catálogo carregado: ${cremes.length} ${cremes.length === 1 ? 'creme' : 'cremes'}.`
+                : 'O catálogo foi carregado, mas não há cremes cadastrados.';
+            status.className = cremes.length
+                ? 'perfume-load-status success'
+                : 'perfume-load-status';
+        }
+    } catch (erro) {
+        console.error('Erro ao carregar catálogo de cremes:', erro);
+        document.dispatchEvent(new Event('cremes-carregamento-falhou'));
+        if (status) {
+            status.textContent = erro instanceof TypeError
+                ? `Não foi possível conectar ao catálogo de cremes. Verifique sua conexão com a internet e tente novamente.`
+                : `Não foi possível carregar o catálogo de cremes: ${erro.message}`;
+            status.className = 'perfume-load-status error';
+        }
+        if (retryButton) retryButton.hidden = false;
+    }
 }
 
 document.getElementById('perfume-load-retry')?.addEventListener('click', async (event) => {
     const button = event.currentTarget;
     button.disabled = true;
     await carregarPerfumes();
+    button.disabled = false;
+});
+
+document.getElementById('creme-load-retry')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    await carregarCremes();
     button.disabled = false;
 });
 
@@ -244,6 +301,8 @@ function definirEstacaoInicial() {
     
     estacaoSelecionada = inicial;
     document.getElementById('estacao-manual').value = inicial;
+    const creamSeason = document.getElementById('estacao-creme');
+    if (creamSeason) creamSeason.value = inicial;
 }
 
 // Atualiza a estação selecionada

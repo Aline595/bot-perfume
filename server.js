@@ -4,6 +4,8 @@ const path = require('node:path');
 const { timingSafeEqual } = require('node:crypto');
 
 const GIST_FILENAME = 'lista_itens.json';
+const CREAMS_GIST_FILENAME = 'gistfile1.txt';
+const DEFAULT_CREAMS_GIST_ID = '5d3a031e9c8b6f31e4ecaa89a2c81c92';
 const MAX_BODY_SIZE = 1024 * 1024;
 const DEFAULT_ALLOWED_ORIGINS = [
     'http://localhost:8000',
@@ -117,10 +119,100 @@ function validatePerfumeList(value, { validateRecords = false } = {}) {
     return value;
 }
 
+function validateCreamInput(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new HttpError(400, 'Envie um objeto de creme válido.');
+    }
+
+    const allowedFields = new Set([
+        'nome', 'imagem', 'marca', 'textura', 'fragrancia',
+        'notas', 'funcao_principal', 'temperatura', 'clima', 'periodo'
+    ]);
+    if (Object.keys(value).some((key) => !allowedFields.has(key))) {
+        throw new HttpError(400, 'O creme contém campos não reconhecidos.');
+    }
+
+    const requiredText = (field) => {
+        if (typeof value[field] !== 'string' || !value[field].trim()) {
+            throw new HttpError(400, `O campo "${field}" é obrigatório.`);
+        }
+        return value[field].trim();
+    };
+    const optionalText = (field) => {
+        if (value[field] === undefined) return '';
+        if (typeof value[field] !== 'string') {
+            throw new HttpError(400, `O campo "${field}" precisa ser um texto.`);
+        }
+        return value[field].trim();
+    };
+    const textList = (field) => {
+        const list = value[field] ?? [];
+        if (!Array.isArray(list) || list.some((item) => typeof item !== 'string' || !item.trim())) {
+            throw new HttpError(400, `O campo "${field}" precisa ser uma lista de textos válidos.`);
+        }
+        return list.map((item) => item.trim());
+    };
+
+    const image = optionalText('imagem');
+    if (image && !/^[A-Za-z0-9_-]+$/.test(image)) {
+        let imageUrl;
+        try {
+            imageUrl = new URL(image);
+        } catch {
+            throw new HttpError(400, 'A imagem precisa ser um ID do Google Drive ou uma URL HTTPS.');
+        }
+        if (imageUrl.protocol !== 'https:' || imageUrl.username || imageUrl.password) {
+            throw new HttpError(400, 'A URL da imagem precisa usar HTTPS.');
+        }
+    }
+
+    const cream = {
+        nome: requiredText('nome'),
+        imagem: image,
+        marca: requiredText('marca'),
+        textura: textList('textura'),
+        fragrancia: textList('fragrancia'),
+        notas: textList('notas'),
+        funcao_principal: textList('funcao_principal'),
+        clima: textList('clima'),
+        periodo: textList('periodo')
+    };
+
+    if (value.temperatura !== undefined && value.temperatura !== '') {
+        if ((typeof value.temperatura !== 'number' && typeof value.temperatura !== 'string') ||
+            (typeof value.temperatura === 'string' && !value.temperatura.trim())) {
+            throw new HttpError(400, 'A temperatura precisa ser um número válido.');
+        }
+        const temperature = Number(value.temperatura);
+        if (!Number.isFinite(temperature)) {
+            throw new HttpError(400, 'A temperatura precisa ser um número válido.');
+        }
+        cream.temperatura = temperature;
+    } else {
+        cream.temperatura = '';
+    }
+    return cream;
+}
+
+function validateCreamList(value) {
+    if (!Array.isArray(value)) {
+        throw new HttpError(502, 'O arquivo do Gist não contém uma lista de cremes.');
+    }
+    const ids = new Set();
+    for (const cream of value) {
+        if (!cream || !Number.isSafeInteger(cream.id) || cream.id < 1 || ids.has(cream.id)) {
+            throw new HttpError(502, 'O arquivo do Gist contém IDs de creme inválidos ou duplicados.');
+        }
+        ids.add(cream.id);
+    }
+    return value;
+}
+
 function createServer({
     token,
     adminPassword,
     gistId,
+    creamsGistId = DEFAULT_CREAMS_GIST_ID,
     allowedOrigins = DEFAULT_ALLOWED_ORIGINS,
     fetchImpl = globalThis.fetch,
     staticRoot = __dirname
@@ -129,11 +221,11 @@ function createServer({
         throw new Error('Configure GITHUB_TOKEN, ADMIN_PASSWORD e GIST_ID antes de iniciar o servidor.');
     }
 
-    const gistUrl = `https://api.github.com/gists/${encodeURIComponent(gistId)}`;
+    const gistUrl = (id) => `https://api.github.com/gists/${encodeURIComponent(id)}`;
     let writeQueue = Promise.resolve();
 
-    async function readPerfumes() {
-        const response = await fetchImpl(gistUrl, {
+    async function readCollection(collection) {
+        const response = await fetchImpl(gistUrl(collection.gistId), {
             headers: {
                 Accept: 'application/vnd.github+json',
                 Authorization: `Bearer ${token}`,
@@ -145,25 +237,26 @@ function createServer({
         }
 
         const gist = await response.json();
-        const content = gist.files?.[GIST_FILENAME]?.content;
+        const content = gist.files?.[collection.filename]?.content;
         if (typeof content !== 'string') {
-            throw new HttpError(502, `O Gist não contém o arquivo ${GIST_FILENAME}.`);
+            throw new HttpError(502, `O Gist não contém o arquivo ${collection.filename}.`);
         }
 
-        let perfumes;
+        let records;
         try {
-            perfumes = JSON.parse(content);
+            records = JSON.parse(content);
         } catch {
-            throw new HttpError(502, 'O arquivo de perfumes do Gist não contém JSON válido.');
+            throw new HttpError(502, `O arquivo de ${collection.plural} do Gist não contém JSON válido.`);
         }
-        return validatePerfumeList(perfumes);
+        return collection.validateList(records);
     }
 
-    function writePerfumes(mutator) {
+    function writeCollection(collection, mutator) {
         const operation = writeQueue.then(async () => {
-            const current = await readPerfumes();
-            const updated = validatePerfumeList(mutator(current), { validateRecords: true });
-            const response = await fetchImpl(gistUrl, {
+            const current = await readCollection(collection);
+            const updated = collection.validateList(mutator(current));
+            if (collection.validateResult) collection.validateResult(updated);
+            const response = await fetchImpl(gistUrl(collection.gistId), {
                 method: 'PATCH',
                 headers: {
                     Accept: 'application/vnd.github+json',
@@ -173,7 +266,7 @@ function createServer({
                 },
                 body: JSON.stringify({
                     files: {
-                        [GIST_FILENAME]: { content: JSON.stringify(updated, null, 2) }
+                        [collection.filename]: { content: JSON.stringify(updated, null, 2) }
                     }
                 })
             });
@@ -207,10 +300,32 @@ function createServer({
         }
 
         const url = new URL(request.url, 'http://localhost');
-        const collectionRoute = url.pathname === '/api/perfumes';
-        const itemMatch = url.pathname.match(/^\/api\/perfumes\/(\d+)$/);
+        const collectionName = ['perfumes', 'cremes'].find((name) =>
+            url.pathname === `/api/${name}` || new RegExp(`^/api/${name}/\\d+$`).test(url.pathname)
+        );
 
-        if (collectionRoute || itemMatch) {
+        if (collectionName) {
+            const isCream = collectionName === 'cremes';
+            const collection = isCream
+                ? {
+                    plural: 'cremes',
+                    singular: 'creme',
+                    gistId: creamsGistId,
+                    filename: CREAMS_GIST_FILENAME,
+                    validateInput: validateCreamInput,
+                    validateList: validateCreamList
+                }
+                : {
+                    plural: 'perfumes',
+                    singular: 'perfume',
+                    gistId,
+                    filename: GIST_FILENAME,
+                    validateInput: validatePerfumeInput,
+                    validateList: (records) => validatePerfumeList(records),
+                    validateResult: (records) => validatePerfumeList(records, { validateRecords: true })
+                };
+            const collectionRoute = url.pathname === `/api/${collectionName}`;
+            const itemMatch = url.pathname.match(new RegExp(`^/api/${collectionName}/(\\d+)$`));
             try {
                 const validMethod = collectionRoute
                     ? ['GET', 'POST'].includes(request.method)
@@ -220,7 +335,7 @@ function createServer({
                     return;
                 }
                 if (request.method === 'GET' && collectionRoute) {
-                    sendJson(response, 200, { perfumes: await readPerfumes() });
+                    sendJson(response, 200, { [collection.plural]: await readCollection(collection) });
                     return;
                 }
 
@@ -230,49 +345,49 @@ function createServer({
                 }
 
                 if (request.method === 'POST' && collectionRoute) {
-                    const perfume = validatePerfumeInput(await readJsonBody(request));
-                    const updated = await writePerfumes((current) => {
+                    const record = collection.validateInput(await readJsonBody(request));
+                    const updated = await writeCollection(collection, (current) => {
                         const id = current.reduce((maximum, item) => Math.max(maximum, item.id), 0) + 1;
-                        return [...current, { id, ...perfume }];
+                        return [...current, { id, ...record }];
                     });
-                    sendJson(response, 201, { perfumes: updated });
+                    sendJson(response, 201, { [collection.plural]: updated });
                     return;
                 }
 
                 if (!itemMatch) {
-                    sendJson(response, 404, { error: 'Perfume não encontrado.' });
+                    sendJson(response, 404, { error: `${collection.singular} não encontrado.` });
                     return;
                 }
 
                 const id = Number(itemMatch[1]);
                 let updated;
                 if (request.method === 'DELETE') {
-                    updated = await writePerfumes((current) => {
-                        if (!current.some((perfume) => perfume.id === id)) {
-                            throw new HttpError(404, 'Perfume não encontrado.');
+                    updated = await writeCollection(collection, (current) => {
+                        if (!current.some((record) => record.id === id)) {
+                            throw new HttpError(404, `${collection.singular} não encontrado.`);
                         }
-                        return current.filter((perfume) => perfume.id !== id);
+                        return current.filter((record) => record.id !== id);
                     });
                 } else {
-                    const perfume = validatePerfumeInput(await readJsonBody(request));
-                    updated = await writePerfumes((current) => {
+                    const record = collection.validateInput(await readJsonBody(request));
+                    updated = await writeCollection(collection, (current) => {
                         const existing = current.find((item) => item.id === id);
-                        if (!existing) throw new HttpError(404, 'Perfume não encontrado.');
+                        if (!existing) throw new HttpError(404, `${collection.singular} não encontrado.`);
                         return current.map((item) => {
                             if (item.id !== id) return item;
-                            const updatedPerfume = { ...item, ...perfume };
-                            if (!Object.hasOwn(perfume, 'temperatura_ideal')) {
-                                delete updatedPerfume.temperatura_ideal;
+                            const updatedRecord = { ...item, ...record };
+                            if (!isCream && !Object.hasOwn(record, 'temperatura_ideal')) {
+                                delete updatedRecord.temperatura_ideal;
                             }
-                            return updatedPerfume;
+                            return updatedRecord;
                         });
                     });
                 }
-                sendJson(response, 200, { perfumes: updated });
+                sendJson(response, 200, { [collection.plural]: updated });
             } catch (error) {
                 const statusCode = error instanceof HttpError ? error.statusCode : 502;
                 if (!(error instanceof HttpError)) {
-                    console.error('Erro ao processar a API de perfumes:', error);
+                    console.error(`Erro ao processar a API de ${collection.plural}:`, error);
                 }
                 sendJson(response, statusCode, { error: error.message || 'Erro interno do servidor.' });
             }
@@ -381,12 +496,13 @@ if (require.main === module) {
     const token = process.env.GITHUB_TOKEN;
     const adminPassword = process.env.ADMIN_PASSWORD;
     const gistId = process.env.GIST_ID || 'd766a0ddf15dd9fc30ddf3de8a67b16f';
+    const creamsGistId = process.env.CREAMS_GIST_ID || DEFAULT_CREAMS_GIST_ID;
     const allowedOrigins = process.env.ALLOWED_ORIGINS
         ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
         : DEFAULT_ALLOWED_ORIGINS;
 
     try {
-        const server = createServer({ token, adminPassword, gistId, allowedOrigins });
+        const server = createServer({ token, adminPassword, gistId, creamsGistId, allowedOrigins });
         const port = Number(process.env.PORT || 8000);
         const host = process.env.HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
         server.listen(port, host, () => {
@@ -398,4 +514,11 @@ if (require.main === module) {
     }
 }
 
-module.exports = { createServer, validatePerfumeInput, validatePerfumeList };
+module.exports = {
+    createServer,
+    validatePerfumeInput,
+    validatePerfumeList,
+    validateCreamInput,
+    validateCreamList,
+    DEFAULT_CREAMS_GIST_ID
+};

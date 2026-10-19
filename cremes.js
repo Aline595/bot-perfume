@@ -1,112 +1,171 @@
-async function recomendarCremePorClima(tempManual = null) {
-    const divResultado = document.getElementById('resultado');
-    // Verifica se o elemento existe antes de pegar o valor
-    const elPeriodo = document.getElementById('periodo-creme');
-    const periodoSelecionado = elPeriodo ? elPeriodo.value : "todos";
-    
-    mostrarSkeleton();
+function valoresCreme(value) {
+    if (Array.isArray(value)) return value.filter((item) => typeof item === 'string' && item.trim());
+    return typeof value === 'string' && value.trim() ? [value] : [];
+}
 
-    let tempParaFiltrar;
-    if (tempManual) {
-        tempParaFiltrar = tempManual;
-    } else {
-        const tempTexto = document.getElementById('temperatura-creme').textContent;
-        tempParaFiltrar = parseFloat(tempTexto.replace(/[^0-9.]/g, '')) || 22;
+function temperaturaReferenciaCreme(tempManual = null) {
+    if (Number.isFinite(tempManual)) return tempManual;
+    const temperaturaTexto = document.getElementById('temperatura-creme').textContent;
+    return Number.parseFloat(temperaturaTexto.replace(/[^0-9.]/g, '')) || 22;
+}
+
+function categoriaTemperaturaCreme(temperatura) {
+    if (temperatura <= 20) return 'baixa';
+    if (temperatura <= 25) return 'intermediária';
+    return 'alta';
+}
+
+function filtrosCreme(tempManual = null) {
+    const consideraTemperatura = document.getElementById('filtro-temperatura-creme').checked;
+    const consideraEstacao = document.getElementById('filtro-estacao-creme').checked;
+    const temperatura = temperaturaReferenciaCreme(tempManual);
+    const periodo = document.getElementById('periodo-creme').value;
+    const estacao = document.getElementById('estacao-creme').value;
+    const busca = document.getElementById('busca-creme').value.trim().toLocaleLowerCase('pt-BR');
+
+    return { consideraTemperatura, consideraEstacao, temperatura, periodo, estacao, busca };
+}
+
+function cremeCombina(creme, filtros) {
+    const hasTemperature = creme.temperatura !== '' && creme.temperatura !== null &&
+        creme.temperatura !== undefined && Number.isFinite(Number(creme.temperatura));
+    const temperaturaCreme = hasTemperature ? Number(creme.temperatura) : null;
+    const combinaTemperatura = !filtros.consideraTemperatura ||
+        !hasTemperature ||
+        categoriaTemperaturaCreme(temperaturaCreme) === categoriaTemperaturaCreme(filtros.temperatura);
+    const climas = valoresCreme(creme.clima);
+    const combinaEstacao = !filtros.consideraEstacao ||
+        climas.some((clima) =>
+            clima.toLocaleLowerCase('pt-BR') === filtros.estacao.toLocaleLowerCase('pt-BR') ||
+            clima.toLocaleLowerCase('pt-BR') === 'todo o ano'
+        );
+    const periodos = valoresCreme(creme.periodo).map((periodo) => periodo.toLocaleLowerCase('pt-BR'));
+    const combinaPeriodo = filtros.periodo === 'todos' ||
+        periodos.includes(filtros.periodo.toLocaleLowerCase('pt-BR'));
+    const descricaoFragrancia = [...valoresCreme(creme.fragrancia), ...valoresCreme(creme.notas)]
+        .join(' ')
+        .toLocaleLowerCase('pt-BR');
+    const combinaBusca = !filtros.busca || descricaoFragrancia.includes(filtros.busca);
+
+    return combinaTemperatura && combinaEstacao && combinaPeriodo && combinaBusca;
+}
+
+function motivosRecomendacaoCreme(creme, filtros) {
+    const motivos = [];
+    if (filtros.consideraTemperatura) {
+        const hasTemperature = creme.temperatura !== '' && creme.temperatura !== null &&
+            creme.temperatura !== undefined && Number.isFinite(Number(creme.temperatura));
+        motivos.push(hasTemperature
+            ? `faixa ${categoriaTemperaturaCreme(filtros.temperatura)} (${filtros.temperatura}°C)`
+            : 'temperatura ideal não informada');
+    }
+    if (filtros.consideraEstacao) motivos.push(`estação ${filtros.estacao}`);
+    if (filtros.periodo !== 'todos') motivos.push(`uso de ${filtros.periodo}`);
+    if (filtros.busca) motivos.push(`fragrância ou nota “${filtros.busca}”`);
+    if (!motivos.length) motivos.push('todos os filtros de preferência estão desativados');
+    return motivos;
+}
+
+function renderizarCreme(creme, filtros) {
+    const notas = valoresCreme(creme.notas);
+    const fragrancias = valoresCreme(creme.fragrancia);
+    const texturas = valoresCreme(creme.textura);
+    const funcoes = valoresCreme(creme.funcao_principal);
+    const temperatura = Number(creme.temperatura);
+    const motivos = motivosRecomendacaoCreme(creme, filtros);
+
+    return `
+        <article class="card-perfume creme-card">
+            <div class="creme-card-icon" aria-hidden="true">🧴</div>
+            <div>
+                <span class="perfume-marca">${escapeHtml(creme.marca || '')}</span>
+                <strong>${escapeHtml(creme.nome)}</strong>
+                ${fragrancias.length ? `<p><b>Fragrância:</b> ${escapeHtml(fragrancias.join(', '))}</p>` : ''}
+                ${notas.length ? `<p><b>Notas:</b> ${escapeHtml(notas.join(', '))}</p>` : ''}
+                ${texturas.length ? `<p><b>Textura:</b> ${escapeHtml(texturas.join(', '))}</p>` : ''}
+                ${funcoes.length ? `<p><b>Benefícios:</b> ${escapeHtml(funcoes.join(', '))}</p>` : ''}
+                ${Number.isFinite(temperatura) ? `<div class="perfume-duracao"><span>🌡️ Ideal:</span><strong>${temperatura}°C</strong></div>` : ''}
+                ${valoresCreme(creme.periodo).length ? `<div class="perfume-duracao"><span>⏰ Uso:</span><strong>${escapeHtml(valoresCreme(creme.periodo).join(' / '))}</strong></div>` : ''}
+                <p class="recommendation-reason"><strong>Por que combina:</strong> ${motivos.map(escapeHtml).join(' · ')}</p>
+            </div>
+        </article>
+    `;
+}
+
+function exibirCremeResultados(lista, filtros, heading) {
+    const resultado = document.getElementById('resultado');
+    resultado.setAttribute('aria-busy', 'false');
+
+    if (!lista.length) {
+        resultado.innerHTML = `
+            <div class="results-empty" role="status">
+                <h3>Nenhum creme encontrado com essa combinação</h3>
+                <p>Tente outro período ou fragrância, desative um filtro de clima ou veja o catálogo completo.</p>
+                <button id="expand-creme-search" type="button">Ver todos os cremes</button>
+            </div>
+        `;
+        document.getElementById('expand-creme-search').addEventListener('click', limparBuscaCreme);
+        return;
     }
 
-    let categoriaAtual = (tempParaFiltrar <= 20) ? "baixa" : (tempParaFiltrar <= 25) ? "intermediaria" : "alta";
+    resultado.innerHTML = `
+        <h3 class="results-heading">${escapeHtml(heading)} — ${lista.length} ${lista.length === 1 ? 'creme encontrado' : 'cremes encontrados'}</h3>
+        ${lista.map((creme) => renderizarCreme(creme, filtros)).join('')}
+    `;
+}
 
-    const sugestoes = cremes.filter(c => {
-        let categoriaCreme = (c.temperatura <= 20) ? "baixa" : (c.temperatura <= 25) ? "intermediaria" : "alta";
-        const matchTemperatura = (categoriaCreme === categoriaAtual);
-        const matchPeriodo = (periodoSelecionado === "todos") || (c.periodo.includes(periodoSelecionado));
+function limparBuscaCreme() {
+    temperaturaManualAtiva = false;
+    document.getElementById('filtro-temperatura-creme').checked = false;
+    document.getElementById('filtro-estacao-creme').checked = false;
+    document.getElementById('periodo-creme').value = 'todos';
+    document.getElementById('busca-creme').value = '';
+    const temperatura = document.getElementById('temperatura-creme');
+    temperatura.textContent = document.getElementById('temperatura-atual').classList.contains('temperature-status-warning')
+        ? '🌡️ Temperatura indisponível; usando 22°C como referência.'
+        : `🌡️ ${temperaturaAmbienteAtual}°C agora`;
+    atualizarFiltrosCreme();
+    recomendarCremePorClima();
+}
 
-        return matchTemperatura && matchPeriodo;
+function atualizarFiltrosCreme() {
+    const filtrarTemperatura = document.getElementById('filtro-temperatura-creme').checked;
+    const filtrarEstacao = document.getElementById('filtro-estacao-creme').checked;
+    document.querySelectorAll('.ranges-legenda button').forEach((button) => {
+        button.disabled = !filtrarTemperatura;
     });
+    if (filtrarTemperatura) {
+        destacarRange(temperaturaReferenciaCreme());
+    } else {
+        document.querySelectorAll('.ranges-legenda button').forEach((button) => {
+            button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
+        });
+    }
+    document.getElementById('secao-estacao-creme').hidden = !filtrarEstacao;
+}
 
-    setTimeout(() => {
-        if (sugestoes.length > 0) {
-            const txtPeriodo = periodoSelecionado === "todos" ? "" : ` para usar de ${periodoSelecionado}`;
-            divResultado.innerHTML = `<h3 style="margin: 15px 0; color: #d81b60;">Sugestões ${txtPeriodo}:</h3>`;
-            
-            // Dentro da sua função recomendarCremePorClima, na parte do divResultado.innerHTML += sugestoes.map...
+function recomendarCremePorClima(tempManual = null) {
+    const filtros = filtrosCreme(tempManual);
+    const resultados = cremes.filter((creme) =>
+        creme && typeof creme.nome === 'string' && creme.nome.trim() && cremeCombina(creme, filtros)
+    );
 
-            divResultado.innerHTML += sugestoes.map(c => `
-                <div class="card-perfume">
-                    <div style="font-size: 40px; margin-right: 15px;">🧴</div>
-                    <div>
-                        <span class="perfume-marca">${c.marca}</span>
-                        <strong style="display:block;">${c.nome}</strong>
-                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-top:5px;">
-                            ${Array.isArray(c.notas) ? c.notas.join(', ') : c.notas}
-                        </p>
-                        
-                        <!-- Linha da Temperatura mantida aqui -->
-                        <div class="perfume-duracao" style="margin-top: 8px;">
-                            <span>🌡️ Ideal:</span>
-                            <strong>${c.temperatura}°C</strong>
-                        </div>
-
-                        <div style="margin-top:5px;">
-                            <span class="badge-intensity" style="background:#fce4ec; color:#d81b60; font-size:0.7em;">
-                                ${Array.isArray(c.periodo) ? c.periodo.join(' / ') : c.periodo}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            divResultado.innerHTML = `<p>Nenhum creme encontrado para este período nesta temperatura.</p>`;
-        }
-    }, 500);
+    exibirCremeResultados(resultados, filtros, 'Sugestões para suas preferências');
 }
 
 function surpreenderCremePorGraus() {
-    const divResultado = document.getElementById('resultado');
-    const elPeriodo = document.getElementById('periodo-creme');
-    const periodoSelecionado = elPeriodo ? elPeriodo.value : "todos";
-    
-    if (!cremes || cremes.length === 0) return;
-    mostrarSkeleton();
+    const filtros = filtrosCreme();
+    const opcoes = cremes.filter((creme) =>
+        creme && typeof creme.nome === 'string' && creme.nome.trim() && cremeCombina(creme, filtros)
+    );
 
-    const tempTexto = document.getElementById('temperatura-creme').textContent;
-    const tempAtual = parseFloat(tempTexto.replace(/[^0-9.]/g, '')) || 22;
-
-    let categoriaAtual = (tempAtual <= 20) ? "baixa" : (tempAtual <= 25) ? "intermediaria" : "alta";
-
-    // Filtra respeitando clima E período (apenas uma declaração aqui)
-    const opcoesViaveis = cremes.filter(c => {
-        let catCreme = (c.temperatura <= 20) ? "baixa" : (c.temperatura <= 25) ? "intermediaria" : "alta";
-        const matchPeriodo = (periodoSelecionado === "todos") || (c.periodo.includes(periodoSelecionado));
-        return (catCreme === categoriaAtual) && matchPeriodo;
-    });
-
-    setTimeout(() => {
-        if (opcoesViaveis.length > 0) {
-            const sorteado = opcoesViaveis[Math.floor(Math.random() * opcoesViaveis.length)];
-
-            divResultado.innerHTML = `
-                <div style="text-align: center; margin-bottom: 15px;">
-                    <h3 style="color: #d81b60;">✨ Sorteio para Range ${categoriaAtual.toUpperCase()} ✨</h3>
-                    <p style="font-size: 0.8em; color: var(--text-secondary);">Baseado em ${tempAtual}°C e período ${periodoSelecionado}</p>
-                </div>
-                <div class="card-perfume" style="border: 2px solid #ec407a; transform: scale(1.02); box-shadow: 0 4px 20px rgba(236, 64, 122, 0.15);">
-                    <div style="font-size: 40px; margin-right: 15px;">🧴</div>
-                    <div>
-                        <span class="perfume-marca">${sorteado.marca}</span>
-                        <strong style="font-size: 1.2em; display: block;">${sorteado.nome}</strong>
-                        <p style="font-size: 0.85em; color: var(--text-secondary); margin-top: 8px;">
-                            <strong>Vibe:</strong> ${sorteado.fragrancia}<br>
-                            <strong>Notas:</strong> ${Array.isArray(sorteado.notas) ? sorteado.notas.join(', ') : sorteado.notas}
-                        </p>
-                        <span class="badge-intensity" style="background: #fce4ec; color: #d81b60;">Sorteado da Sorte</span>
-                    </div>
-                </div>
-            `;
-        } else {
-            divResultado.innerHTML = `<p>Nenhum creme encontrado para o período "${periodoSelecionado}" neste clima.</p>`;
-        }
-    }, 600);
+    if (!opcoes.length) {
+        exibirCremeResultados([], filtros, 'Surpresa');
+        return;
+    }
+    const sorteado = opcoes[Math.floor(Math.random() * opcoes.length)];
+    exibirCremeResultados([sorteado], filtros, '✨ Sua surpresa');
 }
 
 // Controle de temperatura manual
@@ -114,12 +173,20 @@ let temperaturaManualAtiva = false;
 
 function selecionarRangeManualmente(tempSimulada, idRange) {
     temperaturaManualAtiva = true;
+    document.getElementById('filtro-temperatura-creme').checked = true;
 
-    const elTempCreme = document.getElementById('temperatura-creme');
-    if (elTempCreme) {
-        elTempCreme.innerHTML = `🌡️ ${tempSimulada}°C <span style="font-size: 0.6em; display:block;">(Seleção Manual)</span>`;
-    }
-
+    const temperatura = document.getElementById('temperatura-creme');
+    temperatura.textContent = `🌡️ ${tempSimulada}°C (seleção manual)`;
+    temperatura.classList.remove('temperature-status-warning');
     destacarRange(tempSimulada);
+    atualizarFiltrosCreme();
     recomendarCremePorClima(tempSimulada);
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        categoriaTemperaturaCreme,
+        cremeCombina,
+        motivosRecomendacaoCreme
+    };
 }

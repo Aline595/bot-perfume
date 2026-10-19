@@ -210,6 +210,88 @@ body.dark-mode .temperature-status-warning {
     color: #ffcf70;
 }
 
+.creme-filters legend {
+    color: #d81b60;
+}
+
+.creme-season-filter {
+    margin-top: 14px;
+}
+
+#conteudo-cremes #secao-estacao-creme[hidden] {
+    display: none;
+}
+
+#conteudo-cremes #estacao-creme:focus {
+    border-color: #d81b60;
+    box-shadow: 0 0 0 3px rgba(216, 27, 96, 0.15);
+}
+
+.ranges-legenda {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 14px 0 4px;
+}
+
+.ranges-legenda button {
+    min-height: 56px;
+    margin: 0;
+    padding: 8px 5px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    box-shadow: none;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.ranges-legenda button:hover {
+    border-color: #d81b60;
+    box-shadow: none;
+    transform: none;
+}
+
+.ranges-legenda button.active {
+    border: 2px solid #d81b60;
+    background: rgba(216, 27, 96, 0.1);
+    color: #d81b60;
+}
+
+.ranges-legenda button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.creme-search-actions {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.creme-search-actions button {
+    margin: 4px 0;
+}
+
+.creme-card {
+    border-color: rgba(216, 27, 96, 0.18);
+}
+
+.creme-card-icon {
+    margin-bottom: 8px;
+    font-size: 2.25rem;
+}
+
+#conteudo-cremes .recommendation-reason {
+    border-left-color: #d81b60;
+    background: rgba(216, 27, 96, 0.08);
+}
+
+#conteudo-cremes .recommendation-reason strong,
+#conteudo-cremes .results-heading {
+    color: #d81b60;
+}
+
 .field-label {
     display: block;
     margin-top: 14px;
@@ -775,7 +857,8 @@ body.dark-mode .perfume-duracao {
     color: var(--text-secondary);
 }
 
-#perfume-admin-list {
+#perfume-admin-list,
+#creme-admin-list {
     display: grid;
     gap: 10px;
     margin: 0;
@@ -783,7 +866,8 @@ body.dark-mode .perfume-duracao {
     list-style: none;
 }
 
-#perfume-admin-list li {
+#perfume-admin-list li,
+#creme-admin-list li {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -794,13 +878,15 @@ body.dark-mode .perfume-duracao {
     overflow-wrap: anywhere;
 }
 
-#perfume-admin-list .perfume-admin-empty {
+#perfume-admin-list .perfume-admin-empty,
+#creme-admin-list .perfume-admin-empty {
     display: block;
     color: var(--text-secondary);
     text-align: center;
 }
 
-#perfume-admin-list .perfume-admin-item-actions {
+#perfume-admin-list .perfume-admin-item-actions,
+#creme-admin-list .perfume-admin-item-actions {
     flex-shrink: 0;
 }
 
@@ -819,7 +905,17 @@ body.dark-mode .perfume-duracao {
         height: 20px;
     }
 
-    #perfume-admin-list li {
+    .ranges-legenda {
+        gap: 5px;
+    }
+
+    .ranges-legenda button {
+        min-height: 60px;
+        font-size: 0.76rem;
+    }
+
+    #perfume-admin-list li,
+    #creme-admin-list li {
         align-items: stretch;
         flex-direction: column;
     }

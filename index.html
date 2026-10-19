@@ -170,45 +170,108 @@
         <section id="conteudo-cremes" class="secao-aba" style="display: none;">
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2>🧴 Consultor de Cremes</h2>
+            <p class="search-intro">Encontre cremes adequados ao clima e ao momento de uso. Os filtros de temperatura, estação e fragrância são opcionais.</p>
+            <div id="creme-load-status" class="perfume-load-status" role="status" aria-live="polite">Carregando catálogo de cremes...</div>
+            <button id="creme-load-retry" type="button" class="perfume-load-retry" hidden>Tentar carregar novamente</button>
             
-            <!-- Container de Clima e Ranges -->
-            <div class="clima-container" style="background: var(--bg-secondary); padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid var(--border-color);">
-                <div id="temperatura-creme" style="font-size: 1.4em; font-weight: bold; color: #d81b60; text-align: center; margin-bottom: 10px;">
-                    🌡️ Carregando...
-                </div>
-                
-                <!-- Legenda de Ranges Visual -->
-                <div class="ranges-legenda" style="display: flex; justify-content: space-around; gap: 5px; font-size: 0.8em; text-align: center;">
-                    <div id="range-baixa" onclick="selecionarRangeManualmente(20, 'range-baixa')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
+            <fieldset class="perfume-filters creme-filters">
+                <legend>Preferências de clima</legend>
+                <label class="perfume-filter-option">
+                    <input type="checkbox" id="filtro-temperatura-creme" checked onchange="atualizarFiltrosCreme()">
+                    <span><strong>Considerar temperatura</strong><small>Filtra pela faixa atual. Você também pode tocar em uma faixa para testar outra temperatura.</small></span>
+                </label>
+                <div id="temperatura-creme" class="temperature-status" role="status" aria-live="polite">🌡️ Carregando temperatura...</div>
+                <div class="ranges-legenda" aria-label="Escolher uma faixa de temperatura">
+                    <button id="range-baixa" type="button" onclick="selecionarRangeManualmente(20, 'range-baixa')" aria-pressed="false">
                         ❄️ Baixa<br>(até 20°C)
-                    </div>
-                    <div id="range-intermediaria" onclick="selecionarRangeManualmente(23, 'range-intermediaria')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
+                    </button>
+                    <button id="range-intermediaria" type="button" onclick="selecionarRangeManualmente(23, 'range-intermediaria')" aria-pressed="false">
                         ☁️ Média<br>(21°C - 25°C)
-                    </div>
-                    <div id="range-alta" onclick="selecionarRangeManualmente(30, 'range-alta')" style="flex: 1; padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; transition: 0.3s;">
+                    </button>
+                    <button id="range-alta" type="button" onclick="selecionarRangeManualmente(30, 'range-alta')" aria-pressed="false">
                         ☀️ Alta<br>(26°C+)
-                    </div>
+                    </button>
                 </div>
-            </div>
+                <label class="perfume-filter-option creme-season-filter">
+                    <input type="checkbox" id="filtro-estacao-creme" onchange="atualizarFiltrosCreme()">
+                    <span><strong>Filtrar por estação</strong><small>Mostra cremes indicados para a estação escolhida.</small></span>
+                </label>
+                <div id="secao-estacao-creme" hidden>
+                    <label for="estacao-creme" class="field-label">🍂 Estação</label>
+                    <select id="estacao-creme">
+                        <option value="Outono">🍂 Outono</option>
+                        <option value="Inverno">❄️ Inverno</option>
+                        <option value="Primavera">🌸 Primavera</option>
+                        <option value="Verão">☀️ Verão</option>
+                    </select>
+                </div>
+            </fieldset>
 
-            <!-- Filtro de Período -->
-            <div class="periodo-selector" style="margin-top: 15px;">
-                <label for="periodo-creme" style="font-weight: 600; display: block; margin-bottom: 8px;">⏰ Momento do uso:</label>
-                <select id="periodo-creme" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main);">
+            <div class="periodo-selector">
+                <label for="periodo-creme" class="field-label">⏰ Momento do uso</label>
+                <select id="periodo-creme">
                     <option value="todos" selected>✨ Todos (Dia ou Noite)</option>
                     <option value="dia">☀️ Dia</option>
                     <option value="noite">🌙 Noite</option>
                 </select>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" style="background: #d81b60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+            <label for="busca-creme" class="field-label">🌸 Fragrância ou nota <span>(opcional)</span></label>
+            <input id="busca-creme" type="search" placeholder="Ex.: floral, baunilha, caramelo" autocomplete="off">
+            <div class="creme-search-actions">
+                <button id="buscar-cremes" type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" disabled>
                     🔍 Buscar Cremes do Momento
                 </button>
-                <button type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" style="background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                <button id="surpreender-creme" type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" disabled>
                     ✨ Me surpreenda!
                 </button>
             </div>
+
+            <details class="perfume-admin creme-admin">
+                <summary>⚙️ Gerenciar catálogo de cremes</summary>
+                <p>Área administrativa protegida. As alterações são salvas no Gist compartilhado dos cremes.</p>
+                <label for="creme-admin-password">Senha de administração:</label>
+                <div class="perfume-admin-password-field">
+                    <input id="creme-admin-password" type="password" autocomplete="current-password">
+                    <button id="creme-admin-password-toggle" class="password-visibility-toggle" type="button" aria-controls="creme-admin-password" aria-pressed="false">Mostrar</button>
+                </div>
+                <form id="creme-admin-form">
+                    <label for="creme-admin-name">Nome:</label>
+                    <input id="creme-admin-name" name="nome" type="text" required>
+                    <label for="creme-admin-brand">Marca:</label>
+                    <input id="creme-admin-brand" name="marca" type="text" required>
+                    <label for="creme-admin-image">Imagem (URL HTTPS ou ID do Google Drive, opcional):</label>
+                    <input id="creme-admin-image" name="imagem" type="text">
+                    <label for="creme-admin-texture">Textura (separadas por vírgula):</label>
+                    <input id="creme-admin-texture" name="textura" type="text" placeholder="Ex.: Leve, cremosa">
+                    <label for="creme-admin-fragrance">Fragrância (separadas por vírgula):</label>
+                    <input id="creme-admin-fragrance" name="fragrancia" type="text" placeholder="Ex.: Floral, gourmand">
+                    <label for="creme-admin-notes">Notas (separadas por vírgula):</label>
+                    <input id="creme-admin-notes" name="notas" type="text" placeholder="Ex.: Baunilha, rosa">
+                    <label for="creme-admin-benefits">Função principal (separadas por vírgula):</label>
+                    <input id="creme-admin-benefits" name="funcao_principal" type="text" placeholder="Ex.: Hidratação, maciez">
+                    <label for="creme-admin-temperature">Temperatura ideal em °C (opcional):</label>
+                    <input id="creme-admin-temperature" name="temperatura" type="number" step="any">
+                    <label for="creme-admin-climate">Estações (separadas por vírgula):</label>
+                    <input id="creme-admin-climate" name="clima" type="text" placeholder="Ex.: Primavera, Verão">
+                    <label for="creme-admin-period">Períodos (separados por vírgula):</label>
+                    <input id="creme-admin-period" name="periodo" type="text" placeholder="Ex.: dia, noite">
+                    <div class="perfume-admin-actions">
+                        <button id="creme-admin-save" type="submit">Adicionar creme</button>
+                        <button id="creme-admin-cancel" type="button" hidden>Cancelar edição</button>
+                    </div>
+                </form>
+                <p id="creme-admin-status" role="status" aria-live="polite"></p>
+                <div class="perfume-admin-maintenance">
+                    <button id="creme-admin-validate" type="button" disabled>Validar catálogo</button>
+                    <button id="creme-admin-export" type="button" disabled>Exportar cópia JSON</button>
+                </div>
+                <p id="creme-admin-maintenance-status" role="status" aria-live="polite"></p>
+                <label for="creme-admin-search">Buscar por nome ou marca:</label>
+                <input id="creme-admin-search" type="search" placeholder="Digite o nome ou a marca do creme" autocomplete="off">
+                <p id="creme-admin-count" class="perfume-admin-count" aria-live="polite"></p>
+                <ul id="creme-admin-list" class="perfume-admin-list" aria-label="Cremes cadastrados"></ul>
+            </details>
         </section>
 
 
@@ -223,5 +286,6 @@
     <script src="colares.js"></script>
     <script src="cremes.js"></script>
     <script src="perfume-admin.js"></script>
+    <script src="creme-admin.js"></script>
 </body>
 </html>

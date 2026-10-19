@@ -1,6 +1,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { createServer, validatePerfumeInput, validatePerfumeList } = require('./server');
+const {
+    createServer,
+    validatePerfumeInput,
+    validatePerfumeList,
+    validateCreamInput,
+    validateCreamList,
+    DEFAULT_CREAMS_GIST_ID
+} = require('./server');
+const { categoriaTemperaturaCreme, cremeCombina } = require('./cremes');
 
 const perfumeInput = {
     nome: 'Perfume de teste',
@@ -29,6 +37,31 @@ function makeFetch(initialPerfumes) {
         }), { status: 200 });
     };
     return { fetchImpl, requests, getPerfumes: () => perfumes };
+}
+
+function makeGistFetch(initialGists) {
+    const gists = new Map(Object.entries(initialGists).map(([id, files]) => [id, structuredClone(files)]));
+    const requests = [];
+    const fetchImpl = async (url, options = {}) => {
+        requests.push({ url, options });
+        const gistId = new URL(url).pathname.split('/').at(-1);
+        const files = gists.get(gistId);
+        if (!files) return new Response('{}', { status: 404 });
+        if (options.method === 'PATCH') {
+            const patch = JSON.parse(options.body);
+            Object.entries(patch.files).forEach(([filename, file]) => {
+                files[filename] = { content: file.content };
+            });
+            return new Response('{}', { status: 200 });
+        }
+        return new Response(JSON.stringify({
+            files: Object.fromEntries(Object.entries(files).map(([filename, file]) => [
+                filename,
+                { content: file.content }
+            ]))
+        }), { status: 200 });
+    };
+    return { fetchImpl, requests, gists };
 }
 
 async function withServer(options, callback) {
@@ -66,6 +99,156 @@ test('validates the Gist perfume fields and image protocols', () => {
         () => validatePerfumeList([{ id: 1, ...perfumeInput }, { id: 2, ...perfumeInput, periodo: [] }], { validateRecords: true }),
         /ID 2 inválido.*periodo/
     );
+});
+
+test('validates cream input while allowing empty optional list fields', () => {
+    const cream = {
+        nome: 'Creme de teste',
+        marca: 'Marca de teste',
+        textura: [],
+        fragrancia: ['Floral'],
+        notas: ['Baunilha'],
+        funcao_principal: ['Hidratação'],
+        temperatura: 22,
+        clima: ['Primavera'],
+        periodo: ['dia']
+    };
+    assert.deepEqual(validateCreamInput(cream), { imagem: '', ...cream });
+    assert.throws(
+        () => validateCreamInput({ ...cream, marca: '' }),
+        /marca.*obrigatório/
+    );
+    assert.throws(
+        () => validateCreamInput({ ...cream, temperatura: 'quente' }),
+        /temperatura/
+    );
+    assert.throws(
+        () => validateCreamInput({ ...cream, temperatura: [] }),
+        /temperatura/
+    );
+    assert.throws(
+        () => validateCreamInput({ ...cream, imagem: 'http://example.com/cream.jpg' }),
+        /HTTPS/
+    );
+    assert.throws(
+        () => validateCreamList([{ id: 1 }, { id: 1 }]),
+        /IDs de creme.*duplicados/
+    );
+});
+
+test('matches cream filters and does not treat missing temperature as zero degrees', () => {
+    const filters = {
+        consideraTemperatura: true,
+        consideraEstacao: true,
+        temperatura: 18,
+        estacao: 'Inverno',
+        periodo: 'noite',
+        busca: 'baunilha'
+    };
+    const cream = {
+        temperatura: '',
+        clima: ['Inverno'],
+        periodo: ['noite'],
+        fragrancia: ['Gourmand'],
+        notas: ['Baunilha']
+    };
+    assert.equal(categoriaTemperaturaCreme(18), 'baixa');
+    assert.equal(categoriaTemperaturaCreme(24), 'intermediária');
+    assert.equal(categoriaTemperaturaCreme(28), 'alta');
+    assert.equal(cremeCombina(cream, filters), true);
+    assert.equal(cremeCombina({ ...cream, periodo: ['dia'] }, filters), false);
+});
+
+test('protects cream CRUD and updates only the cream Gist file', async () => {
+    const perfumeGistId = 'test-perfumes-gist';
+    const creamGistId = DEFAULT_CREAMS_GIST_ID;
+    const gist = makeGistFetch({
+        [perfumeGistId]: {
+            'lista_itens.json': { content: JSON.stringify([{ id: 1, ...perfumeInput }]) }
+        },
+        [creamGistId]: {
+            'gistfile1.txt': { content: JSON.stringify([
+                { id: 1, nome: 'Creme existente', marca: 'Marca A', temperatura: 22, notas: ['Rosa'] },
+                { id: 2, nome: 'Registro antigo incompleto', marca: 'Marca B', temperatura: '', notas: [''] }
+            ]) }
+        }
+    });
+    const creamInput = {
+        nome: 'Creme novo',
+        marca: 'Marca C',
+        imagem: '',
+        textura: ['Leve'],
+        fragrancia: ['Floral'],
+        notas: ['Baunilha'],
+        funcao_principal: ['Hidratação'],
+        temperatura: 24,
+        clima: ['Primavera'],
+        periodo: ['dia', 'noite']
+    };
+
+    await withServer({
+        token: 'test-token',
+        adminPassword: 'test-password',
+        gistId: perfumeGistId,
+        creamsGistId: creamGistId,
+        fetchImpl: gist.fetchImpl
+    }, async (baseUrl) => {
+        const read = await fetch(`${baseUrl}/api/cremes`);
+        assert.equal(read.status, 200);
+        assert.equal((await read.json()).cremes.length, 2);
+
+        const unauthenticated = await fetch(`${baseUrl}/api/cremes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(creamInput)
+        });
+        assert.equal(unauthenticated.status, 401);
+
+        const authHeaders = {
+            'Content-Type': 'application/json',
+            'X-Admin-Password': 'test-password'
+        };
+        const invalid = await fetch(`${baseUrl}/api/cremes`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ ...creamInput, temperatura: 'quente' })
+        });
+        assert.equal(invalid.status, 400);
+        assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 0);
+
+        const added = await fetch(`${baseUrl}/api/cremes`, {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify(creamInput)
+        });
+        assert.equal(added.status, 201);
+        assert.equal((await added.json()).cremes.at(-1).id, 3);
+
+        const updated = await fetch(`${baseUrl}/api/cremes/2`, {
+            method: 'PUT',
+            headers: authHeaders,
+            body: JSON.stringify({ ...creamInput, nome: 'Registro antigo corrigido' })
+        });
+        assert.equal(updated.status, 200);
+        assert.equal((await updated.json()).cremes[1].nome, 'Registro antigo corrigido');
+
+        const deleted = await fetch(`${baseUrl}/api/cremes/1`, {
+            method: 'DELETE',
+            headers: { 'X-Admin-Password': 'test-password' }
+        });
+        assert.equal(deleted.status, 200);
+        assert.deepEqual((await deleted.json()).cremes.map((cream) => cream.id), [2, 3]);
+
+        const creamPatches = gist.requests.filter(({ url, options }) =>
+            url.includes(creamGistId) && options.method === 'PATCH'
+        );
+        assert.equal(creamPatches.length, 3);
+        assert.deepEqual(Object.keys(JSON.parse(creamPatches[0].options.body).files), ['gistfile1.txt']);
+        assert.equal(
+            JSON.parse(gist.gists.get(perfumeGistId)['lista_itens.json'].content).length,
+            1
+        );
+    });
 });
 
 test('protects Gist CRUD and preserves the current perfume data shape', async () => {
