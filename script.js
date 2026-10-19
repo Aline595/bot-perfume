@@ -87,11 +87,25 @@ function destacarRange(temp) {
 async function carregarDados() {
     // 1. Carregar Perfumes
     try {
-        const resposta = await fetch(urlGist + "?t=" + new Date().getTime());
+        const apiConfigurada = window.PERFUMES_API_URL?.trim();
+        const apiBase = apiConfigurada
+            ? apiConfigurada.replace(/\/+$/, '')
+            : ['localhost', '127.0.0.1'].includes(window.location.hostname)
+                ? window.location.origin
+                : '';
+        const urlPerfumes = apiBase
+            ? `${apiBase}/api/perfumes`
+            : `${urlGist}?t=${new Date().getTime()}`;
+        const resposta = await fetch(urlPerfumes);
         if (!resposta.ok) throw new Error("Falha ao carregar perfumes");
-        perfumes = await resposta.json();
+        const dadosPerfumes = await resposta.json();
+        perfumes = apiBase ? dadosPerfumes.perfumes : dadosPerfumes;
+        if (!Array.isArray(perfumes)) throw new Error("Formato de perfumes inválido");
+        document.dispatchEvent(new Event('perfumes-carregados'));
     } catch (erro) {
         console.error("❌ Erro ao carregar perfumes:", erro);
+        const status = document.getElementById('perfume-admin-status');
+        if (status) status.textContent = `Não foi possível carregar os perfumes: ${erro.message}`;
     }
 
     // 2. Carregar Decotes
@@ -155,30 +169,40 @@ function atualizarFiltros() {
     secaoEstacao.style.display = filtroEstacao ? 'block' : 'none';
 }
 
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
 // Exibe cards de resultados (perfumes ou decotes)
 function exibirCards(lista, container, tipo) {
     if (lista.length > 0) {
         container.innerHTML = lista.map(item => {
-            const imagemSrc = item.imagem && item.imagem.startsWith('http') 
+            const imagemSrc = item.imagem && /^https?:\/\//i.test(item.imagem)
                 ? item.imagem 
                 : `https://lh3.googleusercontent.com/d/${item.imagem}`;
 
             if (tipo === 'perfume') {
                 return `
-                    <div class="card-perfume" role="article" aria-labelledby="nome-${item.nome.replace(/\s+/g, '-')}">
-                        <img src="${imagemSrc}" class="img-perfume" alt="${item.nome}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
+                    <div class="card-perfume" role="article" aria-labelledby="nome-${item.id}">
+                        <img src="${escapeHtml(imagemSrc)}" class="img-perfume" alt="${escapeHtml(item.nome)}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
                         <div>
-                            <span class="perfume-marca">${item.marca || ''}</span>
-                            <strong id="nome-${item.nome.replace(/\s+/g, '-')}" style="color: var(--text-main); font-size: 1.1em;">${item.nome}</strong>
-                            ${item.intensidade ? `<br><span class="badge-intensity">${item.intensidade}</span>` : ''}
+                            <span class="perfume-marca">${escapeHtml(item.marca || '')}</span>
+                            <strong id="nome-${item.id}" style="color: var(--text-main); font-size: 1.1em;">${escapeHtml(item.nome)}</strong>
+                            ${item.intensidade ? `<br><span class="badge-intensity">${escapeHtml(item.intensidade)}</span>` : ''}
                             <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
-                                ✨ Vibe: ${item.vibe ? (Array.isArray(item.vibe) ? item.vibe.join(', ') : item.vibe) : 'N/A'}
+                                ✨ Vibe: ${escapeHtml(item.vibe ? (Array.isArray(item.vibe) ? item.vibe.join(', ') : item.vibe) : 'N/A')}
                             </p>
                             <div class="perfume-duracao">
                                 <span>⏱️ Duração:</span>
-                                <strong>${item.duracao || 'N/A'}</strong>
+                                <strong>${escapeHtml(item.duracao || 'N/A')}</strong>
                             </div>
-                            ${item.temperatura_ideal ? `<div class="perfume-duracao"><span>🌡️ Temperatura:</span><strong>${item.temperatura_ideal}</strong></div>` : ''}
+                            ${item.temperatura_ideal ? `<div class="perfume-duracao"><span>🌡️ Temperatura:</span><strong>${escapeHtml(item.temperatura_ideal)}</strong></div>` : ''}
                         </div>
                     </div>
                 `;

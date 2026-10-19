@@ -9,6 +9,7 @@ Um aplicativo web interativo para consultar recomendações de perfumes e colare
 - **Consulta de Perfumes**: Filtre por estação (incluindo "Todos"), período (dia/noite), vibe e notas olfativas.
 - **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
+- **CRUD de Perfumes**: Cadastre, edite e exclua perfumes no Gist usando uma API protegida.
 - **Seção de Colares**: Visualize catálogo de colares (expansível para filtros futuros).
 - **Modo Escuro**: Alternância entre temas claro e escuro.
 - **Responsivo**: Otimizado para celular, tablet e PC.
@@ -40,10 +41,28 @@ link: https://aline595.github.io/bot-perfume/
 
 ## Instalação Local
 
-<!-- Instruções para rodar localmente -->
-1. Clone ou baixe os arquivos.
-2. Abra `index.html` em um navegador (recomendado usar um servidor local para evitar problemas com CORS em file://).
-3. Para desenvolvimento, use um servidor como Live Server no VS Code.
+O servidor local do projeto também expõe a API usada para editar o Gist. Requer Node.js 18 ou superior e um token do GitHub com permissão de leitura e escrita em Gists.
+
+No PowerShell, na pasta do projeto, configure as variáveis e inicie o servidor:
+
+```powershell
+$env:GITHUB_TOKEN = "seu-token-com-permissao-de-gist"
+$env:ADMIN_PASSWORD = "escolha-uma-senha-forte"
+node server.js
+```
+
+Abra `http://localhost:8000`. O `GIST_ID` já usa o Gist de perfumes atual por padrão; defina `$env:GIST_ID` apenas se quiser usar outro.
+
+## Publicar a API para o GitHub Pages
+
+O GitHub Pages hospeda apenas arquivos estáticos. Para gravar no Gist a partir do site publicado, hospede `server.js` em um serviço Node.js com HTTPS e configure estas variáveis secretas no serviço:
+
+- `GITHUB_TOKEN`: token com permissão de leitura e escrita em Gists.
+- `ADMIN_PASSWORD`: senha exigida para criar, editar e excluir perfumes.
+- `GIST_ID`: opcional; por padrão usa o Gist atual do projeto.
+- `ALLOWED_ORIGINS`: opcional; lista de origens separadas por vírgula. O padrão permite `https://aline595.github.io` e os endereços locais da porta 8000.
+
+Configure `window.PERFUMES_API_URL` em `api-config.js` com a URL HTTPS do backend, sem uma barra final, por exemplo `https://seu-servico.onrender.com`. Nunca coloque o token do GitHub nesse arquivo nem no código do navegador. O backend deve usar HTTPS, e não compartilhe a senha administrativa.
 
 ## Contribuição
 

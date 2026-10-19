@@ -87,6 +87,39 @@
             <button type="button" onclick="surpreender()" class="btn-surprise">
                 ✨ Me surpreenda!
             </button>
+
+            <details class="perfume-admin">
+                <summary>⚙️ Gerenciar perfumes do Gist</summary>
+                <p>As alterações são salvas diretamente no catálogo do GitHub Gist.</p>
+                <label for="perfume-admin-password">Senha de administração:</label>
+                <input id="perfume-admin-password" type="password" autocomplete="current-password">
+                <form id="perfume-admin-form">
+                    <label for="perfume-admin-name">Nome:</label>
+                    <input id="perfume-admin-name" name="nome" type="text" placeholder="Nome do perfume" required>
+                    <label for="perfume-admin-brand">Marca:</label>
+                    <input id="perfume-admin-brand" name="marca" type="text" placeholder="Marca" required>
+                    <label for="perfume-admin-image">Imagem (ID do Google Drive ou URL HTTPS):</label>
+                    <input id="perfume-admin-image" name="imagem" type="text" placeholder="ID do Google Drive ou URL HTTPS da imagem" required>
+                    <label for="perfume-admin-vibes">Vibes (separadas por vírgula):</label>
+                    <input id="perfume-admin-vibes" name="vibe" type="text" placeholder="Vibes separadas por vírgula" required>
+                    <label for="perfume-admin-climates">Estações (separadas por vírgula):</label>
+                    <input id="perfume-admin-climates" name="clima" type="text" placeholder="Estações separadas por vírgula" required>
+                    <label for="perfume-admin-periods">Períodos (separados por vírgula):</label>
+                    <input id="perfume-admin-periods" name="periodo" type="text" placeholder="Períodos: dia, noite" required>
+                    <label for="perfume-admin-intensity">Intensidade:</label>
+                    <input id="perfume-admin-intensity" name="intensidade" type="text" placeholder="Intensidade" required>
+                    <label for="perfume-admin-duration">Duração em horas:</label>
+                    <input id="perfume-admin-duration" name="duracao" type="number" min="0" step="0.5" placeholder="Duração em horas" required>
+                    <label for="perfume-admin-temperature">Temperatura ideal (opcional):</label>
+                    <input id="perfume-admin-temperature" name="temperatura_ideal" type="text" placeholder="Temperatura ideal (opcional)">
+                    <div class="perfume-admin-actions">
+                        <button id="perfume-admin-save" type="submit">Adicionar perfume</button>
+                        <button id="perfume-admin-cancel" type="button" hidden>Cancelar edição</button>
+                    </div>
+                </form>
+                <p id="perfume-admin-status" role="status" aria-live="polite"></p>
+                <ul id="perfume-admin-list" aria-label="Perfumes cadastrados"></ul>
+            </details>
         </section>
 
         <!-- Seção de colares -->
@@ -158,9 +191,11 @@
     </main>
     
     <!-- Scripts JavaScript -->
+    <script src="api-config.js"></script>
     <script src="script.js"></script>
     <script src="perfumes.js"></script>
     <script src="colares.js"></script>
     <script src="cremes.js"></script>
+    <script src="perfume-admin.js"></script>
 </body>
 </html>

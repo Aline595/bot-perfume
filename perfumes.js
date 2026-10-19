@@ -94,24 +94,24 @@ async function surpreender() {
     if (possiveis.length > 0) {
         const p = possiveis[Math.floor(Math.random() * possiveis.length)];
         
-        const imagemSrc = p.imagem.startsWith('http') 
+        const imagemSrc = /^https?:\/\//i.test(p.imagem)
             ? p.imagem 
             : `https://lh3.googleusercontent.com/u/0/d/${p.imagem}`;
 
         divResultado.innerHTML = `
             <p><strong>🎲 Sua sorte do dia (${tempAtual}°C):</strong></p>
             <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);" role="article">
-                <img src="${imagemSrc}" class="img-perfume" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
+                <img src="${escapeHtml(imagemSrc)}" class="img-perfume" alt="${escapeHtml(p.nome)}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
                 <div>
-                    <span class="perfume-marca" style="color: #e65100;">${p.marca || ''}</span>
-                    <strong style="color: #e65100; font-size: 1.2em;">${p.nome}</strong>
-                    ${p.intensidade ? `<br><span class="badge-intensity">${p.intensidade}</span>` : ''}
-                    <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">Vibe: ${p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A'}</p>
+                    <span class="perfume-marca" style="color: #e65100;">${escapeHtml(p.marca || '')}</span>
+                    <strong style="color: #e65100; font-size: 1.2em;">${escapeHtml(p.nome)}</strong>
+                    ${p.intensidade ? `<br><span class="badge-intensity">${escapeHtml(p.intensidade)}</span>` : ''}
+                    <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">Vibe: ${escapeHtml(p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A')}</p>
                     <div class="perfume-duracao">
                         <span>⏱️ Fixação:</span>
-                        <strong>${p.duracao || 'N/A'}h</strong>
+                        <strong>${escapeHtml(p.duracao || 'N/A')}h</strong>
                     </div>
-                    ${p.temperatura_ideal ? `<small style="color: #666;">Ideal para: ${p.temperatura_ideal}</small>` : ''}
+                    ${p.temperatura_ideal ? `<small style="color: #666;">Ideal para: ${escapeHtml(p.temperatura_ideal)}</small>` : ''}
                 </div>
             </div>
         `;
