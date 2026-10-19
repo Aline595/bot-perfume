@@ -1,1 +1,1 @@
-window.PERFUMES_API_URL = '';
+window.PERFUMES_API_URL = 'https://bot-perfume.onrender.com';
