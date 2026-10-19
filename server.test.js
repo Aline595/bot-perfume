@@ -58,6 +58,14 @@ test('validates the Gist perfume fields and image protocols', () => {
         () => validatePerfumeList([{ id: 1 }, { id: 1 }]),
         /duplicados/
     );
+    assert.throws(
+        () => validatePerfumeList([{ id: 1, ...perfumeInput, vibe: [] }], { validateRecords: true }),
+        /ID 1 inválido.*vibe/
+    );
+    assert.throws(
+        () => validatePerfumeList([{ id: 1, ...perfumeInput }, { id: 2, ...perfumeInput, periodo: [] }], { validateRecords: true }),
+        /ID 2 inválido.*periodo/
+    );
 });
 
 test('protects Gist CRUD and preserves the current perfume data shape', async () => {
@@ -79,6 +87,52 @@ test('protects Gist CRUD and preserves the current perfume data shape', async ()
 
         const read = await fetch(`${baseUrl}/api/perfumes`, {
             headers: { Origin: 'https://aline595.github.io' }
+        });
+
+        test('does not update the Gist when an existing record makes the resulting catalog invalid', async () => {
+            const gist = makeFetch([{ id: 1, ...perfumeInput, vibe: [] }]);
+
+            await withServer({
+                token: 'test-token',
+                adminPassword: 'test-password',
+                gistId: 'test-gist',
+                fetchImpl: gist.fetchImpl
+            }, async (baseUrl) => {
+                const response = await fetch(`${baseUrl}/api/perfumes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Password': 'test-password'
+                    },
+                    body: JSON.stringify(perfumeInput)
+                });
+
+                test('does not update the Gist when a new perfume is invalid', async () => {
+                    const gist = makeFetch([{ id: 1, ...perfumeInput }]);
+
+                    await withServer({
+                        token: 'test-token',
+                        adminPassword: 'test-password',
+                        gistId: 'test-gist',
+                        fetchImpl: gist.fetchImpl
+                    }, async (baseUrl) => {
+                        const response = await fetch(`${baseUrl}/api/perfumes`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Admin-Password': 'test-password'
+                            },
+                            body: JSON.stringify({ ...perfumeInput, duracao: -1 })
+                        });
+                        assert.equal(response.status, 400);
+                        assert.match((await response.json()).error, /duração/i);
+                        assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 0);
+                    });
+                });
+                assert.equal(response.status, 502);
+                assert.match((await response.json()).error, /ID 1 inválido.*vibe/);
+                assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 0);
+            });
         });
         assert.equal(read.status, 200);
         assert.equal(read.headers.get('access-control-allow-origin'), 'https://aline595.github.io');
@@ -140,6 +194,8 @@ test('protects Gist CRUD and preserves the current perfume data shape', async ()
             headers: { Origin: 'https://example.com' }
         });
         assert.equal(blockedOrigin.status, 403);
+        assert.equal(blockedOrigin.headers.get('access-control-allow-origin'), 'https://example.com');
+        assert.equal((await blockedOrigin.json()).error, 'Origem não autorizada.');
     });
 
     const gistRequests = gist.requests.filter(({ url }) => url.includes('api.github.com'));

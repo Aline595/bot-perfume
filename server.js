@@ -85,7 +85,7 @@ function validatePerfumeInput(value) {
     return perfume;
 }
 
-function validatePerfumeList(value) {
+function validatePerfumeList(value, { validateRecords = false } = {}) {
     if (!Array.isArray(value)) {
         throw new HttpError(502, 'O arquivo do Gist não contém uma lista de perfumes.');
     }
@@ -96,6 +96,23 @@ function validatePerfumeList(value) {
             throw new HttpError(502, 'O arquivo do Gist contém IDs inválidos ou duplicados.');
         }
         ids.add(perfume.id);
+        if (validateRecords) {
+            if (!perfume || typeof perfume !== 'object' || Array.isArray(perfume)) {
+                throw new HttpError(502, `Perfume ID ${perfume?.id ?? 'inválido'} não contém um objeto válido.`);
+            }
+            const fields = [
+                'nome', 'imagem', 'vibe', 'clima', 'periodo',
+                'intensidade', 'marca', 'duracao', 'temperatura_ideal'
+            ];
+            const input = Object.fromEntries(fields
+                .filter((field) => Object.hasOwn(perfume, field))
+                .map((field) => [field, perfume[field]]));
+            try {
+                validatePerfumeInput(input);
+            } catch (error) {
+                throw new HttpError(502, `Perfume ID ${perfume.id} inválido: ${error.message}`);
+            }
+        }
     }
     return value;
 }
@@ -145,7 +162,7 @@ function createServer({
     function writePerfumes(mutator) {
         const operation = writeQueue.then(async () => {
             const current = await readPerfumes();
-            const updated = mutator(current);
+            const updated = validatePerfumeList(mutator(current), { validateRecords: true });
             const response = await fetchImpl(gistUrl, {
                 method: 'PATCH',
                 headers: {
@@ -172,6 +189,8 @@ function createServer({
     const server = http.createServer(async (request, response) => {
         const origin = request.headers.origin;
         if (origin && !allowedOrigins.includes(origin)) {
+            response.setHeader('Access-Control-Allow-Origin', origin);
+            response.setHeader('Vary', 'Origin');
             sendJson(response, 403, { error: 'Origem não autorizada.' });
             return;
         }

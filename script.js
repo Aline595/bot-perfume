@@ -1,5 +1,6 @@
 // Variáveis globais para armazenar dados carregados
 let perfumes = [];
+let perfumesCarregados = false;
 let decotes = [];
 let cremes = [];
 const urlGist = "https://gist.githubusercontent.com/Aline595/d766a0ddf15dd9fc30ddf3de8a67b16f/raw/";
@@ -84,29 +85,113 @@ function destacarRange(temp) {
 }
 
 // Função para carregar dados de perfumes e decotes
-async function carregarDados() {
-    // 1. Carregar Perfumes
+async function carregarPerfumes() {
+    const status = document.getElementById('perfume-load-status');
+    const retryButton = document.getElementById('perfume-load-retry');
+    const apiConfigurada = window.PERFUMES_API_URL?.trim();
+    const apiBase = apiConfigurada
+        ? apiConfigurada.replace(/\/+$/, '')
+        : ['localhost', '127.0.0.1'].includes(window.location.hostname)
+            ? window.location.origin
+            : '';
+    const urlPerfumes = apiBase
+        ? `${apiBase}/api/perfumes`
+        : `${urlGist}?t=${new Date().getTime()}`;
+
+    if (status) {
+        status.textContent = 'Carregando catálogo de perfumes...';
+        status.className = 'perfume-load-status';
+    }
+    if (retryButton) retryButton.hidden = true;
+    atualizarBotoesBuscaPerfumes();
+
     try {
-        const apiConfigurada = window.PERFUMES_API_URL?.trim();
-        const apiBase = apiConfigurada
-            ? apiConfigurada.replace(/\/+$/, '')
-            : ['localhost', '127.0.0.1'].includes(window.location.hostname)
-                ? window.location.origin
-                : '';
-        const urlPerfumes = apiBase
-            ? `${apiBase}/api/perfumes`
-            : `${urlGist}?t=${new Date().getTime()}`;
         const resposta = await fetch(urlPerfumes);
-        if (!resposta.ok) throw new Error("Falha ao carregar perfumes");
+        if (!resposta.ok) {
+            let detalhe = '';
+            try {
+                const erro = await resposta.json();
+                detalhe = erro.error || '';
+            } catch {
+                // Algumas respostas de proxy não incluem um corpo JSON.
+            }
+            if (resposta.status === 403 && /origem não autorizada/i.test(detalhe)) {
+                throw new Error(`A API bloqueou esta origem (${window.location.origin}). Inclua essa origem em ALLOWED_ORIGINS no backend.`);
+            }
+            if (apiBase && resposta.status === 502) {
+                throw new Error(`O backend não conseguiu carregar os perfumes do Gist (HTTP 502). ${detalhe || 'Confira os logs do backend e se GITHUB_TOKEN tem permissão para acessar o Gist.'}`);
+            }
+            if (apiBase && resposta.status >= 500) {
+                throw new Error(`O backend respondeu com erro HTTP ${resposta.status}. Ele pode estar temporariamente indisponível; confira os logs do serviço e tente novamente.`);
+            }
+            if (apiBase) {
+                throw new Error(detalhe
+                    ? `A API respondeu com erro (${resposta.status}): ${detalhe}`
+                    : `A API respondeu com erro HTTP ${resposta.status}.`);
+            }
+            throw new Error(`Não foi possível carregar o Gist (HTTP ${resposta.status}).`);
+        }
+
         const dadosPerfumes = await resposta.json();
         perfumes = apiBase ? dadosPerfumes.perfumes : dadosPerfumes;
-        if (!Array.isArray(perfumes)) throw new Error("Formato de perfumes inválido");
+        if (!Array.isArray(perfumes)) {
+            throw new Error('A resposta não contém uma lista válida de perfumes.');
+        }
+        perfumesCarregados = true;
+        atualizarBotoesBuscaPerfumes();
         document.dispatchEvent(new Event('perfumes-carregados'));
+        if (status) {
+            status.textContent = perfumes.length
+                ? `Catálogo carregado: ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`
+                : 'O catálogo foi carregado, mas não há perfumes cadastrados.';
+            status.className = 'perfume-load-status success';
+        }
+        return true;
     } catch (erro) {
-        console.error("❌ Erro ao carregar perfumes:", erro);
-        const status = document.getElementById('perfume-admin-status');
-        if (status) status.textContent = `Não foi possível carregar os perfumes: ${erro.message}`;
+        console.error('Erro ao carregar catálogo de perfumes:', erro);
+        if (status) {
+            const isLocalApi = apiBase === window.location.origin &&
+                ['localhost', '127.0.0.1'].includes(window.location.hostname);
+            const message = erro instanceof TypeError && apiBase
+                ? isLocalApi
+                    ? `Não foi possível conectar ao servidor local em ${apiBase}. Confirme se node server.js está em execução.`
+                    : `Não foi possível acessar a API em ${apiBase}. O serviço pode estar indisponível ou o navegador pode ter bloqueado a requisição por CORS. Confira se o backend está ativo e se ALLOWED_ORIGINS inclui exatamente ${window.location.origin}.`
+                : erro instanceof TypeError
+                    ? 'Não foi possível conectar ao Gist. Verifique a conexão com a internet e tente novamente.'
+                    : `Não foi possível carregar o catálogo: ${erro.message}`;
+            status.textContent = message;
+            status.className = 'perfume-load-status error';
+        }
+        atualizarBotoesBuscaPerfumes();
+        if (retryButton) retryButton.hidden = false;
+        return false;
     }
+}
+
+function atualizarBotoesBuscaPerfumes() {
+    const buttons = [
+        document.getElementById('buscar-perfume'),
+        document.getElementById('surpreender-perfume')
+    ];
+    buttons.forEach((button) => {
+        if (button) button.disabled = !perfumesCarregados;
+    });
+}
+
+document.addEventListener('perfumes-carregados', () => {
+    perfumesCarregados = true;
+    atualizarBotoesBuscaPerfumes();
+    const status = document.getElementById('perfume-load-status');
+    if (!status || !Array.isArray(perfumes)) return;
+    status.textContent = perfumes.length
+        ? `Catálogo carregado: ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`
+        : 'O catálogo foi carregado, mas não há perfumes cadastrados.';
+    status.className = 'perfume-load-status success';
+});
+
+async function carregarDados() {
+    // 1. Carregar Perfumes
+    await carregarPerfumes();
 
     // 2. Carregar Decotes
     try {
@@ -134,6 +219,13 @@ async function carregarDados() {
     definirEstacaoInicial();
     exibirTemperaturaAtual(); // Exibir temperatura ao carregar
 }
+
+document.getElementById('perfume-load-retry')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    await carregarPerfumes();
+    button.disabled = false;
+});
 
 // Define a estação inicial baseada no mês atual
 function definirEstacaoInicial() {

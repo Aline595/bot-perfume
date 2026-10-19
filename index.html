@@ -43,6 +43,12 @@
             <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
             <h2 style="margin-bottom: 5px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🌸 Consultor de Perfumes</h2>
             <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 0; margin-bottom: 20px;">Descubra o aroma perfeito para você</p>
+            <div id="perfume-load-status" class="perfume-load-status" role="status" aria-live="polite">
+                Carregando catálogo de perfumes...
+            </div>
+            <button id="perfume-load-retry" type="button" class="perfume-load-retry" hidden>
+                Tentar carregar novamente
+            </button>
             
             <!-- Filtros de seleção -->
             <div style="display: flex; gap: 15px; justify-content: center; margin: 15px 0; align-items: center; flex-wrap: wrap;">
@@ -83,8 +89,8 @@
             <label for="nota" style="font-weight: 600; display: block; margin-top: 15px;">🎵 Nota Olfativa:</label>
             <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa, citrus)">
             
-            <button type="button" onclick="buscar()" style="margin-top: 20px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%);">🔍 Encontrar Perfume</button>
-            <button type="button" onclick="surpreender()" class="btn-surprise">
+            <button id="buscar-perfume" type="button" onclick="buscar()" disabled style="margin-top: 20px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%);">🔍 Encontrar Perfume</button>
+            <button id="surpreender-perfume" type="button" onclick="surpreender()" class="btn-surprise" disabled>
                 ✨ Me surpreenda!
             </button>
 
@@ -121,6 +127,14 @@
                     </div>
                 </form>
                 <p id="perfume-admin-status" role="status" aria-live="polite"></p>
+                <div class="perfume-admin-maintenance">
+                    <button id="perfume-admin-validate" type="button" disabled>Validar catálogo</button>
+                    <button id="perfume-admin-export" type="button" disabled>Exportar cópia JSON</button>
+                </div>
+                <p id="perfume-admin-maintenance-status" role="status" aria-live="polite"></p>
+                <label for="perfume-admin-search">Buscar por nome ou marca:</label>
+                <input id="perfume-admin-search" type="search" placeholder="Digite o nome ou a marca do perfume" autocomplete="off">
+                <p id="perfume-admin-count" class="perfume-admin-count" aria-live="polite"></p>
                 <ul id="perfume-admin-list" aria-label="Perfumes cadastrados"></ul>
             </details>
         </section>

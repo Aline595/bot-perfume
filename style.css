@@ -505,6 +505,31 @@ body.dark-mode .perfume-duracao {
     text-align: left;
 }
 
+.perfume-load-status {
+    margin: 12px 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.perfume-load-status.success {
+    color: #216e39;
+    background: rgba(46, 125, 50, 0.1);
+}
+
+.perfume-load-status.error {
+    color: #a12622;
+    background: rgba(176, 0, 32, 0.08);
+}
+
+.perfume-load-retry {
+    margin: 0 0 10px;
+    padding: 9px 12px;
+}
+
 .perfume-admin summary {
     color: var(--primary-color);
     cursor: pointer;
@@ -551,6 +576,33 @@ body.dark-mode .perfume-duracao {
     gap: 8px;
 }
 
+.perfume-admin-maintenance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.perfume-admin-maintenance button {
+    width: auto;
+    flex: 1 1 150px;
+    margin: 4px 0;
+    padding: 9px;
+}
+
+.perfume-admin-maintenance-status {
+    margin: 4px 0 12px;
+    overflow-wrap: anywhere;
+    font-size: 0.9em;
+}
+
+.perfume-admin-maintenance-status.success {
+    color: #216e39;
+}
+
+.perfume-admin-maintenance-status.error {
+    color: #b00020;
+}
+
 .perfume-admin-actions button,
 .perfume-admin-item-actions button {
     margin: 4px 0;
@@ -563,6 +615,12 @@ body.dark-mode .perfume-duracao {
 
 #perfume-admin-status.error {
     color: #b00020;
+}
+
+.perfume-admin-count {
+    margin: 4px 0 10px;
+    font-size: 0.9em;
+    color: var(--text-secondary);
 }
 
 #perfume-admin-list {
@@ -582,6 +640,12 @@ body.dark-mode .perfume-duracao {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow-wrap: anywhere;
+}
+
+#perfume-admin-list .perfume-admin-empty {
+    display: block;
+    color: var(--text-secondary);
+    text-align: center;
 }
 
 #perfume-admin-list .perfume-admin-item-actions {

@@ -4,6 +4,11 @@
     const status = document.getElementById('perfume-admin-status');
     const password = document.getElementById('perfume-admin-password');
     const passwordToggle = document.getElementById('perfume-admin-password-toggle');
+    const searchInput = document.getElementById('perfume-admin-search');
+    const count = document.getElementById('perfume-admin-count');
+    const validateButton = document.getElementById('perfume-admin-validate');
+    const exportButton = document.getElementById('perfume-admin-export');
+    const maintenanceStatus = document.getElementById('perfume-admin-maintenance-status');
     const saveButton = document.getElementById('perfume-admin-save');
     const cancelButton = document.getElementById('perfume-admin-cancel');
     let editingId = null;
@@ -28,10 +33,32 @@
         passwordToggle.textContent = isVisible ? 'Mostrar' : 'Ocultar';
         passwordToggle.setAttribute('aria-pressed', String(!isVisible));
     });
+    searchInput.addEventListener('input', updateList);
 
     function updateList() {
         list.replaceChildren();
-        perfumes.forEach((perfume) => {
+        const catalogLoaded = Array.isArray(perfumes);
+        validateButton.disabled = !catalogLoaded;
+        exportButton.disabled = !catalogLoaded;
+        const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
+        const filteredPerfumes = perfumes.filter((perfume) =>
+            `${perfume.nome} ${perfume.marca}`.toLocaleLowerCase('pt-BR').includes(query)
+        );
+        count.textContent = query
+            ? `${filteredPerfumes.length} de ${perfumes.length} perfumes encontrados.`
+            : `${perfumes.length} ${perfumes.length === 1 ? 'perfume cadastrado' : 'perfumes cadastrados'}.`;
+
+        if (filteredPerfumes.length === 0) {
+            const emptyItem = document.createElement('li');
+            emptyItem.className = 'perfume-admin-empty';
+            emptyItem.textContent = query
+                ? 'Nenhum perfume corresponde à busca. Tente outro nome ou marca.'
+                : 'Nenhum perfume cadastrado.';
+            list.append(emptyItem);
+            return;
+        }
+
+        filteredPerfumes.forEach((perfume) => {
             const item = document.createElement('li');
             const description = document.createElement('span');
             description.textContent = `#${perfume.id} — ${perfume.nome} (${perfume.marca})`;
@@ -53,6 +80,96 @@
             list.append(item);
         });
     }
+
+    function validatePerfume(perfume) {
+        const errors = [];
+        const requiredTextFields = ['nome', 'marca', 'imagem', 'intensidade'];
+        requiredTextFields.forEach((field) => {
+            if (typeof perfume[field] !== 'string' || !perfume[field].trim()) {
+                errors.push(`"${field}" é obrigatório`);
+            }
+        });
+
+        if (typeof perfume.imagem === 'string' && perfume.imagem.trim() &&
+            !/^[A-Za-z0-9_-]+$/.test(perfume.imagem.trim())) {
+            try {
+                const imageUrl = new URL(perfume.imagem.trim());
+                if (imageUrl.protocol !== 'https:' || imageUrl.username || imageUrl.password) {
+                    errors.push('"imagem" precisa ser um ID do Google Drive ou uma URL HTTPS válida');
+                }
+            } catch {
+                errors.push('"imagem" precisa ser um ID do Google Drive ou uma URL HTTPS válida');
+            }
+        }
+
+        ['vibe', 'clima', 'periodo'].forEach((field) => {
+            if (!Array.isArray(perfume[field]) || perfume[field].length === 0 ||
+                perfume[field].some((value) => typeof value !== 'string' || !value.trim())) {
+                errors.push(`"${field}" precisa conter ao menos um texto`);
+            }
+        });
+
+        if (typeof perfume.duracao !== 'number' || !Number.isFinite(perfume.duracao) || perfume.duracao < 0) {
+            errors.push('"duracao" precisa ser um número igual ou maior que zero');
+        }
+
+        if (perfume.temperatura_ideal !== undefined &&
+            (typeof perfume.temperatura_ideal !== 'string' || !perfume.temperatura_ideal.trim())) {
+            errors.push('"temperatura_ideal" precisa ser um texto não vazio quando informado');
+        }
+
+        return errors;
+    }
+
+    function validateCatalog() {
+        const errors = [];
+        const ids = new Set();
+        perfumes.forEach((perfume, index) => {
+            const label = `Item ${index + 1}`;
+            if (!perfume || typeof perfume !== 'object' || Array.isArray(perfume)) {
+                errors.push(`${label}: registro inválido`);
+                return;
+            }
+            if (!Number.isSafeInteger(perfume.id) || perfume.id < 1) {
+                errors.push(`${label}: "id" precisa ser um inteiro positivo`);
+            } else if (ids.has(perfume.id)) {
+                errors.push(`${label}: ID duplicado (${perfume.id})`);
+            } else {
+                ids.add(perfume.id);
+            }
+            validatePerfume(perfume).forEach((error) => {
+                errors.push(`${label} (ID ${perfume.id ?? 'inválido'}): ${error}`);
+            });
+        });
+        return errors;
+    }
+
+    validateButton.addEventListener('click', () => {
+        const errors = validateCatalog();
+        if (errors.length) {
+            maintenanceStatus.textContent = `Catálogo inválido: ${errors.join('; ')}. Corrija os problemas antes de salvar alterações.`;
+            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+            return;
+        }
+        maintenanceStatus.textContent = `Catálogo válido: ${perfumes.length} ${perfumes.length === 1 ? 'perfume conferido' : 'perfumes conferidos'}.`;
+        maintenanceStatus.className = 'perfume-admin-maintenance-status success';
+    });
+
+    exportButton.addEventListener('click', () => {
+        const backup = new Blob([`${JSON.stringify(perfumes, null, 2)}\n`], {
+            type: 'application/json;charset=utf-8'
+        });
+        const downloadUrl = URL.createObjectURL(backup);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `perfumes-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+        maintenanceStatus.textContent = `Cópia JSON exportada com ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`;
+        maintenanceStatus.className = 'perfume-admin-maintenance-status success';
+    });
 
     function resetForm() {
         form.reset();
@@ -132,11 +249,17 @@
 
         saveButton.disabled = true;
         try {
+            const perfume = formData();
+            const errors = validatePerfume(perfume);
+            if (errors.length) {
+                showStatus(`Corrija os dados antes de salvar: ${errors.join('; ')}.`, true);
+                return;
+            }
             const method = editingId === null ? 'POST' : 'PUT';
             const url = editingId === null
                 ? `${apiBase}/api/perfumes`
                 : `${apiBase}/api/perfumes/${editingId}`;
-            await sendMutation(url, method, formData());
+            await sendMutation(url, method, perfume);
             showStatus(editingId === null ? 'Perfume adicionado ao Gist.' : 'Perfume atualizado no Gist.');
             resetForm();
         } catch (error) {
@@ -158,7 +281,18 @@
             fillForm(perfume);
             return;
         }
-        if (!window.confirm(`Excluir "${perfume.nome}" do Gist?`)) return;
+        const confirmMessage = [
+            'Confirme a exclusão deste perfume do catálogo do Gist:',
+            '',
+            `Nome: ${perfume.nome}`,
+            `Marca: ${perfume.marca}`,
+            `ID: ${perfume.id}`,
+            '',
+            'Esta alteração será permanente no Gist compartilhado e afetará todos os usuários.',
+            '',
+            'Deseja excluir este perfume?'
+        ].join('\n');
+        if (!window.confirm(confirmMessage)) return;
 
         button.disabled = true;
         try {

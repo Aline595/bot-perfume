@@ -10,6 +10,7 @@ Um aplicativo web interativo para consultar recomendações de perfumes e colare
 - **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
 - **CRUD de Perfumes**: Cadastre, edite e exclua perfumes no Gist usando uma API protegida.
+- **Manutenção do catálogo**: valide os dados antes de salvar e exporte uma cópia JSON para backup.
 - **Seção de Colares**: Visualize catálogo de colares (expansível para filtros futuros).
 - **Modo Escuro**: Alternância entre temas claro e escuro.
 - **Responsivo**: Otimizado para celular, tablet e PC.
