@@ -314,7 +314,7 @@ function atualizarEstacao() {
 function atualizarFiltros() {
     const filtroEstacao = document.getElementById('filtro-estacao').checked;
     const secaoEstacao = document.getElementById('secao-estacao');
-    secaoEstacao.style.display = filtroEstacao ? 'block' : 'none';
+    secaoEstacao.hidden = !filtroEstacao;
 }
 
 function escapeHtml(value) {
