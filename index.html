@@ -92,7 +92,10 @@
                 <summary>⚙️ Gerenciar perfumes do Gist</summary>
                 <p>As alterações são salvas diretamente no catálogo do GitHub Gist.</p>
                 <label for="perfume-admin-password">Senha de administração:</label>
-                <input id="perfume-admin-password" type="password" autocomplete="current-password">
+                <div class="perfume-admin-password-field">
+                    <input id="perfume-admin-password" type="password" autocomplete="current-password">
+                    <button id="perfume-admin-password-toggle" class="password-visibility-toggle" type="button" aria-controls="perfume-admin-password" aria-pressed="false">Mostrar</button>
+                </div>
                 <form id="perfume-admin-form">
                     <label for="perfume-admin-name">Nome:</label>
                     <input id="perfume-admin-name" name="nome" type="text" placeholder="Nome do perfume" required>

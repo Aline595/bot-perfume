@@ -3,6 +3,7 @@
     const list = document.getElementById('perfume-admin-list');
     const status = document.getElementById('perfume-admin-status');
     const password = document.getElementById('perfume-admin-password');
+    const passwordToggle = document.getElementById('perfume-admin-password-toggle');
     const saveButton = document.getElementById('perfume-admin-save');
     const cancelButton = document.getElementById('perfume-admin-cancel');
     let editingId = null;
@@ -20,6 +21,13 @@
         status.textContent = message;
         status.classList.toggle('error', isError);
     }
+
+    passwordToggle.addEventListener('click', () => {
+        const isVisible = password.type === 'text';
+        password.type = isVisible ? 'password' : 'text';
+        passwordToggle.textContent = isVisible ? 'Mostrar' : 'Ocultar';
+        passwordToggle.setAttribute('aria-pressed', String(!isVisible));
+    });
 
     function updateList() {
         list.replaceChildren();

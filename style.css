@@ -520,6 +520,26 @@ body.dark-mode .perfume-duracao {
     font-weight: 600;
 }
 
+.perfume-admin-password-field {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.perfume-admin-password-field input {
+    min-width: 0;
+}
+
+.perfume-admin-password-field .password-visibility-toggle {
+    width: auto;
+    flex-shrink: 0;
+    margin: 10px 0;
+    padding: 0 12px;
+    background: var(--bg-secondary, #eeeeee);
+    color: var(--text-main);
+    box-shadow: none;
+}
+
 .perfume-admin form {
     display: grid;
     gap: 4px;
