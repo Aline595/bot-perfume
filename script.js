@@ -37,6 +37,7 @@ function popularSelectBlusas(decotes) {
 async function exibirTemperaturaAtual() {
     try {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-23.68&longitude=-46.62&current_weather=true');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         const temp = data.current_weather.temperature;
         
@@ -46,12 +47,18 @@ async function exibirTemperaturaAtual() {
             const el = document.getElementById(id);
             if (el) el.textContent = `🌡️ ${temp}°C agora`;
         });
+        document.getElementById('temperatura-atual')?.classList.remove('temperature-status-warning');
 
         // 2. Lógica para destacar o Range na tela de Cremes
         destacarRange(temp);
 
     } catch (error) {
         console.error("Erro ao buscar temperatura:", error);
+        const status = document.getElementById('temperatura-atual');
+        if (status) {
+            status.textContent = '🌡️ Temperatura indisponível; o filtro pode usar 22°C como referência.';
+            status.classList.add('temperature-status-warning');
+        }
     }
 }
 
@@ -154,8 +161,8 @@ async function carregarPerfumes() {
                 ['localhost', '127.0.0.1'].includes(window.location.hostname);
             const message = erro instanceof TypeError && apiBase
                 ? isLocalApi
-                    ? `Não foi possível conectar ao servidor local em ${apiBase}. Confirme se node server.js está em execução.`
-                    : `Não foi possível acessar a API em ${apiBase}. O serviço pode estar indisponível ou o navegador pode ter bloqueado a requisição por CORS. Confira se o backend está ativo e se ALLOWED_ORIGINS inclui exatamente ${window.location.origin}.`
+                    ? `Não foi possível conectar ao backend local em ${apiBase}. Se estiver desenvolvendo localmente, inicie-o com node server.js.`
+                    : `Não foi possível conectar ao backend online (${apiBase}). Ele pode estar indisponível ou o navegador pode ter bloqueado a conexão por CORS. Verifique o status do serviço; se estiver ativo, confira se ALLOWED_ORIGINS inclui exatamente ${window.location.origin}.`
                 : erro instanceof TypeError
                     ? 'Não foi possível conectar ao Gist. Verifique a conexão com a internet e tente novamente.'
                     : `Não foi possível carregar o catálogo: ${erro.message}`;
@@ -247,17 +254,7 @@ function atualizarEstacao() {
 // Função para atualizar visibilidade dos filtros
 function atualizarFiltros() {
     const filtroEstacao = document.getElementById('filtro-estacao').checked;
-    const filtroTemperatura = document.getElementById('filtro-temperatura').checked;
     const secaoEstacao = document.getElementById('secao-estacao');
-    
-    // Se nenhum filtro está selecionado, ativar estação por padrão
-    if (!filtroEstacao && !filtroTemperatura) {
-        document.getElementById('filtro-estacao').checked = true;
-        secaoEstacao.style.display = 'block';
-        return;
-    }
-    
-    // Mostrar/ocultar seção de estação
     secaoEstacao.style.display = filtroEstacao ? 'block' : 'none';
 }
 
@@ -272,14 +269,18 @@ function escapeHtml(value) {
 }
 
 // Exibe cards de resultados (perfumes ou decotes)
-function exibirCards(lista, container, tipo) {
+function exibirCards(lista, container, tipo, options = {}) {
     if (lista.length > 0) {
-        container.innerHTML = lista.map(item => {
+        const heading = options.heading
+            ? `<h3 class="results-heading">${escapeHtml(options.heading)}</h3>`
+            : '';
+        const cards = lista.map(item => {
             const imagemSrc = item.imagem && /^https?:\/\//i.test(item.imagem)
                 ? item.imagem 
                 : `https://lh3.googleusercontent.com/d/${item.imagem}`;
 
             if (tipo === 'perfume') {
+                const reasons = options.reasonsById?.get(item.id) || [];
                 return `
                     <div class="card-perfume" role="article" aria-labelledby="nome-${item.id}">
                         <img src="${escapeHtml(imagemSrc)}" class="img-perfume" alt="${escapeHtml(item.nome)}" onerror="this.src='https://via.placeholder.com/200?text=Sem+Imagem'">
@@ -295,6 +296,7 @@ function exibirCards(lista, container, tipo) {
                                 <strong>${escapeHtml(item.duracao || 'N/A')}</strong>
                             </div>
                             ${item.temperatura_ideal ? `<div class="perfume-duracao"><span>🌡️ Temperatura:</span><strong>${escapeHtml(item.temperatura_ideal)}</strong></div>` : ''}
+                            ${reasons.length ? `<p class="recommendation-reason"><strong>Por que combina:</strong> ${reasons.map(escapeHtml).join(' · ')}</p>` : ''}
                         </div>
                     </div>
                 `;
@@ -324,9 +326,12 @@ function exibirCards(lista, container, tipo) {
                 return '';
             }
         }).join('');
+        container.innerHTML = `${heading}${cards}`;
     } else {
-        container.innerHTML = "<p style='color: #999;' role='alert'>❌ Nada encontrado.</p>";
+        const message = options.emptyMessage || '❌ Nada encontrado.';
+        container.innerHTML = `<p class="results-empty" role="status">${escapeHtml(message)}</p>`;
     }
+    container.setAttribute('aria-busy', 'false');
 }
 
 // Mostra skeleton de carregamento
@@ -340,7 +345,8 @@ function mostrarSkeleton() {
         </div>
     `).join('');
     
-    divResultado.innerHTML = skeletons;
+    divResultado.setAttribute('aria-busy', 'true');
+    divResultado.innerHTML = `<p class="visually-hidden">Buscando recomendações...</p>${skeletons}`;
 }
 
 // Alterna modo escuro

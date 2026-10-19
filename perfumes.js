@@ -2,12 +2,43 @@
 async function obterTemperaturaAtual() {
     try {
         const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-23.68&longitude=-46.62&current_weather=true');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
+        if (typeof data.current_weather?.temperature !== 'number') {
+            throw new Error('A resposta não contém uma temperatura válida.');
+        }
         return data.current_weather.temperature;
     } catch (error) {
         console.error("Erro ao buscar clima, usando temperatura padrão 22°C", error);
+        const temperatureStatus = document.getElementById('temperatura-atual');
+        if (temperatureStatus) {
+            temperatureStatus.textContent = '🌡️ Temperatura indisponível; usando 22°C como referência.';
+            temperatureStatus.classList.add('temperature-status-warning');
+        }
         return 22; // Fallback caso a API falhe
     }
+}
+
+function listValues(value) {
+    if (Array.isArray(value)) return value.filter((item) => typeof item === 'string');
+    return typeof value === 'string' ? [value] : [];
+}
+
+function perfumeMatchesTemperature(perfume, temperature) {
+    const idealTemperature = perfume.temperatura_ideal;
+    if (typeof idealTemperature !== 'string' || !idealTemperature.trim()) return true;
+
+    const firstNumber = Number.parseInt(idealTemperature.replace(/[^0-9]/g, ''), 10);
+    if (idealTemperature.includes('Abaixo')) return temperature <= firstNumber;
+    if (idealTemperature.includes('Acima')) return temperature >= firstNumber;
+    if (idealTemperature.includes('Entre')) {
+        const matches = idealTemperature.match(/\d+/g) || [];
+        if (matches.length === 2) {
+            return temperature >= Number.parseInt(matches[0], 10) &&
+                temperature <= Number.parseInt(matches[1], 10);
+        }
+    }
+    return true;
 }
 
 // Função para buscar perfumes com base nos filtros
@@ -23,47 +54,66 @@ async function buscar() {
 
     mostrarSkeleton();
 
-    // Buscamos a temperatura antes de entrar no filtro
-    const tempAtual = await obterTemperaturaAtual();
+    const tempAtual = filtroTemperatura ? await obterTemperaturaAtual() : null;
+    const resultados = perfumes.filter((perfume) => {
+        const climates = listValues(perfume.clima);
+        const periods = listValues(perfume.periodo);
+        const vibes = listValues(perfume.vibe);
+        const notes = listValues(perfume.notas);
+        const matchesClimate = !filtroEstacao || estacaoSelecionada === 'todos' ||
+            climates.some((climate) => climate.toLowerCase() === estacaoSelecionada.toLowerCase());
+        const matchesPeriod = periodo === 'ambos' ||
+            periods.some((value) => value.toLowerCase() === periodo);
+        const matchesVibe = !vibeInput ||
+            vibes.some((value) => value.toLowerCase().includes(vibeInput));
+        const matchesNote = !notaInput ||
+            notes.some((value) => value.toLowerCase().includes(notaInput));
+        const matchesTemperature = !filtroTemperatura ||
+            perfumeMatchesTemperature(perfume, tempAtual);
 
-    setTimeout(() => {
-        const filtro = perfumes.filter(p => {
-            const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
-            const periodos = Array.isArray(p.periodo) ? p.periodo : [p.periodo];
-            const vibes = Array.isArray(p.vibe) ? p.vibe : [p.vibe];
-            const notas = Array.isArray(p.notas) ? p.notas : [p.notas];
+        return matchesClimate && matchesPeriod && matchesVibe && matchesNote && matchesTemperature;
+    });
 
-            // Filtro de estação (se ativado)
-            let bateClima = true;
-            if (filtroEstacao) {
-                bateClima = estacaoSelecionada === 'todos' ? true : climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-            }
+    if (resultados.length === 0) {
+        divResultado.innerHTML = `
+            <div class="results-empty">
+                <h3>Nenhum perfume encontrado com essa combinação</h3>
+                <p>Tente outra vibe ou nota, escolha outro período ou amplie os filtros de clima.</p>
+                <button id="expand-perfume-search" type="button">Ver todos os perfumes</button>
+            </div>
+        `;
+        divResultado.setAttribute('aria-busy', 'false');
+        document.getElementById('expand-perfume-search').addEventListener('click', limparBuscaPerfume);
+        return;
+    }
 
-            const batePeriodo = (periodo === 'ambos') ? true : periodos.some(per => per.toLowerCase() === periodo);
-            const bateVibe = vibeInput === "" ? true : vibes.some(v => v.toLowerCase().includes(vibeInput));
-            const bateNota = notaInput === "" ? true : notas.some(n => n.toLowerCase().includes(notaInput));
+    const reasonsById = new Map(resultados.map((perfume) => {
+        const reasons = [];
+        if (filtroEstacao && estacaoSelecionada !== 'todos') {
+            reasons.push(`estação ${estacaoSelecionada}`);
+        }
+        if (filtroTemperatura && perfume.temperatura_ideal) {
+            reasons.push(`temperatura atual (${tempAtual}°C)`);
+        }
+        if (periodo !== 'ambos') reasons.push(`período ${periodo}`);
+        if (vibeInput) reasons.push(`vibe “${vibeInput}”`);
+        if (notaInput) reasons.push(`nota “${notaInput}”`);
+        return [perfume.id, reasons];
+    }));
+    exibirCards(resultados, divResultado, 'perfume', {
+        heading: `${resultados.length} ${resultados.length === 1 ? 'perfume encontrado' : 'perfumes encontrados'}`,
+        reasonsById
+    });
+}
 
-            // Filtro de temperatura (se ativado)
-            let bateTemp = true;
-            if (filtroTemperatura && p.temperatura_ideal) {
-                const numTemp = parseInt(p.temperatura_ideal.replace(/[^0-9]/g, ''));
-                if (p.temperatura_ideal.includes('Abaixo')) {
-                    bateTemp = tempAtual <= numTemp;
-                } else if (p.temperatura_ideal.includes('Acima')) {
-                    bateTemp = tempAtual >= numTemp;
-                } else if (p.temperatura_ideal.includes('Entre')) {
-                    const matches = p.temperatura_ideal.match(/\d+/g);
-                    if (matches.length === 2) {
-                        bateTemp = tempAtual >= parseInt(matches[0]) && tempAtual <= parseInt(matches[1]);
-                    }
-                }
-            }
-
-            return bateClima && batePeriodo && bateVibe && bateNota && bateTemp;
-        });
-
-        exibirCards(filtro, divResultado, 'perfume');
-    }, 500);
+function limparBuscaPerfume() {
+    document.getElementById('filtro-estacao').checked = false;
+    document.getElementById('filtro-temperatura').checked = false;
+    document.getElementById('periodo').value = 'ambos';
+    document.getElementById('vibe').value = '';
+    document.getElementById('nota').value = '';
+    atualizarFiltros();
+    buscar();
 }
 
 // Função para surpreender com um perfume aleatório
@@ -71,52 +121,39 @@ async function surpreender() {
     const divResultado = document.getElementById('resultado');
     const filtroEstacao = document.getElementById('filtro-estacao').checked;
     const filtroTemperatura = document.getElementById('filtro-temperatura').checked;
+    mostrarSkeleton();
     const tempAtual = await obterTemperaturaAtual();
 
-    const possiveis = perfumes.filter(p => {
-        const climas = Array.isArray(p.clima) ? p.clima : [p.clima];
-        
-        let bateClima = true;
-        if (filtroEstacao) {
-            bateClima = estacaoSelecionada === 'todos' ? true : climas.some(c => c.toLowerCase() === estacaoSelecionada.toLowerCase());
-        }
-        
-        let bateTemp = true;
-        if (filtroTemperatura && p.temperatura_ideal) {
-            const numTemp = parseInt(p.temperatura_ideal.replace(/[^0-9]/g, ''));
-            if (p.temperatura_ideal.includes('Abaixo')) bateTemp = tempAtual <= numTemp;
-            else if (p.temperatura_ideal.includes('Acima')) bateTemp = tempAtual >= numTemp;
-        }
-        
-        return bateClima && bateTemp;
+    const possiveis = perfumes.filter((perfume) => {
+        const matchesClimate = !filtroEstacao || estacaoSelecionada === 'todos' ||
+            listValues(perfume.clima).some((climate) => climate.toLowerCase() === estacaoSelecionada.toLowerCase());
+        const matchesTemperature = !filtroTemperatura ||
+            perfumeMatchesTemperature(perfume, tempAtual);
+        return matchesClimate && matchesTemperature;
     });
 
     if (possiveis.length > 0) {
         const p = possiveis[Math.floor(Math.random() * possiveis.length)];
-        
-        const imagemSrc = /^https?:\/\//i.test(p.imagem)
-            ? p.imagem 
-            : `https://lh3.googleusercontent.com/u/0/d/${p.imagem}`;
-
+        const reasons = [];
+        if (filtroEstacao && estacaoSelecionada !== 'todos') {
+            reasons.push(`estação ${estacaoSelecionada}`);
+        }
+        if (filtroTemperatura && p.temperatura_ideal) {
+            reasons.push(`temperatura atual (${tempAtual}°C)`);
+        }
+        if (!reasons.length) reasons.push('sorteio entre todos os perfumes cadastrados');
+        exibirCards([p], divResultado, 'perfume', {
+            heading: '🎲 Sua surpresa de hoje',
+            reasonsById: new Map([[p.id, reasons]])
+        });
+    } else {
         divResultado.innerHTML = `
-            <p><strong>🎲 Sua sorte do dia (${tempAtual}°C):</strong></p>
-            <div class="card-perfume" style="border: 2px solid #ff9800; background: var(--bg-card);" role="article">
-                <img src="${escapeHtml(imagemSrc)}" class="img-perfume" alt="${escapeHtml(p.nome)}" onerror="this.src='https://via.placeholder.com/200?text=Erro+Imagem'">
-                <div>
-                    <span class="perfume-marca" style="color: #e65100;">${escapeHtml(p.marca || '')}</span>
-                    <strong style="color: #e65100; font-size: 1.2em;">${escapeHtml(p.nome)}</strong>
-                    ${p.intensidade ? `<br><span class="badge-intensity">${escapeHtml(p.intensidade)}</span>` : ''}
-                    <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px;">Vibe: ${escapeHtml(p.vibe ? (Array.isArray(p.vibe) ? p.vibe.join(', ') : p.vibe) : 'N/A')}</p>
-                    <div class="perfume-duracao">
-                        <span>⏱️ Fixação:</span>
-                        <strong>${escapeHtml(p.duracao || 'N/A')}h</strong>
-                    </div>
-                    ${p.temperatura_ideal ? `<small style="color: #666;">Ideal para: ${escapeHtml(p.temperatura_ideal)}</small>` : ''}
-                </div>
+            <div class="results-empty" role="status">
+                <h3>Nenhum perfume combina com os filtros de clima atuais</h3>
+                <p>Desative o filtro de estação ou temperatura para ampliar as opções.</p>
             </div>
         `;
-    } else {
-        divResultado.innerHTML = `<p style='color: #999;' role='alert'>❌ Nenhum perfume ideal para os ${tempAtual}°C de hoje.</p>`;
+        divResultado.setAttribute('aria-busy', 'false');
     }
 }
 

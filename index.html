@@ -50,20 +50,29 @@
                 Tentar carregar novamente
             </button>
             
-            <!-- Filtros de seleção -->
-            <div style="display: flex; gap: 15px; justify-content: center; margin: 15px 0; align-items: center; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                    <input type="checkbox" id="filtro-estacao" onchange="atualizarFiltros()">
-                    <span style="font-size: 0.9em;">Por Estação</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                    <input type="checkbox" id="filtro-temperatura" checked onchange="atualizarFiltros()">
-                    <span style="font-size: 0.9em;">Por Temperatura 🌡️</span>
-                </label>
-                <div id="temperatura-atual" style="font-size: 0.9em; font-weight: bold; color: var(--primary-color);">
+            <p class="search-intro">Personalize sua recomendação. Os filtros de estação e temperatura são opcionais; vibe e nota também podem ficar em branco.</p>
+            <fieldset class="perfume-filters">
+                <legend>Preferências de clima</legend>
+                <div class="perfume-filter-options">
+                    <label class="perfume-filter-option">
+                        <input type="checkbox" id="filtro-estacao" onchange="atualizarFiltros()">
+                        <span>
+                            <strong>Filtrar por estação</strong>
+                            <small>Mostra perfumes indicados para a estação escolhida.</small>
+                        </span>
+                    </label>
+                    <label class="perfume-filter-option">
+                        <input type="checkbox" id="filtro-temperatura" checked onchange="atualizarFiltros()">
+                        <span>
+                            <strong>Considerar temperatura</strong>
+                            <small>Usa a temperatura atual quando o perfume tem essa indicação.</small>
+                        </span>
+                    </label>
+                </div>
+                <div id="temperatura-atual" class="temperature-status" role="status" aria-live="polite">
                     🌡️ Carregando temperatura...
                 </div>
-            </div>
+            </fieldset>
             
             <div class="estacao-selector" id="secao-estacao" style="display: none;">
                 <label for="estacao-manual" style="font-weight: 600; display: block; margin-bottom: 8px;">🍂 Estação:</label>
@@ -76,27 +85,27 @@
                 </select>
             </div>
 
-            <label for="periodo" style="font-weight: 600; display: block; margin-top: 15px;">⏰ Período:</label>
+            <label for="periodo" class="field-label">⏰ Período</label>
             <select id="periodo">
                 <option value="dia">☀️ Dia</option>
                 <option value="noite">🌙 Noite</option>
                 <option value="ambos">✨ Ambos</option>
             </select>
 
-            <label for="vibe" style="font-weight: 600; display: block; margin-top: 15px;">✨ Vibe:</label>
+            <label for="vibe" class="field-label">✨ Vibe <span>(opcional)</span></label>
             <input type="text" id="vibe" placeholder="Qual a vibe hoje? (ex: doce, floral, fresco)">
             
-            <label for="nota" style="font-weight: 600; display: block; margin-top: 15px;">🎵 Nota Olfativa:</label>
+            <label for="nota" class="field-label">🎵 Nota olfativa <span>(opcional)</span></label>
             <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa, citrus)">
             
-            <button id="buscar-perfume" type="button" onclick="buscar()" disabled style="margin-top: 20px; background: linear-gradient(135deg, #6a1b9a 0%, #9c4dcc 100%);">🔍 Encontrar Perfume</button>
+            <button id="buscar-perfume" type="button" onclick="buscar()" disabled class="primary-search-button">🔍 Encontrar Perfume</button>
             <button id="surpreender-perfume" type="button" onclick="surpreender()" class="btn-surprise" disabled>
                 ✨ Me surpreenda!
             </button>
 
             <details class="perfume-admin">
                 <summary>⚙️ Gerenciar perfumes do Gist</summary>
-                <p>As alterações são salvas diretamente no catálogo do GitHub Gist.</p>
+                <p>Área restrita para administração. As alterações são salvas diretamente no catálogo compartilhado do GitHub Gist.</p>
                 <label for="perfume-admin-password">Senha de administração:</label>
                 <div class="perfume-admin-password-field">
                     <input id="perfume-admin-password" type="password" autocomplete="current-password">
@@ -204,7 +213,7 @@
 
 
         <!-- Área para exibir resultados -->
-        <div id="resultado"></div>
+        <div id="resultado" role="region" aria-label="Resultados da recomendação" aria-live="polite" aria-busy="false" tabindex="-1"></div>
     </main>
     
     <!-- Scripts JavaScript -->
