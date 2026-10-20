@@ -962,6 +962,17 @@ body {
     background: #f7f7fb;
 }
 
+.legacy-app-view {
+    padding: 28px 18px;
+}
+
+.legacy-app-view > #tela-inicial,
+.legacy-app-view > #comparison-screen,
+.legacy-app-view > .dashboard-lower,
+.legacy-app-view > .dashboard-footer {
+    display: none !important;
+}
+
 .management-view #tela-inicial {
     position: static !important;
     z-index: auto !important;
@@ -991,13 +1002,17 @@ body {
     min-height: 58px;
 }
 
+.management-add-button {
+    display: none;
+}
+
 .management-view .management-add-button {
     display: inline-flex;
     width: auto;
     min-height: 34px;
     align-items: center;
     justify-content: center;
-    margin-left: clamp(14px, 4vw, 52px);
+    margin-left: clamp(14px, 3vw, 34px);
     padding: 7px 13px;
     border: 0;
     border-radius: 7px;
@@ -1008,9 +1023,14 @@ body {
     white-space: nowrap;
 }
 
+.management-view .management-add-button:hover:not(:disabled) {
+    background: #6038e7;
+    box-shadow: 0 5px 14px rgba(112, 71, 245, 0.2);
+    transform: translateY(-1px);
+}
+
 .management-screen {
-    min-height: calc(100vh - 190px);
-    padding: 27px 0 48px;
+    padding: 27px 0 24px;
 }
 
 .management-heading {
@@ -1702,7 +1722,7 @@ body.dark-mode .management-editor-image-placeholder {
 }
 
 .management-view .dashboard-footer {
-    margin-top: auto;
+    margin-top: 16px;
 }
 
 .dashboard-summary {
@@ -2044,7 +2064,6 @@ body.dark-mode .daily-card .product-image-placeholder {
     }
 
     .management-screen {
-        min-height: calc(100vh - 170px);
         padding-top: 24px;
     }
 

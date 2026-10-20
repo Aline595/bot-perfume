@@ -6,10 +6,12 @@ let homeTransitionTimer;
 
 function entrarNoApp(categoria) {
     document.body.classList.remove('comparison-view');
-    document.getElementById('comparison-screen')?.setAttribute('hidden', '');
     document.body.classList.remove('management-view');
+    document.getElementById('comparison-screen')?.setAttribute('hidden', '');
     document.getElementById('management-screen')?.setAttribute('hidden', '');
+    document.body.classList.add('legacy-app-view');
     clearTimeout(homeTransitionTimer);
+    window.scrollTo(0, 0);
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
 
@@ -408,6 +410,7 @@ function openManagementEditor(type, id = null) {
 
 function showManagementScreen() {
     setDashboardNavActive('manage');
+    document.body.classList.remove('legacy-app-view');
     document.body.classList.remove('comparison-view');
     document.body.classList.add('management-view');
     document.getElementById('comparison-screen')?.setAttribute('hidden', '');
@@ -445,11 +448,14 @@ function voltarParaHome() {
 
     clearTimeout(homeTransitionTimer);
     splash.classList.remove('fade-out');
+    setDashboardNavActive('home');
     if (container.classList.contains('app-hidden')) return;
 
     homeTransitionTimer = setTimeout(() => {
         container.classList.add('app-hidden');
+        document.body.classList.remove('legacy-app-view');
         document.getElementById('resultado').innerHTML = '';
+        window.scrollTo(0, 0);
     }, 300);
 }
 
@@ -810,6 +816,7 @@ function handleDashboardAction(action) {
     }
     if (action === 'compare') {
         setDashboardNavActive('compare');
+        document.body.classList.remove('legacy-app-view');
         document.body.classList.remove('management-view');
         document.getElementById('management-screen')?.setAttribute('hidden', '');
         if (!comparisonProducts.length) {
