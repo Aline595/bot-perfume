@@ -26,6 +26,7 @@
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="manage">Gerenciar</button>
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="compare">Comparações</button>
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="favorites">Favoritos</button>
+                <button type="button" id="management-nav-add" class="management-add-button">＋ Adicionar Produto</button>
             </nav>
         </div>
         <section class="dashboard-panel" aria-labelledby="dashboard-title">
@@ -66,6 +67,77 @@
             </div>
         </section>
     </header>
+
+    <section id="management-screen" class="management-screen dashboard-screen" aria-labelledby="management-title" hidden>
+        <div class="management-heading">
+            <div>
+                <h1 id="management-title">Gerenciamento de Inventário</h1>
+                <p>Crie, edite ou remova produtos do seu catálogo personalizado.</p>
+            </div>
+            <div class="management-toolbar">
+                <label class="management-search">
+                    <span class="visually-hidden">Filtrar por nome ou categoria</span>
+                    <span aria-hidden="true">⌕</span>
+                    <input id="management-search" type="search" placeholder="Filtrar por nome ou categoria" autocomplete="off">
+                </label>
+                <label class="visually-hidden" for="management-category">Filtrar categoria</label>
+                <select id="management-category" class="management-category">
+                    <option value="todos">Todas as categorias</option>
+                    <option value="perfume">Perfumes</option>
+                    <option value="creme">Cremes</option>
+                    <option value="acessorio">Acessórios</option>
+                </select>
+            </div>
+        </div>
+        <div class="management-table-wrap">
+            <table class="management-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Produto</th>
+                        <th scope="col">Categoria</th>
+                        <th scope="col">Temperatura sugerida</th>
+                        <th scope="col">Favorito</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="management-product-list" aria-live="polite">
+                    <tr><td colspan="5" class="management-empty">Carregando seus produtos...</td></tr>
+                </tbody>
+            </table>
+            <div class="management-pagination">
+                <p id="management-pagination-status" aria-live="polite"></p>
+                <div>
+                    <button type="button" id="management-previous" class="management-page-button">Anterior</button>
+                    <span id="management-page-number" class="management-page-number">1</span>
+                    <button type="button" id="management-next" class="management-page-button">Próximo</button>
+                </div>
+            </div>
+        </div>
+        <p id="management-catalog-note" class="management-catalog-note">Perfumes e cremes são administrados nos catálogos compartilhados; acessórios são recomendações de catálogo, não itens editáveis por esta tela.</p>
+    </section>
+
+    <dialog id="management-editor-modal" class="management-editor-modal" aria-labelledby="management-editor-title">
+        <div class="management-editor-shell">
+            <header class="management-editor-header">
+                <div>
+                    <h2 id="management-editor-title">Editar Produto</h2>
+                    <p id="management-editor-description">Atualize as especificações técnicas do seu item.</p>
+                </div>
+                <button type="button" id="management-editor-close" class="management-editor-close" aria-label="Fechar edição">×</button>
+            </header>
+            <div class="management-editor-body">
+                <p id="management-editor-category" class="management-editor-category">
+                    <span>Categoria</span>
+                    <strong id="management-editor-category-value"></strong>
+                </p>
+                <div id="management-editor-feedback" class="management-editor-feedback" aria-live="polite"></div>
+                <div id="management-admin-tools" class="management-admin-tools" aria-label="Formulários de gerenciamento"></div>
+            </div>
+            <footer id="management-editor-footer" class="management-editor-footer">
+                <button type="button" id="management-editor-cancel" class="management-editor-cancel">Cancelar</button>
+            </footer>
+        </div>
+    </dialog>
 
     <section id="comparison-screen" class="comparison-screen dashboard-screen" aria-labelledby="comparison-title" hidden>
         <div class="comparison-page-heading">

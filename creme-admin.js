@@ -239,6 +239,7 @@
             await mutate(url, editingId === null ? 'POST' : 'PUT', cream);
             setStatus(editingId === null ? 'Creme adicionado ao Gist.' : 'Creme atualizado no Gist.');
             resetForm();
+            document.dispatchEvent(new Event('management-editor-saved'));
         } catch (error) {
             setStatus(error.message, true);
         } finally {

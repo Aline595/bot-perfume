@@ -240,6 +240,7 @@
             await sendMutation(url, method, perfume);
             showStatus(editingId === null ? 'Perfume adicionado ao Gist.' : 'Perfume atualizado no Gist.');
             resetForm();
+            document.dispatchEvent(new Event('management-editor-saved'));
         } catch (error) {
             showStatus(error.message, true);
         } finally {

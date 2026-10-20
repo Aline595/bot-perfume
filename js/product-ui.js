@@ -8,7 +8,8 @@ try {
     const savedFavorites = JSON.parse(localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]');
     if (Array.isArray(savedFavorites)) {
         favoriteProducts = savedFavorites.filter((item) =>
-            item && ['perfume', 'creme'].includes(item.type) && Number.isSafeInteger(item.id) && item.id > 0
+            item && ['perfume', 'creme', 'acessorio'].includes(item.type) &&
+            Number.isSafeInteger(item.id) && item.id > 0
         );
     }
 } catch (error) {
@@ -485,8 +486,10 @@ function showFavorites(type) {
     }
     if (type === 'perfume') {
         exibirCards(items, result, 'perfume', { heading: 'Seus perfumes favoritos' });
-    } else {
+    } else if (type === 'creme') {
         exibirCremeResultados(items, filtrosCreme(), 'Seus cremes favoritos');
+    } else {
+        exibirCards(items, result, 'decote', { heading: 'Seus acessórios favoritos' });
     }
     showingFavoritesType = type;
     result.focus();
