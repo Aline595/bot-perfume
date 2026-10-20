@@ -7,8 +7,12 @@ let homeTransitionTimer;
 function entrarNoApp(categoria) {
     document.body.classList.remove('comparison-view');
     document.body.classList.remove('management-view');
+    document.body.classList.remove('favorites-view');
+    document.body.classList.remove('accessories-view');
     document.getElementById('comparison-screen')?.setAttribute('hidden', '');
     document.getElementById('management-screen')?.setAttribute('hidden', '');
+    document.getElementById('favorites-screen')?.setAttribute('hidden', '');
+    document.getElementById('accessories-screen')?.setAttribute('hidden', '');
     document.body.classList.add('legacy-app-view');
     clearTimeout(homeTransitionTimer);
     window.scrollTo(0, 0);
@@ -412,8 +416,12 @@ function showManagementScreen() {
     setDashboardNavActive('manage');
     document.body.classList.remove('legacy-app-view');
     document.body.classList.remove('comparison-view');
+    document.body.classList.remove('favorites-view');
+    document.body.classList.remove('accessories-view');
     document.body.classList.add('management-view');
     document.getElementById('comparison-screen')?.setAttribute('hidden', '');
+    document.getElementById('favorites-screen')?.setAttribute('hidden', '');
+    document.getElementById('accessories-screen')?.setAttribute('hidden', '');
     document.getElementById('management-screen')?.removeAttribute('hidden');
     clearTimeout(homeTransitionTimer);
     document.getElementById('tela-inicial').classList.remove('fade-out');
@@ -593,6 +601,249 @@ function updateDashboardSummary() {
         const count = ['perfumes', 'cremes', 'colares'].filter((category) => dashboardRecommendations[category]).length;
         suggestionCount.textContent = `${count} ${count === 1 ? 'sugestão' : 'sugestões'}`;
     }
+}
+
+function updateAccessoriesScreen() {
+    const grid = document.getElementById('accessories-grid');
+    if (!grid) return;
+
+    const items = decotes.filter((item) => item.possui_no_guarda_roupa !== false);
+    grid.replaceChildren();
+    if (!items.length) {
+        const empty = document.createElement('p');
+        empty.className = 'accessories-empty';
+        empty.setAttribute('role', 'status');
+        empty.textContent = 'Não há sugestões de decotes disponíveis no catálogo.';
+        grid.append(empty);
+        return;
+    }
+
+    for (const item of items) {
+        const card = document.createElement('article');
+        card.className = 'accessory-card';
+
+        const icon = document.createElement('span');
+        icon.className = 'accessory-card-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = /v\b/i.test(item.formato) ? 'V' : /quadrad/i.test(item.formato) ? '■' : '♟';
+
+        const imageFrame = document.createElement('div');
+        imageFrame.className = 'accessory-card-image';
+        const image = document.createElement('img');
+        image.src = `assets/decotes/${encodeURIComponent(item.id)}.png`;
+        image.alt = `Sugestão de acessórios para ${item.formato}`;
+        image.loading = 'lazy';
+        image.setAttribute('data-image-fallback', '');
+        const fallback = document.createElement('span');
+        fallback.className = 'accessory-card-image-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.textContent = '📿';
+        fallback.hidden = true;
+        imageFrame.append(image, fallback);
+
+        const title = document.createElement('h2');
+        title.textContent = item.formato;
+        const description = document.createElement('p');
+        description.className = 'accessory-card-description';
+        description.textContent = item.descricao || 'Sugestões para harmonizar com este decote.';
+        const recommendations = document.createElement('ul');
+        recommendations.className = 'accessory-card-recommendations';
+        for (const text of [item.colar_ideal, item.brinco_ideal].filter(Boolean)) {
+            const recommendation = document.createElement('li');
+            recommendation.textContent = text;
+            recommendations.append(recommendation);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'accessory-card-actions';
+        const favoriteButton = document.createElement('button');
+        const isFavorite = productIsFavorite('acessorio', item.id);
+        favoriteButton.type = 'button';
+        favoriteButton.className = 'accessory-card-favorite';
+        favoriteButton.dataset.productAction = 'favorite';
+        favoriteButton.dataset.type = 'acessorio';
+        favoriteButton.dataset.id = String(item.id);
+        favoriteButton.setAttribute('aria-pressed', String(isFavorite));
+        favoriteButton.textContent = isFavorite ? '♥ Favorito' : '♡ Salvar favorito';
+        actions.append(favoriteButton);
+
+        const compareButton = document.createElement('button');
+        const isCompared = productIsCompared('acessorio', item.id);
+        compareButton.type = 'button';
+        compareButton.className = 'accessory-card-compare';
+        compareButton.dataset.productAction = 'compare';
+        compareButton.dataset.type = 'acessorio';
+        compareButton.dataset.id = String(item.id);
+        compareButton.setAttribute('aria-pressed', String(isCompared));
+        compareButton.textContent = isCompared ? '✓ Na comparação' : '⇄ Comparar';
+        actions.append(compareButton);
+
+        card.append(icon, imageFrame, title, description, recommendations, actions);
+        grid.append(card);
+    }
+}
+
+let favoritesCategory = 'todos';
+
+function updateFavoritesScreen() {
+    const grid = document.getElementById('favorites-grid');
+    const temperature = document.getElementById('favorites-temperature');
+    const location = document.getElementById('favorites-location');
+    const tip = document.getElementById('favorites-tip-text');
+    if (!grid || !temperature || !location || !tip) return;
+
+    temperature.textContent = temperaturaCarregada ? `${temperaturaAmbienteAtual}°C` : '--°C';
+    location.textContent = document.getElementById('dashboard-location')?.textContent || 'Clima local';
+    tip.textContent = document.getElementById('dashboard-weather-message')?.textContent ||
+        'As sugestões de clima aparecerão aqui quando os dados estiverem disponíveis.';
+
+    const items = favoriteProducts
+        .filter(({ type }) => favoritesCategory === 'todos' || type === favoritesCategory)
+        .map(({ type, id }) => ({ type, item: getProduct(type, id) }))
+        .filter(({ item }) => Boolean(item));
+
+    grid.replaceChildren();
+    if (!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'favorites-empty';
+        const mark = document.createElement('span');
+        mark.className = 'favorites-empty-mark';
+        mark.setAttribute('aria-hidden', 'true');
+        mark.textContent = '+';
+        const title = document.createElement('h2');
+        title.textContent = favoriteProducts.length ? 'Nenhum favorito nesta categoria' : 'Adicione seu primeiro favorito';
+        const description = document.createElement('p');
+        description.textContent = favoriteProducts.length
+            ? 'Escolha outra categoria para ver seus itens salvos.'
+            : 'Navegue pelo catálogo e salve os produtos que combinam com você.';
+        const catalogButton = document.createElement('button');
+        catalogButton.type = 'button';
+        catalogButton.className = 'favorites-empty-action';
+        catalogButton.dataset.dashboardAction = 'catalog';
+        catalogButton.textContent = 'Ir para o Catálogo';
+        empty.append(mark, title, description, catalogButton);
+        grid.append(empty);
+        return;
+    }
+
+    const period = periodoAtualDoDia();
+    const creamFilters = {
+        consideraTemperatura: true,
+        consideraEstacao: false,
+        temperatura: temperaturaAmbienteAtual,
+        periodo: period,
+        estacao: 'todos',
+        busca: ''
+    };
+    const climateIsReliable = temperaturaCarregada &&
+        !document.getElementById('temperatura-atual')?.classList.contains('temperature-status-warning');
+    for (const { type, item } of items) {
+        const card = document.createElement('article');
+        card.className = `favorites-card is-${type}`;
+        card.dataset.type = type;
+        card.dataset.id = String(item.id);
+
+        const imageFrame = document.createElement('div');
+        imageFrame.className = 'favorites-card-image';
+        const image = document.createElement('img');
+        const fallback = document.createElement('span');
+        fallback.className = 'favorites-card-image-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.textContent = type === 'perfume' ? '🌸' : type === 'creme' ? '🧴' : '📿';
+        const imageValue = item.imagem;
+        const source = type === 'acessorio'
+            ? `assets/decotes/${encodeURIComponent(item.id)}.png`
+            : imageValue && /^https?:\/\//i.test(imageValue)
+                ? imageValue
+                : imageValue && /^[A-Za-z0-9_-]+$/.test(imageValue)
+                    ? `https://lh3.googleusercontent.com/d/${imageValue}`
+                    : '';
+        image.alt = item.nome || item.formato || 'Produto favorito';
+        image.loading = 'lazy';
+        image.setAttribute('data-image-fallback', '');
+        image.hidden = !source;
+        if (source) image.src = source;
+        imageFrame.append(image, fallback);
+
+        const favoriteButton = document.createElement('button');
+        favoriteButton.type = 'button';
+        favoriteButton.className = 'favorites-card-heart';
+        favoriteButton.dataset.productAction = 'favorite';
+        favoriteButton.dataset.type = type;
+        favoriteButton.dataset.id = String(item.id);
+        favoriteButton.setAttribute('aria-label', `Remover ${item.nome || item.formato} dos favoritos`);
+        favoriteButton.setAttribute('aria-pressed', 'true');
+        favoriteButton.textContent = '♥';
+        imageFrame.append(favoriteButton);
+
+        const body = document.createElement('div');
+        body.className = 'favorites-card-body';
+        const title = document.createElement('h2');
+        title.textContent = item.nome || item.formato || 'Produto favorito';
+        const metadata = document.createElement('p');
+        metadata.textContent = type === 'acessorio'
+            ? 'Acessório'
+            : `${type === 'perfume' ? 'Perfume' : 'Creme'} · ${item.marca || 'Marca não informada'}`;
+        const ideal = document.createElement('span');
+        ideal.className = 'favorites-card-ideal';
+        const matchesToday = climateIsReliable && (type === 'perfume'
+            ? Boolean(item.temperatura_ideal) &&
+                perfumeMatchesTemperature(item, temperaturaAmbienteAtual) &&
+                itemMatchesPeriod(item, period)
+            : type === 'creme'
+                ? item.temperatura !== '' && item.temperatura !== null && item.temperatura !== undefined &&
+                    Number.isFinite(Number(item.temperatura)) && cremeCombina(item, creamFilters)
+                : false);
+        ideal.classList.toggle('is-today', matchesToday);
+        ideal.textContent = matchesToday ? 'Ideal p/ Hoje' : 'Favorito';
+        const climate = document.createElement('p');
+        climate.className = 'favorites-card-climate';
+        climate.textContent = managementTemperature(type, item);
+        const actions = document.createElement('div');
+        actions.className = 'favorites-card-actions';
+        if (type !== 'acessorio') {
+            for (const [action, label, symbol] of [
+                ['compare', 'Comparar', '⇄'],
+                ['share', 'Compartilhar', '↗']
+            ]) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'favorites-card-action';
+                button.dataset.productAction = action;
+                button.dataset.type = type;
+                button.dataset.id = String(item.id);
+                button.textContent = `${symbol} ${label}`;
+                actions.append(button);
+            }
+        } else {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'favorites-card-action';
+            button.dataset.productAction = 'compare';
+            button.dataset.type = type;
+            button.dataset.id = String(item.id);
+            button.textContent = '⇄ Comparar';
+            actions.append(button);
+        }
+        body.append(title, metadata, ideal, climate, actions);
+        card.append(imageFrame, body);
+        grid.append(card);
+    }
+
+    const addCard = document.createElement('button');
+    addCard.type = 'button';
+    addCard.className = 'favorites-add-card';
+    addCard.dataset.dashboardAction = 'catalog';
+    const addIcon = document.createElement('span');
+    addIcon.className = 'favorites-add-mark';
+    addIcon.setAttribute('aria-hidden', 'true');
+    addIcon.textContent = '+';
+    const addTitle = document.createElement('strong');
+    addTitle.textContent = 'Adicionar novo favorito';
+    const addDescription = document.createElement('span');
+    addDescription.textContent = 'Explore o catálogo e salve outro item especial.';
+    addCard.append(addIcon, addTitle, addDescription);
+    grid.append(addCard);
 }
 
 function updateDashboardInventory() {
@@ -804,8 +1055,12 @@ function handleDashboardAction(action) {
     if (action === 'home') {
         document.body.classList.remove('comparison-view');
         document.body.classList.remove('management-view');
+        document.body.classList.remove('favorites-view');
+        document.body.classList.remove('accessories-view');
         document.getElementById('comparison-screen')?.setAttribute('hidden', '');
         document.getElementById('management-screen')?.setAttribute('hidden', '');
+        document.getElementById('favorites-screen')?.setAttribute('hidden', '');
+        document.getElementById('accessories-screen')?.setAttribute('hidden', '');
         setDashboardNavActive('home');
         voltarParaHome();
         return;
@@ -818,7 +1073,11 @@ function handleDashboardAction(action) {
         setDashboardNavActive('compare');
         document.body.classList.remove('legacy-app-view');
         document.body.classList.remove('management-view');
+        document.body.classList.remove('favorites-view');
+        document.body.classList.remove('accessories-view');
         document.getElementById('management-screen')?.setAttribute('hidden', '');
+        document.getElementById('favorites-screen')?.setAttribute('hidden', '');
+        document.getElementById('accessories-screen')?.setAttribute('hidden', '');
         if (!comparisonProducts.length) {
             comparisonProducts = favoriteProducts
                 .filter((favorite) => getProduct(favorite.type, favorite.id))
@@ -839,11 +1098,45 @@ function handleDashboardAction(action) {
         return;
     }
     if (action === 'favorites') {
-        const firstFavorite = favoriteProducts[0];
-        const category = firstFavorite?.type === 'creme' ? 'cremes' : firstFavorite?.type === 'acessorio' ? 'colares' : 'perfumes';
         setDashboardNavActive('favorites');
-        entrarNoApp(category);
-        showFavorites(firstFavorite?.type || 'perfume');
+        document.body.classList.remove('legacy-app-view', 'management-view', 'comparison-view');
+        document.body.classList.remove('accessories-view');
+        document.getElementById('management-screen')?.setAttribute('hidden', '');
+        document.getElementById('comparison-screen')?.setAttribute('hidden', '');
+        document.getElementById('accessories-screen')?.setAttribute('hidden', '');
+        document.getElementById('favorites-screen')?.removeAttribute('hidden');
+        document.body.classList.add('favorites-view');
+        clearTimeout(homeTransitionTimer);
+        document.getElementById('tela-inicial')?.classList.remove('fade-out');
+        document.querySelector('.container')?.classList.add('app-hidden');
+        updateFavoritesScreen();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+    if (action === 'accessories') {
+        setDashboardNavActive('accessories');
+        document.body.classList.remove('legacy-app-view', 'management-view', 'comparison-view', 'favorites-view');
+        document.getElementById('management-screen')?.setAttribute('hidden', '');
+        document.getElementById('comparison-screen')?.setAttribute('hidden', '');
+        document.getElementById('favorites-screen')?.setAttribute('hidden', '');
+        document.getElementById('accessories-screen')?.removeAttribute('hidden');
+        document.body.classList.add('accessories-view');
+        clearTimeout(homeTransitionTimer);
+        document.getElementById('tela-inicial')?.classList.remove('fade-out');
+        document.querySelector('.container')?.classList.add('app-hidden');
+        updateAccessoriesScreen();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+    if (action === 'accessories-inventory') {
+        showManagementScreen();
+        document.getElementById('management-category').value = 'acessorio';
+        updateManagementPage(true);
+        return;
+    }
+    if (action === 'catalog') {
+        setDashboardNavActive('catalog');
+        entrarNoApp('perfumes');
         return;
     }
     if (action === 'add-product') {
@@ -899,11 +1192,11 @@ document.addEventListener('management-editor-saved', () => {
     if (managementEditorModal.open) managementEditorModal.close();
 });
 
-document.querySelectorAll('[data-dashboard-action]').forEach((button) => {
-    button.addEventListener('click', (event) => {
-        event.preventDefault();
-        handleDashboardAction(button.dataset.dashboardAction);
-    });
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-dashboard-action]');
+    if (!button) return;
+    event.preventDefault();
+    handleDashboardAction(button.dataset.dashboardAction);
 });
 
 document.getElementById('daily-combination-grid').addEventListener('click', (event) => {
@@ -922,16 +1215,82 @@ document.addEventListener('dashboard-weather-updated', updateDailyRecommendation
 document.addEventListener('dashboard-weather-updated', updateDashboardInventory);
 document.addEventListener('favorites-updated', updateDashboardInventory);
 document.addEventListener('favorites-updated', updateManagementPage);
+document.addEventListener('favorites-updated', updateFavoritesScreen);
+document.addEventListener('favorites-updated', updateAccessoriesScreen);
 document.addEventListener('comparison-updated', updateDashboardSummary);
 document.addEventListener('dashboard-weather-updated', updateComparisonControls);
+document.addEventListener('dashboard-weather-updated', updateFavoritesScreen);
 document.addEventListener('perfumes-carregados', updateComparisonControls);
 document.addEventListener('cremes-carregados', updateComparisonControls);
 document.addEventListener('decotes-carregados', updateComparisonControls);
+document.addEventListener('perfumes-carregados', updateFavoritesScreen);
+document.addEventListener('cremes-carregados', updateFavoritesScreen);
+document.addEventListener('decotes-carregados', updateFavoritesScreen);
+document.addEventListener('decotes-carregados', updateAccessoriesScreen);
 document.addEventListener('perfumes-carregados', updateManagementPage);
 document.addEventListener('cremes-carregados', updateManagementPage);
 document.addEventListener('decotes-carregados', updateManagementPage);
 document.getElementById('dashboard-inventory-search').addEventListener('input', updateDashboardInventory);
 document.getElementById('dashboard-inventory-filter').addEventListener('change', updateDashboardInventory);
+document.querySelector('.favorites-filters')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-favorites-filter]');
+    if (!button) return;
+    favoritesCategory = button.dataset.favoritesFilter;
+    document.querySelectorAll('[data-favorites-filter]').forEach((filter) => {
+        const isActive = filter === button;
+        filter.classList.toggle('active', isActive);
+        filter.setAttribute('aria-pressed', String(isActive));
+    });
+    updateFavoritesScreen();
+});
+document.getElementById('favorites-grid')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-product-action]');
+    if (!button) return;
+    const { type, productAction } = button.dataset;
+    const id = Number(button.dataset.id);
+    if (!getProduct(type, id)) return;
+    if (productAction === 'favorite') {
+        const previousFavorites = favoriteProducts;
+        favoriteProducts = favoriteProducts.filter((favorite) => !(favorite.type === type && favorite.id === id));
+        if (!saveFavorites()) {
+            favoriteProducts = previousFavorites;
+            announceUtility('Não foi possível salvar favoritos neste navegador.', true);
+            return;
+        }
+        updateFavoriteControls();
+        document.dispatchEvent(new Event('favorites-updated'));
+        announceUtility('Produto removido dos favoritos.');
+    } else if (productAction === 'compare') {
+        toggleProductComparison(type, id);
+    } else if (productAction === 'share') {
+        shareProduct(type, id);
+    }
+});
+document.getElementById('accessories-grid')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-product-action]');
+    if (!button) return;
+    const { type, productAction } = button.dataset;
+    const id = Number(button.dataset.id);
+    if (!getProduct(type, id)) return;
+    if (productAction === 'favorite') {
+        const wasFavorite = productIsFavorite(type, id);
+        const previousFavorites = favoriteProducts;
+        favoriteProducts = wasFavorite
+            ? favoriteProducts.filter((favorite) => !(favorite.type === type && favorite.id === id))
+            : [...favoriteProducts, { type, id }];
+        if (!saveFavorites()) {
+            favoriteProducts = previousFavorites;
+            announceUtility('Não foi possível salvar favoritos neste navegador.', true);
+            return;
+        }
+        updateFavoriteControls();
+        document.dispatchEvent(new Event('favorites-updated'));
+        announceUtility(wasFavorite ? 'Acessório removido dos favoritos.' : 'Acessório salvo nos favoritos.');
+    } else if (productAction === 'compare') {
+        toggleProductComparison(type, id);
+        updateAccessoriesScreen();
+    }
+});
 document.getElementById('management-search').addEventListener('input', () => updateManagementPage(true));
 document.getElementById('management-category').addEventListener('change', () => updateManagementPage(true));
 document.getElementById('management-nav-add').addEventListener('click', () => {

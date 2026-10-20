@@ -26,6 +26,8 @@
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="manage">Gerenciar</button>
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="compare">Comparações</button>
                 <button type="button" class="dashboard-nav-item" data-dashboard-action="favorites">Favoritos</button>
+                <button type="button" class="dashboard-nav-item" data-dashboard-action="accessories">Acessórios</button>
+                <button type="button" class="dashboard-nav-item" data-dashboard-action="catalog">Catálogo</button>
                 <button type="button" id="management-nav-add" class="management-add-button">＋ Novo Produto</button>
             </nav>
         </div>
@@ -159,6 +161,51 @@
             <h2 id="comparison-insights-title">Baseado na sua comparação</h2>
             <div id="comparison-insight-cards" class="comparison-insight-cards"></div>
         </section>
+    </section>
+
+    <section id="favorites-screen" class="favorites-screen dashboard-screen" aria-labelledby="favorites-title" hidden>
+        <div class="favorites-heading">
+            <div>
+                <h1 id="favorites-title">Seus Itens Favoritos</h1>
+                <p>Acompanhe seus itens prediletos e veja quais combinam com o clima de agora.</p>
+            </div>
+            <div class="favorites-weather" aria-label="Temperatura atual">
+                <span class="favorites-weather-icon" aria-hidden="true">☼</span>
+                <span>
+                    <strong id="favorites-temperature">--°C</strong>
+                    <small id="favorites-location">Consultando clima...</small>
+                </span>
+            </div>
+        </div>
+        <div class="favorites-filters" role="group" aria-label="Filtrar favoritos por categoria">
+            <button type="button" class="favorites-filter active" data-favorites-filter="todos" aria-pressed="true">Todos</button>
+            <button type="button" class="favorites-filter" data-favorites-filter="perfume" aria-pressed="false">Perfumes</button>
+            <button type="button" class="favorites-filter" data-favorites-filter="creme" aria-pressed="false">Cremes</button>
+            <button type="button" class="favorites-filter" data-favorites-filter="acessorio" aria-pressed="false">Acessórios</button>
+        </div>
+        <div id="favorites-grid" class="favorites-grid" aria-live="polite"></div>
+        <section class="favorites-tip" aria-labelledby="favorites-tip-title">
+            <h2 id="favorites-tip-title">Dica de Aura hoje</h2>
+            <p id="favorites-tip-text">As sugestões de clima aparecerão aqui quando os dados estiverem disponíveis.</p>
+            <button type="button" class="favorites-tip-action" data-dashboard-action="home">Ver outras dicas</button>
+        </section>
+    </section>
+
+    <section id="accessories-screen" class="accessories-screen dashboard-screen" aria-labelledby="accessories-title" hidden>
+        <header class="accessories-heading">
+            <span class="dashboard-eyebrow">ESTILO EM HARMONIA</span>
+            <h1 id="accessories-title">Acessórios &amp; Decotes</h1>
+            <p>Harmonize seu visual escolhendo os acessórios ideais para o tipo de gola ou decote que você está usando hoje.</p>
+        </header>
+        <div id="accessories-grid" class="accessories-grid" aria-live="polite"></div>
+        <aside class="accessories-tip" aria-labelledby="accessories-tip-title">
+            <div>
+                <h2 id="accessories-tip-title">Dica Extra AuraSync</h2>
+                <p>O formato do decote ajuda a guiar a escolha do colar. Combine volumes e comprimentos para equilibrar o visual, sem competir com os detalhes da roupa.</p>
+                <button type="button" class="accessories-inventory-action" data-dashboard-action="accessories-inventory">Ver meu inventário</button>
+            </div>
+            <span class="accessories-tip-mark" aria-hidden="true">◇</span>
+        </aside>
     </section>
 
     <section class="dashboard-lower dashboard-screen" aria-labelledby="dashboard-inventory-title">
