@@ -39,6 +39,165 @@ function productActionsHtml(type, id) {
     `;
 }
 
+function comparisonActionHtml(type, id) {
+    const compared = productIsCompared(type, id);
+    return `<button type="button" class="secondary-action" data-product-action="compare" data-type="${type}" data-id="${id}" aria-pressed="${compared}">${compared ? '✓ Comparando' : '⇄ Comparar'}</button>`;
+}
+
+function toggleProductComparison(type, id) {
+    if (productIsCompared(type, id)) {
+        comparisonProducts = comparisonProducts.filter((item) => !(item.type === type && item.id === id));
+    } else if (comparisonProducts.length >= 4) {
+        announceUtility('A comparação aceita até quatro produtos. Remova um antes de adicionar outro.', true);
+        return;
+    } else {
+        comparisonProducts.push({ type, id });
+    }
+    updateComparisonControls();
+    document.dispatchEvent(new Event('comparison-updated'));
+    announceUtility(comparisonProducts.length >= 2
+        ? `Comparação atualizada com ${comparisonProducts.length} produtos.`
+        : 'Seleção atualizada. Escolha pelo menos mais um produto para comparar.');
+}
+
+function productComparisonValue(type, item, field) {
+    const values = (value) => (type === 'creme' ? valoresCreme(value) : listValues(value));
+    if (field === 'Tipo') {
+        return { perfume: 'Perfume', creme: 'Creme', acessorio: 'Acessório' }[type];
+    }
+    if (field === 'Marca') return type === 'acessorio' ? '—' : item.marca || 'Não informada';
+    if (field === 'Temperatura ideal') {
+        if (type === 'perfume') return item.temperatura_ideal || 'Não informada';
+        if (type === 'creme') {
+            return item.temperatura === '' || item.temperatura === null || item.temperatura === undefined
+                ? 'Não informada'
+                : `${item.temperatura}°C (referência)`;
+        }
+        return '—';
+    }
+    if (field === 'Adequação à temperatura') {
+        if (!temperaturaCarregada) return 'Clima indisponível';
+        if (document.getElementById('temperatura-atual')?.classList.contains('temperature-status-warning')) {
+            return `Clima indisponível; usando ${temperaturaAmbienteAtual}°C como referência`;
+        }
+        if (type === 'perfume') {
+            if (!item.temperatura_ideal) return 'Não avaliada: temperatura ideal não cadastrada';
+            return perfumeMatchesTemperature(item, temperaturaAmbienteAtual)
+                ? 'Adequado segundo a faixa cadastrada'
+                : 'Fora da faixa de temperatura cadastrada';
+        }
+        if (type === 'creme') {
+            if (item.temperatura === '' || item.temperatura === null || item.temperatura === undefined ||
+                !Number.isFinite(Number(item.temperatura))) {
+                return 'Não avaliada: temperatura ideal não cadastrada';
+            }
+            const matches = categoriaTemperaturaCreme(Number(item.temperatura)) ===
+                categoriaTemperaturaCreme(temperaturaAmbienteAtual);
+            return matches
+                ? 'Adequado segundo a faixa de referência'
+                : 'Fora da faixa de temperatura de referência';
+        }
+        return 'Não se aplica a acessórios';
+    }
+    if (field === 'Período') {
+        if (type === 'acessorio') return '—';
+        return values(item.periodo).join(', ') || 'Não informado';
+    }
+    if (field === 'Adequação ao período') {
+        if (type === 'acessorio') return 'Não se aplica a acessórios';
+        if (!values(item.periodo).length) return 'Não avaliada: período não cadastrado';
+        return itemMatchesPeriod(item, periodoAtualDoDia())
+            ? 'Adequado segundo o período cadastrado'
+            : 'Fora do período cadastrado';
+    }
+    if (field === 'Ocasião') {
+        return type === 'perfume' || type === 'creme'
+            ? 'Ocasiões específicas não cadastradas'
+            : '—';
+    }
+    if (field === 'Formato') {
+        return type === 'acessorio' ? item.formato || 'Não informado' : '—';
+    }
+    if (field === 'Notas e perfil') {
+        if (type === 'perfume') {
+            return values(item.notas).length
+                ? values(item.notas).join(', ')
+                : values(item.vibe).length
+                    ? `Perfil: ${values(item.vibe).join(', ')}`
+                    : 'Não informado';
+        }
+        if (type === 'creme') {
+            return [...values(item.notas), ...values(item.fragrancia)].join(', ') || 'Não informado';
+        }
+        return '—';
+    }
+    if (field === 'Duração') {
+        if (type !== 'perfume') return '—';
+        return item.duracao !== '' && item.duracao !== null && item.duracao !== undefined &&
+            Number.isFinite(Number(item.duracao))
+            ? `${item.duracao} horas (duração cadastrada)`
+            : 'Não informada';
+    }
+    if (field === 'Fixação') return type === 'perfume' ? 'Não informada' : '—';
+    if (field === 'Intensidade') {
+        return type === 'perfume' ? item.intensidade || 'Não informada' : '—';
+    }
+    if (field === 'Projeção') return type === 'perfume' ? 'Não informada' : '—';
+    if (field === 'Recomendação de colar') {
+        return type === 'acessorio' ? item.colar_ideal || 'Não informada' : '—';
+    }
+    if (field === 'Recomendação de brincos') {
+        return type === 'acessorio' ? item.brinco_ideal || 'Não informada' : '—';
+    }
+    if (field === 'Recomendação de penteado') {
+        return type === 'acessorio' ? item.penteado_ideal || 'Não informado' : '—';
+    }
+    if (field === 'Textura') {
+        return type === 'creme' ? values(item.textura).join(', ') || 'Não informada' : '—';
+    }
+    if (field === 'Benefícios') {
+        return type === 'creme' ? values(item.funcao_principal).join(', ') || 'Não informados' : '—';
+    }
+    if (field === 'Estações') {
+        return type === 'acessorio' ? '—' : values(item.clima).join(', ') || 'Não informadas';
+    }
+    return '—';
+}
+
+function findCombinationSuggestions(selectedItems) {
+    const selectedPerfumes = selectedItems.filter(({ type }) => type === 'perfume');
+    if (!selectedPerfumes.length || !cremesCarregados || !temperaturaCarregada ||
+        document.getElementById('temperatura-atual')?.classList.contains('temperature-status-warning')) return [];
+    const period = periodoAtualDoDia();
+    const filters = {
+        consideraTemperatura: true,
+        consideraEstacao: false,
+        temperatura: temperaturaAmbienteAtual,
+        periodo: period,
+        estacao: 'todos',
+        busca: ''
+    };
+    return selectedPerfumes.flatMap(({ item: perfume }) => {
+        if (!itemMatchesPeriod(perfume, period) ||
+            !perfume.temperatura_ideal ||
+            !perfumeMatchesTemperature(perfume, temperaturaAmbienteAtual)) return [];
+        const selectedCreams = selectedItems
+            .filter(({ type }) => type === 'creme')
+            .map(({ item }) => item);
+        const isCompatibleCream = (candidate) =>
+            candidate.temperatura !== '' &&
+            candidate.temperatura !== null &&
+            candidate.temperatura !== undefined &&
+            cremeCombina(candidate, filters);
+        const cream = selectedCreams.find(isCompatibleCream) ||
+            cremes.find((candidate) =>
+                !selectedCreams.some((selected) => selected.id === candidate.id) &&
+                isCompatibleCream(candidate)
+            );
+        return cream ? [{ perfume, cream }] : [];
+    }).slice(0, 3);
+}
+
 function saveFavorites() {
     try {
         localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favoriteProducts));
@@ -70,84 +229,245 @@ function updateComparisonControls() {
     });
     const panel = document.getElementById('comparador');
     if (!panel) return;
-    panel.hidden = comparisonProducts.length === 0;
-    panel.replaceChildren();
-    if (!comparisonProducts.length) return;
-
-    const title = document.createElement('h3');
-    title.textContent = `Comparação (${comparisonProducts.length}/2)`;
-    panel.append(title);
-    if (comparisonProducts.length === 1) {
-        const hint = document.createElement('p');
-        hint.textContent = 'Escolha mais um produto da mesma categoria para comparar.';
-        panel.append(hint);
-    } else {
-        const table = document.createElement('table');
-        const fields = comparisonProducts[0].type === 'perfume'
-            ? [
-                ['Marca', (item) => item.marca],
-                ['Vibes', (item) => listValues(item.vibe).join(', ')],
-                ['Estações', (item) => listValues(item.clima).join(', ')],
-                ['Período', (item) => listValues(item.periodo).join(', ')],
-                ['Duração', (item) => item.duracao ? `${item.duracao} horas` : 'Não informado'],
-                ['Temperatura ideal', (item) => item.temperatura_ideal || 'Não informada']
-            ]
-            : [
-                ['Marca', (item) => item.marca],
-                ['Estações', (item) => valoresCreme(item.clima).join(', ')],
-                ['Período', (item) => valoresCreme(item.periodo).join(', ')],
-                ['Fragrância', (item) => valoresCreme(item.fragrancia).join(', ')],
-                ['Notas', (item) => valoresCreme(item.notas).join(', ')],
-                ['Textura', (item) => valoresCreme(item.textura).join(', ')],
-                ['Benefícios', (item) => valoresCreme(item.funcao_principal).join(', ')],
-                ['Temperatura ideal', (item) =>
-                    item.temperatura === '' || item.temperatura === undefined || item.temperatura === null
-                        ? 'Não informada'
-                        : `${item.temperatura}°C`
-                ]
-            ];
-        const header = document.createElement('tr');
-        header.append(document.createElement('th'));
-        for (const selected of comparisonProducts) {
-            const item = getProduct(selected.type, selected.id);
-            const cell = document.createElement('th');
-            cell.textContent = item?.nome || 'Produto';
-            header.append(cell);
-        }
-        const thead = document.createElement('thead');
-        thead.append(header);
-        const tbody = document.createElement('tbody');
-        for (const [label, getValue] of fields) {
-            const row = document.createElement('tr');
-            const heading = document.createElement('th');
-            heading.scope = 'row';
-            heading.textContent = label;
-            row.append(heading);
-            for (const selected of comparisonProducts) {
-                const cell = document.createElement('td');
-                const item = getProduct(selected.type, selected.id);
-                cell.textContent = item ? String(getValue(item) || 'Não informado') : 'Indisponível';
-                row.append(cell);
+    const select = document.getElementById('comparison-product-select');
+    const addButton = document.getElementById('comparison-product-add');
+    if (select) {
+        const selectedValue = select.value;
+        select.replaceChildren(new Option('Selecione um produto do catálogo', ''));
+        const productTypes = [
+            ['perfume', 'Perfumes', perfumes],
+            ['creme', 'Cremes', cremes],
+            ['acessorio', 'Acessórios', decotes]
+        ];
+        for (const [type, label, catalog] of productTypes) {
+            const available = catalog.filter((item) => !productIsCompared(type, item.id));
+            if (!available.length) continue;
+            const group = document.createElement('optgroup');
+            group.label = label;
+            for (const item of available) {
+                const option = document.createElement('option');
+                option.value = `${type}:${item.id}`;
+                option.textContent = item.nome || item.formato || 'Produto';
+                group.append(option);
             }
-            tbody.append(row);
+            select.append(group);
         }
-        table.append(thead, tbody);
-        panel.append(table);
+        if ([...select.options].some((option) => option.value === selectedValue)) {
+            select.value = selectedValue;
+        }
     }
-    const close = document.createElement('button');
-    close.type = 'button';
-    close.className = 'secondary-action';
-    close.textContent = 'Limpar comparação';
-    close.addEventListener('click', () => {
-        comparisonProducts = [];
-        updateComparisonControls();
-        document.dispatchEvent(new Event('comparison-updated'));
-    });
-    panel.append(close);
+    if (addButton) addButton.disabled = comparisonProducts.length >= 4;
+    const hint = document.getElementById('comparison-selection-hint');
+    if (hint) {
+        hint.textContent = comparisonProducts.length
+            ? `${comparisonProducts.length} de 4 produtos selecionados. Você pode misturar categorias.`
+            : 'Selecione pelo menos dois produtos para ver a comparação.';
+    }
+    panel.replaceChildren();
+    const selectedItems = comparisonProducts
+        .map((selected) => ({ ...selected, item: getProduct(selected.type, selected.id) }))
+        .filter(({ item }) => item);
+    if (!selectedItems.length) {
+        const empty = document.createElement('div');
+        empty.className = 'comparison-empty';
+        const title = document.createElement('h2');
+        title.textContent = 'Escolha os produtos que deseja comparar';
+        const text = document.createElement('p');
+        text.textContent = 'Selecione dois ou mais itens do catálogo acima. Você pode combinar perfumes, cremes e acessórios.';
+        empty.append(title, text);
+        panel.append(empty);
+        renderComparisonInsights([]);
+        return;
+    }
+    if (selectedItems.length === 1) {
+        const hint = document.createElement('p');
+        hint.className = 'comparison-one-selected';
+        hint.textContent = 'Adicione mais um produto para ver a comparação lado a lado.';
+        panel.append(hint);
+    }
+    const table = document.createElement('table');
+    table.className = 'comparison-table';
+    const fields = [
+        ['Temperatura ideal', 'Temperatura ideal'],
+        ['Fixação / duração', 'Fixação'],
+        ['Projeção', 'Projeção'],
+        ['Ocasião', 'Ocasião'],
+        ['Notas principais', 'Notas e perfil']
+    ];
+    const headerRow = document.createElement('tr');
+    const specsHeading = document.createElement('th');
+    specsHeading.scope = 'col';
+    specsHeading.textContent = 'Especificações';
+    headerRow.append(specsHeading);
+    for (const { type, item } of selectedItems) {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        const imageSource = type === 'acessorio'
+            ? `assets/decotes/${encodeURIComponent(item.id)}.png`
+            : item.imagem && /^https?:\/\//i.test(item.imagem)
+                ? item.imagem
+                : item.imagem && /^[A-Za-z0-9_-]+$/.test(item.imagem)
+                    ? `https://lh3.googleusercontent.com/d/${item.imagem}`
+                    : '';
+        const image = document.createElement('div');
+        image.className = 'comparison-product-image';
+        image.innerHTML = productImageHtml(imageSource, item.nome || item.formato, type === 'perfume' ? '🌸' : type === 'creme' ? '🧴' : '📿');
+        cell.append(image);
+        const name = document.createElement('strong');
+        name.textContent = item.nome || item.formato || 'Produto';
+        const category = document.createElement('span');
+        category.className = 'comparison-product-category';
+        category.textContent = type === 'perfume' ? 'Perfume' : type === 'creme' ? 'Creme' : 'Acessório';
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'comparison-remove';
+        remove.textContent = 'Remover';
+        remove.setAttribute('aria-label', `Remover ${item.nome || item.formato || 'produto'} da comparação`);
+        remove.addEventListener('click', () => toggleProductComparison(type, item.id));
+        cell.append(name, category, remove);
+        headerRow.append(cell);
+    }
+    const thead = document.createElement('thead');
+    thead.append(headerRow);
+    const tbody = document.createElement('tbody');
+    for (const [label, field] of fields) {
+        const row = document.createElement('tr');
+        const heading = document.createElement('th');
+        heading.scope = 'row';
+        heading.textContent = label;
+        row.append(heading);
+        for (const { type, item } of selectedItems) {
+            const cell = document.createElement('td');
+            const value = field === 'Fixação'
+                ? type !== 'perfume'
+                    ? '—'
+                    : item.duracao !== '' && item.duracao !== null && item.duracao !== undefined &&
+                        Number.isFinite(Number(item.duracao))
+                        ? `${item.duracao} horas (duração cadastrada)`
+                        : 'Não informada'
+                : productComparisonValue(type, item, field);
+            cell.textContent = String(value || 'Não informado');
+            row.append(cell);
+        }
+        tbody.append(row);
+    }
+    const actionRow = document.createElement('tr');
+    const actionHeading = document.createElement('th');
+    actionHeading.scope = 'row';
+    actionHeading.textContent = 'Ação';
+    actionRow.append(actionHeading);
+    for (const { type, item } of selectedItems) {
+        const cell = document.createElement('td');
+        const useButton = document.createElement('button');
+        useButton.type = 'button';
+        useButton.className = 'comparison-use-button';
+        useButton.textContent = 'Usar hoje';
+        useButton.addEventListener('click', () => useComparedProduct(type, item.id));
+        cell.append(useButton);
+        const suitability = document.createElement('span');
+        const status = comparisonSuitability(type, item);
+        suitability.className = `comparison-suitability ${status.compatible === true ? 'is-compatible' : status.compatible === false ? 'is-incompatible' : 'is-unknown'}`;
+        suitability.textContent = status.label;
+        cell.append(suitability);
+        actionRow.append(cell);
+    }
+    tbody.append(actionRow);
+    table.append(thead, tbody);
+    panel.append(table);
+    renderComparisonInsights(selectedItems);
+}
+
+function comparisonSuitability(type, item) {
+    if (!temperaturaCarregada ||
+        document.getElementById('temperatura-atual')?.classList.contains('temperature-status-warning')) {
+        return { compatible: false, label: 'Clima indisponível' };
+    }
+    if (type === 'acessorio') return { compatible: true, label: 'Não se aplica ao acessório' };
+    if (type === 'perfume' && !item.temperatura_ideal) {
+        return { compatible: null, label: 'Temperatura ideal não informada' };
+    }
+    if (type === 'creme' && (item.temperatura === '' || item.temperatura === null ||
+        item.temperatura === undefined || !Number.isFinite(Number(item.temperatura)))) {
+        return { compatible: null, label: 'Temperatura ideal não informada' };
+    }
+    const temperatureMatches = type === 'perfume'
+        ? perfumeMatchesTemperature(item, temperaturaAmbienteAtual)
+        : item.temperatura !== '' && item.temperatura !== null && item.temperatura !== undefined &&
+            Number.isFinite(Number(item.temperatura)) &&
+            categoriaTemperaturaCreme(Number(item.temperatura)) === categoriaTemperaturaCreme(temperaturaAmbienteAtual);
+    if (!temperatureMatches) {
+        return { compatible: false, label: 'Inadequado para agora' };
+    }
+    if (!listValues(item.periodo).length) {
+        return { compatible: null, label: 'Período de uso não informado' };
+    }
+    if (!itemMatchesPeriod(item, periodoAtualDoDia())) {
+        return { compatible: false, label: 'Fora do período cadastrado' };
+    }
+    return { compatible: true, label: `Adequado para ${temperaturaAmbienteAtual}°C` };
+}
+
+function useComparedProduct(type, id) {
+    const item = getProduct(type, id);
+    if (!item) return;
+    const category = type === 'perfume' ? 'perfumes' : type === 'creme' ? 'cremes' : 'colares';
+    entrarNoApp(category);
+    const result = document.getElementById('resultado');
+    if (type === 'perfume') exibirCards([item], result, 'perfume', { heading: 'Sua escolha para hoje' });
+    else if (type === 'creme') exibirCremeResultados([item], filtrosCreme(), 'Sua escolha para hoje');
+    else exibirCards([item], result, 'decote', { heading: 'Sua escolha para hoje' });
+    result.focus();
+}
+
+function renderComparisonInsights(selectedItems) {
+    const container = document.getElementById('comparison-insight-cards');
+    if (!container) return;
+    container.replaceChildren();
+    const makeCard = (icon, title, text, action) => {
+        const card = document.createElement('article');
+        card.className = 'comparison-insight-card';
+        const iconElement = document.createElement('span');
+        iconElement.className = 'comparison-insight-icon';
+        iconElement.textContent = icon;
+        const copy = document.createElement('div');
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        const description = document.createElement('p');
+        description.textContent = text;
+        copy.append(heading, description);
+        card.append(iconElement, copy);
+        if (action) card.append(action);
+        container.append(card);
+    };
+    const compatible = selectedItems.filter(({ type, item }) => comparisonSuitability(type, item).compatible &&
+        type !== 'acessorio');
+    makeCard('✦', 'Dica de comparação', compatible.length
+        ? `${compatible.map(({ item }) => item.nome).join(' e ')} ${compatible.length === 1 ? 'está' : 'estão'} dentro das faixas cadastradas para o clima e período atuais.`
+        : 'Confira as faixas de temperatura e período cadastradas; faltam dados para indicar um produto compatível agora.');
+
+    const combo = findCombinationSuggestions(selectedItems)[0];
+    if (combo) {
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'comparison-insight-action';
+        addButton.textContent = productIsCompared('creme', combo.cream.id) ? 'Na comparação' : 'Adicionar';
+        addButton.disabled = productIsCompared('creme', combo.cream.id);
+        addButton.addEventListener('click', () => toggleProductComparison('creme', combo.cream.id));
+        makeCard('◆', 'Sugestão de creme', `${combo.perfume.nome} + ${combo.cream.nome}: compatíveis com a temperatura e o período. Isso não indica aumento de fixação.`, addButton);
+    } else {
+        makeCard('◆', 'Sugestão de creme', 'Adicione um perfume para buscar cremes compatíveis com a temperatura e o período atuais.');
+    }
+    const climateText = !temperaturaCarregada
+        ? 'Aguardando a consulta meteorológica para mostrar o contexto atual.'
+        : document.getElementById('temperatura-atual')?.classList.contains('temperature-status-warning')
+            ? `A consulta falhou. ${temperaturaAmbienteAtual}°C é apenas uma referência de fallback.`
+            : `${temperaturaAmbienteAtual}°C agora. O índice UV não é consultado por esta aplicação.`;
+    makeCard('☼', 'Contexto climático', climateText);
 }
 
 function getProduct(type, id) {
-    return (type === 'perfume' ? perfumes : cremes).find((item) => item.id === id);
+    const catalog = { perfume: perfumes, creme: cremes, acessorio: decotes }[type];
+    return catalog?.find((item) => item.id === id);
 }
 
 function showFavorites(type) {
@@ -232,20 +552,7 @@ document.getElementById('resultado')?.addEventListener('click', (event) => {
             announceUtility('Não foi possível salvar favoritos neste navegador.', true);
         }
     } else if (action === 'compare') {
-        if (productIsCompared(type, id)) {
-            comparisonProducts = comparisonProducts.filter((item) => !(item.type === type && item.id === id));
-        } else if (comparisonProducts.length >= 2) {
-            announceUtility('A comparação aceita até dois produtos. Remova um para escolher outro.', true);
-        } else if (comparisonProducts.length && comparisonProducts[0].type !== type) {
-            announceUtility('Compare produtos da mesma categoria.', true);
-        } else {
-            comparisonProducts.push({ type, id });
-        }
-        updateComparisonControls();
-        document.dispatchEvent(new Event('comparison-updated'));
-        announceUtility(comparisonProducts.length === 2
-            ? 'Comparação atualizada.'
-            : 'Seleção da comparação atualizada.');
+        toggleProductComparison(type, id);
     } else if (action === 'share') {
         shareProduct(type, id);
     }
@@ -267,20 +574,7 @@ document.getElementById('dashboard-inventory-grid')?.addEventListener('click', (
             announceUtility('Não foi possível atualizar os favoritos neste navegador.', true);
         }
     } else if (productAction === 'compare') {
-        if (productIsCompared(type, id)) {
-            comparisonProducts = comparisonProducts.filter((item) => !(item.type === type && item.id === id));
-        } else if (comparisonProducts.length >= 2) {
-            announceUtility('A comparação aceita até dois produtos. Remova um para escolher outro.', true);
-            return;
-        } else if (comparisonProducts.length && comparisonProducts[0].type !== type) {
-            announceUtility('Compare produtos da mesma categoria.', true);
-            return;
-        } else {
-            comparisonProducts.push({ type, id });
-        }
-        updateComparisonControls();
-        document.dispatchEvent(new Event('comparison-updated'));
-        announceUtility('Seleção da comparação atualizada.');
+        toggleProductComparison(type, id);
     } else if (productAction === 'share') {
         shareProduct(type, id);
     }

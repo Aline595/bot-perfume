@@ -67,6 +67,28 @@
         </section>
     </header>
 
+    <section id="comparison-screen" class="comparison-screen dashboard-screen" aria-labelledby="comparison-title" hidden>
+        <div class="comparison-page-heading">
+            <span class="dashboard-eyebrow">COMPARE COM CALMA</span>
+            <h1 id="comparison-title">Compare seus Favoritos</h1>
+            <p>Analise as propriedades técnicas e recomendações de uso para cada clima<br class="comparison-heading-break"> antes de fazer sua escolha final.</p>
+        </div>
+        <div class="comparison-selection">
+            <label for="comparison-product-select">Adicionar produto à comparação</label>
+            <div class="comparison-selection-controls">
+                <select id="comparison-product-select" aria-label="Escolha um produto do catálogo"></select>
+                <button id="comparison-product-add" class="dashboard-compare-start" type="button">Adicionar produto</button>
+                <button id="comparison-clear" class="comparison-clear" type="button">Limpar seleção</button>
+            </div>
+            <p id="comparison-selection-hint" role="status" aria-live="polite"></p>
+        </div>
+        <section id="comparador" class="comparison-panel" aria-label="Comparação de produtos" aria-live="polite"></section>
+        <section class="comparison-insights" aria-labelledby="comparison-insights-title">
+            <h2 id="comparison-insights-title">Baseado na sua comparação</h2>
+            <div id="comparison-insight-cards" class="comparison-insight-cards"></div>
+        </section>
+    </section>
+
     <section class="dashboard-lower dashboard-screen" aria-labelledby="dashboard-inventory-title">
         <div class="dashboard-inventory-heading">
             <div>
@@ -98,13 +120,13 @@
             <div>
                 <span class="dashboard-eyebrow">COMPARE COM CALMA</span>
                 <h2 id="dashboard-compare-title">Escolha sem dúvidas</h2>
-                <p>Compare lado a lado até dois produtos da mesma categoria e veja os detalhes que ajudam na sua escolha.</p>
+                <p>Compare de dois a quatro perfumes, cremes e acessórios lado a lado. Veja compatibilidade climática e combinações possíveis sem promessas que os dados não sustentam.</p>
                 <button type="button" class="dashboard-compare-start" data-dashboard-action="compare">Iniciar comparação</button>
             </div>
             <div class="dashboard-summary">
                 <div class="dashboard-summary-item">
                     <span class="dashboard-summary-icon" aria-hidden="true">⇄</span>
-                    <span><strong id="dashboard-comparison-count">0/2 produtos</strong><small>Na sua comparação</small></span>
+                    <span><strong id="dashboard-comparison-count">0/4 produtos</strong><small>Na sua comparação</small></span>
                 </div>
                 <div class="dashboard-summary-item">
                     <span class="dashboard-summary-icon suggestions" aria-hidden="true">✓</span>
@@ -421,7 +443,6 @@
         <!-- Área para exibir resultados -->
         <div id="resultado" role="region" aria-label="Resultados da recomendação" aria-live="polite" aria-atomic="true" aria-busy="false" tabindex="-1"></div>
         <p id="recommendation-utility-status" role="status" aria-live="polite"></p>
-        <section id="comparador" class="comparison-panel" aria-label="Comparação de produtos" hidden aria-live="polite"></section>
         <footer class="site-footer">
             <details>
                 <summary>Sobre as recomendações e privacidade</summary>

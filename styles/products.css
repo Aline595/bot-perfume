@@ -128,7 +128,8 @@
 }
 
 .comparison-panel table {
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
     border-collapse: collapse;
     font-size: 0.86rem;
 }
@@ -145,6 +146,45 @@
 
 .comparison-panel > button {
     margin-top: 12px;
+}
+
+.comparison-remove {
+    margin-top: 6px;
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+}
+
+.comparison-combinations {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.comparison-combinations h4,
+.comparison-combinations p {
+    margin: 0 0 10px;
+}
+
+.comparison-combinations p {
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+}
+
+.comparison-combination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--border-color);
+}
+
+.comparison-combination .secondary-action {
+    flex: 0 0 auto;
 }
 
 .site-footer {

@@ -5,6 +5,8 @@ function toggleDarkMode() {
 let homeTransitionTimer;
 
 function entrarNoApp(categoria) {
+    document.body.classList.remove('comparison-view');
+    document.getElementById('comparison-screen')?.setAttribute('hidden', '');
     clearTimeout(homeTransitionTimer);
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
@@ -31,9 +33,6 @@ function alternarAba(tipo, botao) {
         botao.classList.add('active');
         botao.setAttribute('aria-pressed', 'true');
     }
-    comparisonProducts = [];
-    updateComparisonControls();
-    document.dispatchEvent(new Event('comparison-updated'));
     document.querySelector(`#conteudo-${tipo} h2`)?.focus();
     
     document.getElementById('resultado').innerHTML = '';
@@ -180,7 +179,7 @@ function updateDailyRecommendations() {
 function updateDashboardSummary() {
     const comparisonCount = document.getElementById('dashboard-comparison-count');
     if (comparisonCount) {
-        comparisonCount.textContent = `${comparisonProducts.length}/2 produtos`;
+        comparisonCount.textContent = `${comparisonProducts.length}/4 produtos`;
     }
     const suggestionCount = document.getElementById('dashboard-suggestion-count');
     if (suggestionCount) {
@@ -317,6 +316,7 @@ function updateDashboardInventory() {
                     <span class="dashboard-inventory-reason">${escapeHtml(reason)}</span>
                     <h3>${escapeHtml(item.formato || 'Acessório')}</h3>
                     <p>${escapeHtml(item.colar_ideal || item.descricao || 'Uma opção do seu guarda-roupa')}</p>
+                    ${comparisonActionHtml('acessorio', item.id)}
                 </article>
             `;
         }
@@ -395,6 +395,8 @@ async function shareDashboard() {
 
 function handleDashboardAction(action) {
     if (action === 'home') {
+        document.body.classList.remove('comparison-view');
+        document.getElementById('comparison-screen')?.setAttribute('hidden', '');
         setDashboardNavActive('home');
         voltarParaHome();
         return;
@@ -409,16 +411,23 @@ function handleDashboardAction(action) {
     }
     if (action === 'compare') {
         setDashboardNavActive('compare');
-        const selectedProducts = [...comparisonProducts];
-        const category = selectedProducts[0]?.type === 'creme' ? 'cremes' : 'perfumes';
-        entrarNoApp(category);
-        comparisonProducts = selectedProducts;
+        if (!comparisonProducts.length) {
+            comparisonProducts = favoriteProducts
+                .filter((favorite) => getProduct(favorite.type, favorite.id))
+                .slice(0, 4)
+                .map((favorite) => ({ ...favorite }));
+        }
+        document.getElementById('comparison-screen')?.removeAttribute('hidden');
+        document.body.classList.add('comparison-view');
+        clearTimeout(homeTransitionTimer);
+        document.getElementById('tela-inicial').classList.remove('fade-out');
+        document.querySelector('.container')?.classList.add('app-hidden');
         updateComparisonControls();
         document.dispatchEvent(new Event('comparison-updated'));
-        announceUtility(selectedProducts.length
-            ? 'Continue sua comparação ou escolha outro produto da mesma categoria.'
-            : 'Escolha até dois produtos da mesma categoria para comparar lado a lado.');
-        document.getElementById(`conteudo-${category}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        announceUtility(comparisonProducts.length
+            ? 'Seus favoritos estão prontos para comparar. Você também pode adicionar outros produtos.'
+            : 'Escolha produtos no seletor para começar a comparação.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
     if (action === 'favorites') {
@@ -480,11 +489,30 @@ document.addEventListener('dashboard-weather-updated', updateDailyRecommendation
 document.addEventListener('dashboard-weather-updated', updateDashboardInventory);
 document.addEventListener('favorites-updated', updateDashboardInventory);
 document.addEventListener('comparison-updated', updateDashboardSummary);
+document.addEventListener('dashboard-weather-updated', updateComparisonControls);
+document.addEventListener('perfumes-carregados', updateComparisonControls);
+document.addEventListener('cremes-carregados', updateComparisonControls);
+document.addEventListener('decotes-carregados', updateComparisonControls);
 document.getElementById('dashboard-inventory-search').addEventListener('input', updateDashboardInventory);
 document.getElementById('dashboard-inventory-filter').addEventListener('change', updateDashboardInventory);
+document.getElementById('comparison-product-add').addEventListener('click', () => {
+    const selection = document.getElementById('comparison-product-select').value;
+    const match = selection.match(/^(perfume|creme|acessorio):([1-9]\d*)$/);
+    if (!match) {
+        announceUtility('Escolha um produto do catálogo para adicionar à comparação.', true);
+        return;
+    }
+    toggleProductComparison(match[1], Number(match[2]));
+});
+document.getElementById('comparison-clear').addEventListener('click', () => {
+    comparisonProducts = [];
+    updateComparisonControls();
+    document.dispatchEvent(new Event('comparison-updated'));
+});
 setInterval(() => {
     if (temperaturaCarregada && dashboardContextKey() !== dashboardRecommendationContextKey) {
         updateDailyRecommendations();
+        updateComparisonControls();
     }
 }, 60_000);
 document.getElementById('dashboard-date').textContent = new Intl.DateTimeFormat('pt-BR', {
