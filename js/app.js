@@ -19,7 +19,7 @@ function entrarNoApp(categoria) {
     const splash = document.getElementById('tela-inicial');
     const container = document.querySelector('.container');
 
-    splash.classList.add('fade-out');
+    splash.classList.remove('fade-out');
     container.classList.remove('app-hidden');
 
     const btn = document.getElementById(`tab-${categoria}`);

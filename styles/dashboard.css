@@ -966,11 +966,32 @@ body {
     padding: 28px 18px;
 }
 
-.legacy-app-view > #tela-inicial,
 .legacy-app-view > #comparison-screen,
 .legacy-app-view > .dashboard-lower,
 .legacy-app-view > .dashboard-footer {
     display: none !important;
+}
+
+.legacy-app-view > #tela-inicial {
+    position: static !important;
+    z-index: auto !important;
+    display: block !important;
+    width: min(100%, 1100px) !important;
+    min-height: 0 !important;
+    margin: 0 auto;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    color: var(--text-main) !important;
+    text-align: left !important;
+}
+
+.legacy-app-view .dashboard-panel {
+    display: none !important;
+}
+
+.legacy-app-view .dashboard-topbar {
+    min-height: 58px;
 }
 
 .management-view #tela-inicial {
