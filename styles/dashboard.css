@@ -1023,19 +1023,15 @@ body {
     min-height: 58px;
 }
 
-.management-add-button {
-    display: none;
-}
-
 .management-view .management-add-button {
     display: inline-flex;
     width: auto;
     min-height: 34px;
     align-items: center;
     justify-content: center;
-    margin-left: clamp(14px, 3vw, 34px);
+    flex: 0 0 auto;
     padding: 7px 13px;
-    border: 0;
+    border: 1px solid #7047f5;
     border-radius: 7px;
     background: #7047f5;
     color: #fff;
@@ -1046,8 +1042,13 @@ body {
 
 .management-view .management-add-button:hover:not(:disabled) {
     background: #6038e7;
+    border-color: #6038e7;
     box-shadow: 0 5px 14px rgba(112, 71, 245, 0.2);
     transform: translateY(-1px);
+}
+
+body:not(.management-view) .management-add-button {
+    display: none;
 }
 
 .management-screen {
@@ -2728,9 +2729,8 @@ body.dark-mode .daily-card .product-image-placeholder {
         min-height: 42px;
     }
 
-    .management-view .management-add-button {
+    .management-view .management-toolbar .management-add-button {
         min-height: 30px;
-        margin: 5px 0;
         padding: 5px 8px;
         font-size: 0.63rem;
     }

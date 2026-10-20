@@ -1293,7 +1293,7 @@ document.getElementById('accessories-grid')?.addEventListener('click', (event) =
 });
 document.getElementById('management-search').addEventListener('input', () => updateManagementPage(true));
 document.getElementById('management-category').addEventListener('change', () => updateManagementPage(true));
-document.getElementById('management-nav-add').addEventListener('click', () => {
+document.getElementById('management-add-button').addEventListener('click', () => {
     const type = document.getElementById('management-category').value;
     openManagementEditor(type === 'creme' ? 'creme' : 'perfume');
 });
