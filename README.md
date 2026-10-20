@@ -1,7 +1,7 @@
 # Meu Consultor Pessoal
 
 <!-- Descrição geral do projeto -->
-Um aplicativo web interativo para consultar recomendações de perfumes, cremes e colares. A consulta de perfumes pode considerar estação, temperatura, período, vibe e notas olfativas. Inclui modo escuro, responsividade para dispositivos móveis, tablet e PC, e uma interface acessível.
+Um aplicativo web interativo para consultar recomendações de perfumes, cremes e colares. A consulta de perfumes pode considerar estação, temperatura, período, vibe e notas olfativas. Inclui identidade visual, modo escuro, responsividade e recursos de acessibilidade.
 
 ## Funcionalidades
 
@@ -13,9 +13,12 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 - **Temperatura indisponível**: Se o serviço de clima falhar, a tela avisa e usa 22°C como referência para os filtros que dependem da temperatura.
 - **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Consulta de Cremes**: Filtre opcionalmente por faixa de temperatura, estação, período e fragrância/notas; os resultados explicam por que cada creme combina e oferecem uma opção para ampliar a busca.
+- **Clima por cidade ou localização**: São Paulo é usado como padrão; também é possível buscar uma cidade ou solicitar a localização do dispositivo. A localização é opcional e não fica salva pelo site.
 - **Feedback dos catálogos**: A interface mostra a origem e o horário de carregamento, explica falhas de rede/CORS e permite tentar novamente.
+- **Favoritos, comparação e compartilhamento**: Salve produtos no navegador, compare até dois itens da mesma categoria e compartilhe um link direto para uma recomendação.
+- **Transparência**: Consulte como as recomendações funcionam, quais dados meteorológicos são consultados e onde os favoritos são armazenados.
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
-- - **CRUD de Perfumes e Cremes**: Cadastre, edite e exclua os dois catálogos nos respectivos Gists usando uma API protegida.
+- **CRUD de Perfumes e Cremes**: Cadastre, edite e exclua os dois catálogos nos respectivos Gists usando uma API protegida.
 - **Manutenção dos catálogos**: pesquise, valide, exporte backups JSON e importe arquivos validados com confirmação antes de substituir o catálogo.
 - **Modo Escuro**: Alternância entre temas claro e escuro.
 - **Responsivo**: Otimizado para celular, tablet e PC.
@@ -26,12 +29,14 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 <!-- Instruções de uso passo a passo -->
 1. Abra o aplicativo no navegador e escolha **Perfumes**, **Cremes** ou **Colares**.
 2. Para perfumes, escolha o período. Se quiser, ative os filtros de estação ou temperatura e preencha uma vibe ou nota olfativa; esses campos de texto são opcionais.
-3. Clique em **Encontrar Perfume** para ver recomendações e os critérios que combinaram. Se não houver resultados, altere os filtros ou clique em **Ver todos os perfumes**.
-4. Use **Me surpreenda!** para receber uma sugestão aleatória. Os filtros de clima ativos também são considerados nessa opção.
-5. Para colares, selecione o tipo de blusa e solicite uma recomendação.
-6. Na área de cremes, escolha o momento de uso e, opcionalmente, filtre por faixa de temperatura, estação ou fragrância/notas. Se não houver resultados, ajuste os filtros ou clique em **Ver todos os cremes**.
-7. Clique em **⬅ Voltar** para retornar à tela inicial ou use **🌓 Alternar Tema** para mudar o tema.
-8. Para administrar os catálogos, expanda **Gerenciar perfumes do Gist** ou **Gerenciar catálogo de cremes**. Cada área permite pesquisar, cadastrar, editar, excluir, validar, exportar e importar seu backup JSON. A importação valida os registros e pede confirmação antes de substituir o catálogo compartilhado.
+3. O clima usa São Paulo como padrão. Se desejar, informe outra cidade ou permita acesso à localização; o navegador pedirá permissão. A consulta de clima é feita pelo serviço Open-Meteo.
+4. Clique em **Encontrar Perfume** para ver recomendações e os critérios que combinaram. Se não houver resultados, altere os filtros ou clique em **Ver todos os perfumes**.
+5. Use **Me surpreenda!** para receber uma sugestão aleatória. Os filtros de clima ativos também são considerados nessa opção.
+6. Para colares, selecione o tipo de blusa e solicite uma recomendação.
+7. Na área de cremes, escolha o momento de uso e, opcionalmente, filtre por faixa de temperatura, estação ou fragrância/notas. Se não houver resultados, ajuste os filtros ou clique em **Ver todos os cremes**.
+8. Em cada produto, use **Favoritar**, **Comparar** ou **Compartilhar**. Favoritos são guardados somente neste navegador; comparações são temporárias e aceitam até dois produtos da mesma categoria.
+9. Clique em **⬅ Voltar** para retornar à tela inicial ou use **🌓 Alternar Tema** para mudar o tema.
+10. Para administrar os catálogos, expanda **Gerenciar perfumes do Gist** ou **Gerenciar catálogo de cremes**. Cada área permite pesquisar, cadastrar, editar, excluir, validar, exportar e importar seu backup JSON. A importação valida os registros e pede confirmação antes de substituir o catálogo compartilhado.
 
 ## Tecnologias
 
@@ -40,6 +45,15 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 - Fetch API para carregar dados de Gists GitHub
 - Responsividade com Media Queries
 - Acessibilidade com ARIA roles
+
+## Organização do Projeto
+
+- `index.html`, `style.css` e `script.js` ficam na raiz para manter compatibilidade com o GitHub Pages.
+- `js/` reúne os scripts da interface por responsabilidade: clima, carregamento de catálogos, ações/renderização de produtos e navegação. A ordem das tags `<script>` no fim de `index.html` é intencional: os scripts atuais compartilham estado e funções no escopo global do navegador.
+- `styles/` separa os estilos base, layout, formulários, produtos, administração e utilitários. `style.css` importa esses arquivos na ordem necessária para preservar a cascata.
+- `server.js` e `server.test.js` contêm o backend e seus testes.
+- `assets/` guarda imagens e ícones.
+- Os catálogos em produção são lidos dos Gists configurados no código/backend. Os JSONs em `data/` são cópias locais de referência e não são carregados automaticamente pela aplicação.
 
 ## Link do Projeto
 

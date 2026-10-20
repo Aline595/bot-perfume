@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <!-- Metadados e configurações da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Consultor pessoal para perfumes, cremes e colares. Encontre recomendações personalizadas.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="theme-color" content="#70476b">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Meu Consultor Pessoal">
+    <meta property="og:description" content="Encontre sugestões de perfumes, cremes e colares para o seu momento.">
+    <meta property="og:url" content="https://aline595.github.io/bot-perfume/">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <title>Meu Consultor Pessoal</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,34 +18,43 @@
     <!-- Tela inicial com splash screen -->
     <header id="tela-inicial">
         <div class="boas-vindas">
-            <span>✨</span>
+            <div class="brand-lockup" aria-label="Meu Consultor Pessoal">
+                <span class="brand-mark" aria-hidden="true">M</span>
+                <span class="brand-name">MEU CONSULTOR PESSOAL</span>
+            </div>
             <h1>O que você busca hoje?</h1>
-            <p>Escolha uma categoria para começar sua consultoria personalizada.</p>
+            <p>Descubra sugestões de fragrâncias e acessórios que combinam com o seu momento.</p>
+            <p class="welcome-caption">Uma curadoria simples, feita a partir das suas preferências.</p>
             <nav class="botoes-home" aria-label="Escolher categoria">
-                <button type="button" onclick="entrarNoApp('perfumes')" class="btn-home">🌸 Perfumes</button>
-                <button type="button" onclick="entrarNoApp('colares')" class="btn-home btn-colar-home">📿 Colares</button>
-                <button type="button" onclick="entrarNoApp('cremes')" class="btn-home">🧴 Cremes</button>
+                <button type="button" data-open-category="perfumes" class="btn-home"><span>🌸 Perfumes</span><small>Encontre sua próxima fragrância</small></button>
+                <button type="button" data-open-category="colares" class="btn-home btn-colar-home"><span>📿 Colares</span><small>Harmonize com seu decote</small></button>
+                <button type="button" data-open-category="cremes" class="btn-home"><span>🧴 Cremes</span><small>Explore texturas e aromas</small></button>
             </nav>
+            <p class="welcome-trust">Sem cadastro. Suas preferências permanecem no seu dispositivo.</p>
         </div>
     </header>
 
     <!-- Container principal da aplicação -->
     <main class="container" style="display: none;">
+        <div class="app-brand">
+            <span class="app-brand-mark" aria-hidden="true">M</span>
+            <span>Meu Consultor Pessoal</span>
+        </div>
         <!-- Navegação por abas -->
         <nav class="menu-tabs" aria-label="Categorias do consultor">
-            <button type="button" id="tab-perfumes" class="tab-btn" aria-controls="conteudo-perfumes" aria-pressed="false" onclick="alternarAba('perfumes', this)">🌸 Perfumes</button>
-            <button type="button" id="tab-cremes" class="tab-btn" aria-controls="conteudo-cremes" aria-pressed="false" onclick="alternarAba('cremes', this)">🧴 Cremes</button>
-            <button type="button" id="tab-colares" class="tab-btn" aria-controls="conteudo-colares" aria-pressed="false" onclick="alternarAba('colares', this)">📿 Colares</button>
+            <button type="button" id="tab-perfumes" class="tab-btn" data-category-tab="perfumes" aria-controls="conteudo-perfumes" aria-pressed="false">🌸 Perfumes</button>
+            <button type="button" id="tab-cremes" class="tab-btn" data-category-tab="cremes" aria-controls="conteudo-cremes" aria-pressed="false">🧴 Cremes</button>
+            <button type="button" id="tab-colares" class="tab-btn" data-category-tab="colares" aria-controls="conteudo-colares" aria-pressed="false">📿 Colares</button>
         </nav>
 
         <!-- Botão para alternar modo escuro -->
-        <button type="button" id="dark-mode-toggle" onclick="toggleDarkMode()" class="btn-toggle">
+        <button type="button" id="dark-mode-toggle" class="btn-toggle">
             🌓 Alternar Tema
         </button>
 
         <!-- Seção de perfumes -->
         <section id="conteudo-perfumes" class="secao-aba">
-            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            <button type="button" data-back-home class="btn-voltar">⬅ Voltar</button>
             <h2 tabindex="-1">🌸 Consultor de Perfumes</h2>
             <p>Descubra o aroma perfeito para você</p>
             <div id="perfume-load-status" class="perfume-load-status" role="status" aria-live="polite">
@@ -55,14 +69,14 @@
                 <legend>Preferências de clima</legend>
                 <div class="perfume-filter-options">
                     <label class="perfume-filter-option">
-                        <input type="checkbox" id="filtro-estacao" onchange="atualizarFiltros()">
+                        <input type="checkbox" id="filtro-estacao">
                         <span>
                             <strong>Filtrar por estação</strong>
                             <small>Mostra perfumes indicados para a estação escolhida.</small>
                         </span>
                     </label>
                     <label class="perfume-filter-option">
-                        <input type="checkbox" id="filtro-temperatura" checked onchange="atualizarFiltros()">
+                        <input type="checkbox" id="filtro-temperatura" checked>
                         <span>
                             <strong>Considerar temperatura</strong>
                             <small>Usa a temperatura atual quando o perfume tem essa indicação.</small>
@@ -72,11 +86,21 @@
                 <div id="temperatura-atual" class="temperature-status" role="status" aria-live="polite">
                     🌡️ Carregando temperatura...
                 </div>
+                <div class="weather-location">
+                    <label for="cidade-clima-perfume">Local do clima</label>
+                    <div class="weather-location-controls">
+                        <input id="cidade-clima-perfume" type="search" placeholder="Ex.: São Paulo" autocomplete="off">
+                        <button type="button" class="secondary-action" data-weather-city="perfume">Usar cidade</button>
+                        <button type="button" class="secondary-action" data-weather-geolocation="perfume">Usar minha localização</button>
+                    </div>
+                    <small>Opcional. A localização só é solicitada se você escolher usá-la; as coordenadas são consultadas pela Open-Meteo e não são salvas pelo site.</small>
+                    <p id="localidade-clima-perfume" class="weather-location-status" role="status" aria-live="polite">Clima padrão: São Paulo, Brasil.</p>
+                </div>
             </fieldset>
             
             <div class="estacao-selector" id="secao-estacao" hidden>
                 <label for="estacao-manual">🍂 Estação:</label>
-                <select id="estacao-manual" onchange="atualizarEstacao()">
+                <select id="estacao-manual">
                     <option value="todos">Todos</option>
                     <option value="Outono">🍂 Outono</option>
                     <option value="Inverno">❄️ Inverno</option>
@@ -98,10 +122,11 @@
             <label for="nota" class="field-label">🎵 Nota olfativa <span>(opcional)</span></label>
             <input type="text" id="nota" placeholder="Busque por uma nota (ex: baunilha, rosa, citrus)">
             
-            <button id="buscar-perfume" type="button" onclick="buscar()" disabled class="primary-search-button">🔍 Encontrar Perfume</button>
-            <button id="surpreender-perfume" type="button" onclick="surpreender()" class="btn-surprise" disabled>
+            <button id="buscar-perfume" type="button" disabled class="primary-search-button">🔍 Encontrar Perfume</button>
+            <button id="surpreender-perfume" type="button" class="btn-surprise" disabled>
                 ✨ Me surpreenda!
             </button>
+            <button id="favoritos-perfumes" type="button" class="secondary-action favorites-toggle" data-show-favorites="perfume">♡ Ver favoritos</button>
 
             <details class="perfume-admin">
                 <summary>⚙️ Gerenciar perfumes do Gist</summary>
@@ -152,7 +177,7 @@
 
         <!-- Seção de colares -->
         <section id="conteudo-colares" class="secao-aba" style="display: none;">
-            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            <button type="button" data-back-home class="btn-voltar">⬅ Voltar</button>
             <h2 tabindex="-1">📿 Consultor de Colares</h2>
             <p>Encontre o acessório perfeito para seu decote</p>
             
@@ -163,14 +188,14 @@
                 </select>
             </div>
             
-            <button type="button" onclick="buscarColares()">🔍 Encontrar Recomendação</button>
-            <button type="button" onclick="surpreenderColares()" class="btn-surprise">
+            <button type="button" id="buscar-colares">🔍 Encontrar Recomendação</button>
+            <button type="button" id="surpreender-colares" class="btn-surprise">
                 ✨ Me surpreenda!
             </button>
         </section>
 
         <section id="conteudo-cremes" class="secao-aba" style="display: none;">
-            <button type="button" onclick="voltarParaHome()" class="btn-voltar">⬅ Voltar</button>
+            <button type="button" data-back-home class="btn-voltar">⬅ Voltar</button>
             <h2 tabindex="-1">🧴 Consultor de Cremes</h2>
             <p class="search-intro">Encontre cremes adequados ao clima e ao momento de uso. Os filtros de temperatura, estação e fragrância são opcionais.</p>
             <div id="creme-load-status" class="perfume-load-status" role="status" aria-live="polite">Carregando catálogo de cremes...</div>
@@ -179,23 +204,33 @@
             <fieldset class="perfume-filters creme-filters">
                 <legend>Preferências de clima</legend>
                 <label class="perfume-filter-option">
-                    <input type="checkbox" id="filtro-temperatura-creme" checked onchange="atualizarFiltrosCreme()">
+                    <input type="checkbox" id="filtro-temperatura-creme" checked>
                     <span><strong>Considerar temperatura</strong><small>Filtra pela faixa atual. Você também pode tocar em uma faixa para testar outra temperatura.</small></span>
                 </label>
                 <div id="temperatura-creme" class="temperature-status" role="status" aria-live="polite">🌡️ Carregando temperatura...</div>
+                <div class="weather-location">
+                    <label for="cidade-clima-creme">Local do clima</label>
+                    <div class="weather-location-controls">
+                        <input id="cidade-clima-creme" type="search" placeholder="Ex.: São Paulo" autocomplete="off">
+                        <button type="button" class="secondary-action" data-weather-city="creme">Usar cidade</button>
+                        <button type="button" class="secondary-action" data-weather-geolocation="creme">Usar minha localização</button>
+                    </div>
+                    <small>Opcional. A localização só é solicitada se você escolher usá-la; as coordenadas são consultadas pela Open-Meteo e não são salvas pelo site.</small>
+                    <p id="localidade-clima-creme" class="weather-location-status" role="status" aria-live="polite">Clima padrão: São Paulo, Brasil.</p>
+                </div>
                 <div class="ranges-legenda" aria-label="Escolher uma faixa de temperatura">
-                    <button id="range-baixa" type="button" onclick="selecionarRangeManualmente(20, 'range-baixa')" aria-pressed="false">
+                    <button id="range-baixa" type="button" aria-pressed="false">
                         ❄️ Baixa<br>(até 20°C)
                     </button>
-                    <button id="range-intermediaria" type="button" onclick="selecionarRangeManualmente(23, 'range-intermediaria')" aria-pressed="false">
+                    <button id="range-intermediaria" type="button" aria-pressed="false">
                         ☁️ Média<br>(21°C - 25°C)
                     </button>
-                    <button id="range-alta" type="button" onclick="selecionarRangeManualmente(30, 'range-alta')" aria-pressed="false">
+                    <button id="range-alta" type="button" aria-pressed="false">
                         ☀️ Alta<br>(26°C+)
                     </button>
                 </div>
                 <label class="perfume-filter-option creme-season-filter">
-                    <input type="checkbox" id="filtro-estacao-creme" onchange="atualizarFiltrosCreme()">
+                    <input type="checkbox" id="filtro-estacao-creme">
                     <span><strong>Filtrar por estação</strong><small>Mostra cremes indicados para a estação escolhida.</small></span>
                 </label>
                 <div id="secao-estacao-creme" hidden>
@@ -221,13 +256,14 @@
             <label for="busca-creme" class="field-label">🌸 Fragrância ou nota <span>(opcional)</span></label>
             <input id="busca-creme" type="search" placeholder="Ex.: floral, baunilha, caramelo" autocomplete="off">
             <div class="creme-search-actions">
-                <button id="buscar-cremes" type="button" onclick="recomendarCremePorClima()" class="btn-busca-creme" disabled>
+                <button id="buscar-cremes" type="button" class="btn-busca-creme" disabled>
                     🔍 Buscar Cremes do Momento
                 </button>
-                <button id="surpreender-creme" type="button" onclick="surpreenderCremePorGraus()" class="btn-surprise" disabled>
+                <button id="surpreender-creme" type="button" class="btn-surprise" disabled>
                     ✨ Me surpreenda!
                 </button>
             </div>
+            <button id="favoritos-cremes" type="button" class="secondary-action favorites-toggle" data-show-favorites="creme">♡ Ver favoritos</button>
 
             <details class="perfume-admin creme-admin">
                 <summary>⚙️ Gerenciar catálogo de cremes</summary>
@@ -281,15 +317,31 @@
 
         <!-- Área para exibir resultados -->
         <div id="resultado" role="region" aria-label="Resultados da recomendação" aria-live="polite" aria-atomic="true" aria-busy="false" tabindex="-1"></div>
+        <p id="recommendation-utility-status" role="status" aria-live="polite"></p>
+        <section id="comparador" class="comparison-panel" aria-label="Comparação de produtos" hidden aria-live="polite"></section>
+        <footer class="site-footer">
+            <details>
+                <summary>Sobre as recomendações e privacidade</summary>
+                <p>As sugestões são filtradas pelo catálogo e pelas preferências selecionadas. Não são avaliações profissionais nem garantias de adequação pessoal.</p>
+                <p>O clima usa São Paulo como padrão. Se você buscar outra cidade, o nome informado e as coordenadas encontradas são consultados pela Open-Meteo. Se autorizar a localização, as coordenadas são enviadas ao serviço para obter o clima e não são armazenadas pelo site. O site não solicita cadastro nem envia suas preferências; favoritos ficam apenas no armazenamento local deste navegador.</p>
+                <p>Dados meteorológicos: <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a>.</p>
+            </details>
+            <a href="https://github.com/Aline595/bot-perfume" target="_blank" rel="noopener noreferrer">Contato e suporte pelo projeto</a>
+            <span>© <span id="ano-atual"></span> Meu Consultor Pessoal</span>
+        </footer>
     </main>
     
     <!-- Scripts JavaScript -->
     <script src="api-config.js"></script>
     <script src="script.js"></script>
+    <script src="js/weather.js"></script>
+    <script src="js/catalogs.js"></script>
+    <script src="js/product-ui.js"></script>
     <script src="perfumes.js"></script>
     <script src="colares.js"></script>
     <script src="cremes.js"></script>
     <script src="perfume-admin.js"></script>
     <script src="creme-admin.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

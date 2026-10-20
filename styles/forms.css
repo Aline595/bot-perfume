@@ -1,0 +1,280 @@
+.perfume-load-status {
+    margin: 14px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-soft);
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    text-align: left;
+}
+
+.perfume-load-status.success {
+    border-color: color-mix(in srgb, var(--success-color) 28%, var(--border-color));
+    background: color-mix(in srgb, var(--success-color) 8%, var(--bg-container));
+    color: var(--success-color);
+}
+
+.perfume-load-status.error {
+    border-color: color-mix(in srgb, var(--danger-color) 30%, var(--border-color));
+    background: color-mix(in srgb, var(--danger-color) 8%, var(--bg-container));
+    color: var(--danger-color);
+}
+
+.perfume-load-retry {
+    width: auto;
+    min-height: 42px;
+    margin: 0 0 10px;
+    padding: 9px 14px;
+}
+
+.perfume-filters,
+.estacao-selector,
+.clima-container {
+    margin: 18px 0;
+    padding: 16px;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--bg-soft) !important;
+    text-align: left;
+}
+
+.perfume-filters legend {
+    padding: 0 8px;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.perfume-filter-options {
+    display: grid;
+    gap: 12px;
+}
+
+.perfume-filter-option {
+    display: flex;
+    min-height: 44px;
+    align-items: flex-start;
+    gap: 11px;
+    cursor: pointer;
+}
+
+.perfume-filter-option input {
+    width: 19px;
+    min-width: 19px;
+    height: 19px;
+    min-height: auto;
+    flex: 0 0 auto;
+    margin: 3px 0 0;
+    padding: 0;
+    accent-color: var(--primary-color);
+}
+
+.perfume-filter-option span {
+    display: grid;
+    gap: 3px;
+}
+
+.perfume-filter-option strong {
+    font-size: 0.96rem;
+}
+
+.perfume-filter-option small,
+.field-label span {
+    color: var(--text-secondary);
+    font-size: 0.86em;
+    font-weight: 400;
+}
+
+.temperature-status {
+    margin-top: 12px;
+    color: var(--primary-color);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.weather-location {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.weather-location > label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.weather-location-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.weather-location-controls input {
+    min-width: 0;
+    margin: 0;
+}
+
+.weather-location small {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+.weather-location-status {
+    margin: 7px 0 0;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+}
+
+.weather-location-status.error {
+    color: var(--danger-color);
+}
+
+.secondary-action {
+    width: auto;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 11px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-container);
+    color: var(--text-main);
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow: none;
+}
+
+.secondary-action:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    background: var(--bg-soft);
+    color: var(--primary-color);
+    box-shadow: none;
+}
+
+.favorites-toggle {
+    display: block;
+    margin: 10px 0 0 auto;
+}
+
+.temperature-status-warning {
+    color: #9a680e;
+}
+
+body.dark-mode .temperature-status-warning {
+    color: #e4bd6e;
+}
+
+.creme-filters legend {
+    color: #a85f74;
+}
+
+.creme-season-filter {
+    margin-top: 14px;
+}
+
+#conteudo-cremes #secao-estacao-creme[hidden] {
+    display: none;
+}
+
+.ranges-legenda {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 14px 0 8px;
+}
+
+.estacao-selector[hidden] {
+    display: none;
+}
+
+.ranges-legenda button {
+    min-height: 62px;
+    margin: 0;
+    padding: 8px 5px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-container);
+    color: var(--text-main);
+    font-size: 0.84rem;
+    line-height: 1.4;
+    box-shadow: none;
+}
+
+.ranges-legenda button:hover:not(:disabled) {
+    border-color: #a85f74;
+    background: color-mix(in srgb, #a85f74 7%, var(--bg-container));
+    box-shadow: none;
+    transform: none;
+}
+
+.ranges-legenda button.active {
+    border-color: #a85f74;
+    background: color-mix(in srgb, #a85f74 11%, var(--bg-container));
+    color: #a85f74;
+}
+
+.ranges-legenda button:disabled {
+    opacity: 0.48;
+}
+
+.field-label {
+    display: block;
+    margin: 16px 0 0;
+    color: var(--text-main);
+    font-weight: 700;
+    text-align: left;
+}
+
+.primary-search-button {
+    margin-top: 14px;
+    background: var(--primary-color) !important;
+}
+
+.btn-surprise {
+    border-color: color-mix(in srgb, var(--accent-color) 55%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-container));
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.btn-surprise:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    background: color-mix(in srgb, var(--accent-color) 26%, var(--bg-container));
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.creme-search-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.creme-search-actions button {
+    margin: 4px 0;
+}
+
+#conteudo-colares .estacao-selector {
+    border-left: 3px solid #6e947e !important;
+    background: color-mix(in srgb, #6e947e 8%, var(--bg-container)) !important;
+}
+
+#conteudo-colares select {
+    border-color: var(--border-color) !important;
+}
+
+#conteudo-colares > button:not(.btn-voltar) {
+    margin-top: 10px !important;
+    background: var(--primary-color) !important;
+    box-shadow: none !important;
+}
+
+#conteudo-colares > button.btn-surprise {
+    border: 1px solid color-mix(in srgb, var(--accent-color) 55%, transparent) !important;
+    background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-container)) !important;
+    color: var(--text-main) !important;
+}

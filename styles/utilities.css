@@ -1,0 +1,160 @@
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@keyframes skeleton-loading {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+
+@keyframes welcome-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes surface-in {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 680px) {
+    body {
+        padding: 12px;
+    }
+
+    .container {
+        margin: 8px auto 24px;
+        padding: 20px 16px;
+        border-radius: 19px;
+    }
+
+    .btn-toggle {
+        margin: 10px 0 20px auto;
+    }
+
+    .botoes-home {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .btn-home {
+        min-height: 58px;
+    }
+
+    .perfume-filters,
+    .estacao-selector,
+    .clima-container {
+        padding: 13px;
+    }
+
+    .ranges-legenda {
+        gap: 5px;
+    }
+
+    .ranges-legenda button {
+        min-height: 58px;
+        font-size: 0.76rem;
+    }
+
+    .creme-search-actions {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .weather-location-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .weather-location-controls .secondary-action {
+        width: 100%;
+    }
+
+    .product-actions .secondary-action {
+        flex-basis: calc(50% - 7px);
+    }
+
+    .comparison-panel {
+        padding: 12px;
+    }
+
+    #resultado {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+        gap: 12px;
+    }
+
+    .card-perfume {
+        padding: 15px;
+    }
+
+    #perfume-admin-list li,
+    #creme-admin-list li {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    #perfume-admin-list .perfume-admin-item-actions,
+    #creme-admin-list .perfume-admin-item-actions {
+        width: 100%;
+    }
+
+    .perfume-admin-maintenance button {
+        flex-basis: 100%;
+    }
+
+    #perfume-admin-list .perfume-admin-item-actions button,
+    #creme-admin-list .perfume-admin-item-actions button {
+        flex: 1 1 0;
+    }
+}
+
+@media (max-width: 380px) {
+    .container {
+        padding: 18px 13px;
+    }
+
+    .menu-tabs {
+        gap: 4px;
+        padding: 4px;
+    }
+
+    .tab-btn {
+        padding: 8px 4px;
+        font-size: 0.86rem;
+    }
+
+    .ranges-legenda button {
+        padding: 7px 3px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --border-color: #8d828c;
+        --text-secondary: #514951;
+    }
+
+    body.dark-mode {
+        --border-color: #aaa0aa;
+        --text-secondary: #d4cbd3;
+    }
+}

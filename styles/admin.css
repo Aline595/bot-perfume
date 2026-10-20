@@ -1,0 +1,181 @@
+.perfume-admin {
+    margin-top: 28px;
+    padding: 0 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+    text-align: left;
+}
+
+.perfume-admin[open] {
+    padding-bottom: 16px;
+}
+
+.perfume-admin summary {
+    padding: 16px 0;
+    color: var(--primary-color);
+    font-weight: 750;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.perfume-admin > p {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+}
+
+.perfume-admin label {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.91rem;
+    font-weight: 700;
+}
+
+.perfume-admin form {
+    display: grid;
+    gap: 2px;
+}
+
+.perfume-admin-password-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.perfume-admin-password-field input {
+    min-width: 0;
+}
+
+.perfume-admin-password-field .password-visibility-toggle {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 42px;
+    margin: 0 0 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-soft);
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.perfume-admin-actions,
+.perfume-admin-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.perfume-admin-actions button,
+.perfume-admin-item-actions button {
+    width: auto;
+    min-height: 40px;
+    flex: 1 1 130px;
+    margin: 4px 0;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.perfume-admin-actions button + button {
+    border-color: var(--border-color);
+    background: var(--bg-soft);
+    color: var(--text-main);
+    box-shadow: none;
+}
+
+.perfume-admin-maintenance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.perfume-admin-maintenance button {
+    width: auto;
+    min-height: 42px;
+    flex: 1 1 170px;
+    margin: 0;
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-soft);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    box-shadow: none;
+}
+
+.perfume-admin-maintenance button:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 8%, var(--bg-container));
+    color: var(--primary-color);
+    box-shadow: none;
+}
+
+.perfume-admin-maintenance-status {
+    margin: 8px 0 14px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.perfume-admin-maintenance-status.success,
+#perfume-admin-status:not(.error),
+#creme-admin-status:not(.error) {
+    color: var(--success-color);
+}
+
+.perfume-admin-maintenance-status.error,
+#perfume-admin-status.error,
+#creme-admin-status.error {
+    color: var(--danger-color);
+}
+
+.perfume-admin-count {
+    margin: 6px 0 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+#perfume-admin-list,
+#creme-admin-list {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#perfume-admin-list li,
+#creme-admin-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-container);
+    overflow-wrap: anywhere;
+}
+
+#perfume-admin-list .perfume-admin-empty,
+#creme-admin-list .perfume-admin-empty {
+    display: block;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+#perfume-admin-list .perfume-admin-item-actions,
+#creme-admin-list .perfume-admin-item-actions {
+    flex: 0 0 auto;
+}
+
+.perfume-admin-item-actions button:last-child {
+    border-color: color-mix(in srgb, var(--danger-color) 35%, var(--border-color));
+    background: color-mix(in srgb, var(--danger-color) 9%, var(--bg-container));
+    color: var(--danger-color);
+    box-shadow: none;
+}
+
+.perfume-admin-item-actions button:last-child:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--danger-color) 17%, var(--bg-container));
+    box-shadow: none;
+}

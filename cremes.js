@@ -6,7 +6,8 @@ function valoresCreme(value) {
 function temperaturaReferenciaCreme(tempManual = null) {
     if (Number.isFinite(tempManual)) return tempManual;
     const temperaturaTexto = document.getElementById('temperatura-creme').textContent;
-    return Number.parseFloat(temperaturaTexto.replace(/[^0-9.]/g, '')) || 22;
+    const temperatura = Number.parseFloat(temperaturaTexto.replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(temperatura) ? temperatura : 22;
 }
 
 function categoriaTemperaturaCreme(temperatura) {
@@ -71,12 +72,19 @@ function renderizarCreme(creme, filtros) {
     const fragrancias = valoresCreme(creme.fragrancia);
     const texturas = valoresCreme(creme.textura);
     const funcoes = valoresCreme(creme.funcao_principal);
-    const temperatura = Number(creme.temperatura);
+    const hasTemperature = creme.temperatura !== '' && creme.temperatura !== null &&
+        creme.temperatura !== undefined && Number.isFinite(Number(creme.temperatura));
+    const temperatura = hasTemperature ? Number(creme.temperatura) : null;
     const motivos = motivosRecomendacaoCreme(creme, filtros);
+    const imagem = creme.imagem && /^https?:\/\//i.test(creme.imagem)
+        ? creme.imagem
+        : creme.imagem
+            ? `https://lh3.googleusercontent.com/d/${creme.imagem}`
+            : '';
 
     return `
-        <article class="card-perfume creme-card">
-            <div class="creme-card-icon" aria-hidden="true">🧴</div>
+        <article class="card-perfume creme-card" data-product-type="creme" data-product-id="${Number(creme.id)}">
+            ${productImageHtml(imagem, creme.nome, '🧴')}
             <div>
                 <span class="perfume-marca">${escapeHtml(creme.marca || '')}</span>
                 <strong>${escapeHtml(creme.nome)}</strong>
@@ -84,15 +92,17 @@ function renderizarCreme(creme, filtros) {
                 ${notas.length ? `<p><b>Notas:</b> ${escapeHtml(notas.join(', '))}</p>` : ''}
                 ${texturas.length ? `<p><b>Textura:</b> ${escapeHtml(texturas.join(', '))}</p>` : ''}
                 ${funcoes.length ? `<p><b>Benefícios:</b> ${escapeHtml(funcoes.join(', '))}</p>` : ''}
-                ${Number.isFinite(temperatura) ? `<div class="perfume-duracao"><span>🌡️ Ideal:</span><strong>${temperatura}°C</strong></div>` : ''}
+                ${hasTemperature ? `<div class="perfume-duracao"><span>🌡️ Ideal:</span><strong>${temperatura}°C</strong></div>` : ''}
                 ${valoresCreme(creme.periodo).length ? `<div class="perfume-duracao"><span>⏰ Uso:</span><strong>${escapeHtml(valoresCreme(creme.periodo).join(' / '))}</strong></div>` : ''}
                 <p class="recommendation-reason"><strong>Por que combina:</strong> ${motivos.map(escapeHtml).join(' · ')}</p>
+                ${productActionsHtml('creme', creme.id)}
             </div>
         </article>
     `;
 }
 
 function exibirCremeResultados(lista, filtros, heading) {
+    showingFavoritesType = null;
     const resultado = document.getElementById('resultado');
     resultado.setAttribute('aria-busy', 'false');
 
@@ -171,7 +181,7 @@ function surpreenderCremePorGraus() {
 // Controle de temperatura manual
 let temperaturaManualAtiva = false;
 
-function selecionarRangeManualmente(tempSimulada, idRange) {
+function selecionarRangeManualmente(tempSimulada) {
     temperaturaManualAtiva = true;
     document.getElementById('filtro-temperatura-creme').checked = true;
 

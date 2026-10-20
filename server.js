@@ -537,6 +537,7 @@ function serveStatic(request, response, staticRoot) {
                 '.png': 'image/png',
                 '.jpg': 'image/jpeg',
                 '.jpeg': 'image/jpeg',
+                '.svg': 'image/svg+xml',
                 '.ico': 'image/x-icon'
             };
             response.writeHead(200, {

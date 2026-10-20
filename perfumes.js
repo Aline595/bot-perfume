@@ -1,22 +1,6 @@
 // Função auxiliar para buscar a temperatura atual no ABC/São Paulo
 async function obterTemperaturaAtual() {
-    try {
-        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-23.68&longitude=-46.62&current_weather=true');
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        if (typeof data.current_weather?.temperature !== 'number') {
-            throw new Error('A resposta não contém uma temperatura válida.');
-        }
-        return data.current_weather.temperature;
-    } catch (error) {
-        console.error("Erro ao buscar clima, usando temperatura padrão 22°C", error);
-        const temperatureStatus = document.getElementById('temperatura-atual');
-        if (temperatureStatus) {
-            temperatureStatus.textContent = '🌡️ Temperatura indisponível; usando 22°C como referência.';
-            temperatureStatus.classList.add('temperature-status-warning');
-        }
-        return 22; // Fallback caso a API falhe
-    }
+    return temperaturaAmbienteAtual;
 }
 
 function listValues(value) {
