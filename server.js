@@ -20,6 +20,17 @@ class HttpError extends Error {
     }
 }
 
+function validateCatalogTimestamps(record, label, statusCode = 400) {
+    for (const field of ['created_at', 'updated_at']) {
+        if (record[field] !== undefined &&
+            (typeof record[field] !== 'string' ||
+                !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|[+-]\d{2}:\d{2})$/i.test(record[field]) ||
+                !Number.isFinite(Date.parse(record[field])))) {
+            throw new HttpError(statusCode, `${label} "${field}" precisa ser uma data ISO válida.`);
+        }
+    }
+}
+
 function validatePerfumeInput(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
         throw new HttpError(400, 'Envie um objeto de perfume válido.');
@@ -27,7 +38,7 @@ function validatePerfumeInput(value) {
 
     const allowedFields = new Set([
         'nome', 'imagem', 'vibe', 'clima', 'periodo',
-        'intensidade', 'marca', 'duracao', 'temperatura_ideal'
+        'intensidade', 'marca', 'duracao', 'temperatura_ideal', 'created_at', 'updated_at'
     ]);
     if (Object.keys(value).some((key) => !allowedFields.has(key))) {
         throw new HttpError(400, 'O perfume contém campos não reconhecidos.');
@@ -84,6 +95,11 @@ function validatePerfumeInput(value) {
         perfume.temperatura_ideal = textField('temperatura_ideal');
     }
 
+    validateCatalogTimestamps(value, 'O perfume');
+    for (const field of ['created_at', 'updated_at']) {
+        if (value[field] !== undefined) perfume[field] = value[field];
+    }
+
     return perfume;
 }
 
@@ -104,7 +120,8 @@ function validatePerfumeList(value, { validateRecords = false } = {}) {
             }
             const fields = [
                 'nome', 'imagem', 'vibe', 'clima', 'periodo',
-                'intensidade', 'marca', 'duracao', 'temperatura_ideal'
+                'intensidade', 'marca', 'duracao', 'temperatura_ideal',
+                'created_at', 'updated_at'
             ];
             const input = Object.fromEntries(fields
                 .filter((field) => Object.hasOwn(perfume, field))
@@ -126,7 +143,8 @@ function validateCreamInput(value) {
 
     const allowedFields = new Set([
         'nome', 'imagem', 'marca', 'textura', 'fragrancia',
-        'notas', 'funcao_principal', 'temperatura', 'clima', 'periodo'
+        'notas', 'funcao_principal', 'temperatura', 'clima', 'periodo',
+        'created_at', 'updated_at'
     ]);
     if (Object.keys(value).some((key) => !allowedFields.has(key))) {
         throw new HttpError(400, 'O creme contém campos não reconhecidos.');
@@ -191,6 +209,10 @@ function validateCreamInput(value) {
     } else {
         cream.temperatura = '';
     }
+    validateCatalogTimestamps(value, 'O creme');
+    for (const field of ['created_at', 'updated_at']) {
+        if (value[field] !== undefined) cream[field] = value[field];
+    }
     return cream;
 }
 
@@ -203,6 +225,7 @@ function validateCreamList(value) {
         if (!cream || !Number.isSafeInteger(cream.id) || cream.id < 1 || ids.has(cream.id)) {
             throw new HttpError(502, 'O arquivo do Gist contém IDs de creme inválidos ou duplicados.');
         }
+        validateCatalogTimestamps(cream, `O creme ID ${cream.id}`, 502);
         ids.add(cream.id);
     }
     return value;
@@ -219,12 +242,20 @@ function validateCreamReplacement(value, current) {
             throw new HttpError(400, 'O backup contém IDs de creme inválidos ou duplicados.');
         }
         ids.add(cream.id);
+        try {
+            validateCatalogTimestamps(cream, `O creme ID ${cream.id}`);
+        } catch (error) {
+            throw new HttpError(400, error.message);
+        }
         const { id, ...input } = cream;
         try {
             validateCreamInput(input);
         } catch (error) {
             const existing = currentById.get(id);
-            if (!existing || stableSerialize(existing) !== stableSerialize(cream)) {
+            const comparableCream = { ...cream };
+            delete comparableCream.created_at;
+            delete comparableCream.updated_at;
+            if (!existing || stableSerialize(existing) !== stableSerialize(comparableCream)) {
                 throw new HttpError(400, `Creme ID ${id} inválido: ${error.message}`);
             }
         }
@@ -397,7 +428,13 @@ function createServer({
                     const record = collection.validateInput(await readJsonBody(request));
                     const updated = await writeCollection(collection, (current) => {
                         const id = current.reduce((maximum, item) => Math.max(maximum, item.id), 0) + 1;
-                        return [...current, { id, ...record }];
+                        const now = new Date().toISOString();
+                        return [...current, {
+                            id,
+                            ...record,
+                            created_at: now,
+                            updated_at: now
+                        }];
                     });
                     sendJson(response, 201, { [collection.plural]: updated });
                     return;
@@ -405,7 +442,15 @@ function createServer({
 
                 if (request.method === 'PUT' && collectionRoute) {
                     const records = await readJsonBody(request);
-                    const updated = await writeCollection(collection, () => records, true);
+                    const updated = await writeCollection(collection, () => {
+                        if (!Array.isArray(records)) return records;
+                        const now = new Date().toISOString();
+                        return records.map((record) => ({
+                            ...record,
+                            created_at: record.created_at || now,
+                            updated_at: now
+                        }));
+                    }, true);
                     sendJson(response, 200, { [collection.plural]: updated });
                     return;
                 }
@@ -431,7 +476,14 @@ function createServer({
                         if (!existing) throw new HttpError(404, `${collection.singular} não encontrado.`);
                         return current.map((item) => {
                             if (item.id !== id) return item;
-                            const updatedRecord = { ...item, ...record };
+                            const now = new Date().toISOString();
+                            const updatedRecord = {
+                                ...item,
+                                ...record,
+                                updated_at: now
+                            };
+                            if (item.created_at) updatedRecord.created_at = item.created_at;
+                            else delete updatedRecord.created_at;
                             if (!isCream && !Object.hasOwn(record, 'temperatura_ideal')) {
                                 delete updatedRecord.temperatura_ideal;
                             }

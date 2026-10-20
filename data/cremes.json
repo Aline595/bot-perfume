@@ -185,26 +185,26 @@
     "id": 15,
     "nome": "Geleia Desodorante Refrescante Corporal Cuide-se Bem Bob Esponja Lula Molusco",
     "imagem": "",
-    "marca": "O boticario",
-    "textura": ["", ""],
-    "fragrancia": [""],
-    "notas": [""],
-    "funcao_principal": "",
-    "temperatura": "",
-    "clima": [""],
-    "periodo": [""]
+    "marca": "O Boticário",
+    "textura": ["Geleia refrescante", "Leve"],
+    "fragrancia": ["Floral Frutal"],
+    "notas": ["Notas Aquáticas", "Toque de Bergamota", "Zimbro"],
+    "funcao_principal": ["Refrescância imediata", "Hidratação leve"],
+    "temperatura": 29,
+    "clima": ["Verão"],
+    "periodo": ["dia"]
   },
   {
     "id": 16,
     "nome": "Creme Duo Desodorante Hidratante Corporal Cuide-se Bem Doces Delírios Algodão Doce",
     "imagem": "",
-    "marca": "O boticario",
-    "textura": ["", ""],
-    "fragrancia": [""],
-    "notas": [""],
-    "funcao_principal": "",
-    "temperatura": "",
-    "clima": [""],
-    "periodo": [""]
+    "marca": "O Boticário",
+    "textura": ["Creme bifásico", "Aveludada"],
+    "fragrancia": ["Gourmand"],
+    "notas": ["Açúcar", "Baunilha", "Algodão Doce"],
+    "funcao_principal": ["Hidratação prolongada", "Conforto"],
+    "temperatura": 21,
+    "clima": ["Outono", "Primavera"],
+    "periodo": ["dia", "noite"]
   }
 ]

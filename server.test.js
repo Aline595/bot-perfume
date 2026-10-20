@@ -99,6 +99,10 @@ test('validates the Gist perfume fields and image protocols', () => {
         () => validatePerfumeList([{ id: 1, ...perfumeInput }, { id: 2, ...perfumeInput, periodo: [] }], { validateRecords: true }),
         /ID 2 inválido.*periodo/
     );
+    assert.throws(
+        () => validatePerfumeInput({ ...perfumeInput, created_at: 'recentemente' }),
+        /created_at.*data ISO válida/
+    );
 });
 
 test('validates cream input while allowing empty optional list fields', () => {
@@ -129,6 +133,10 @@ test('validates cream input while allowing empty optional list fields', () => {
     assert.throws(
         () => validateCreamInput({ ...cream, imagem: 'http://example.com/cream.jpg' }),
         /HTTPS/
+    );
+    assert.throws(
+        () => validateCreamInput({ ...cream, updated_at: 'ontem' }),
+        /updated_at.*data ISO válida/
     );
     assert.throws(
         () => validateCreamList([{ id: 1 }, { id: 1 }]),
@@ -222,7 +230,10 @@ test('protects cream CRUD and updates only the cream Gist file', async () => {
             body: JSON.stringify(creamInput)
         });
         assert.equal(added.status, 201);
-        assert.equal((await added.json()).cremes.at(-1).id, 3);
+        const addedCream = (await added.json()).cremes.at(-1);
+        assert.equal(addedCream.id, 3);
+        assert.ok(Number.isFinite(Date.parse(addedCream.created_at)));
+        assert.equal(addedCream.created_at, addedCream.updated_at);
 
         const updated = await fetch(`${baseUrl}/api/cremes/2`, {
             method: 'PUT',
@@ -230,7 +241,10 @@ test('protects cream CRUD and updates only the cream Gist file', async () => {
             body: JSON.stringify({ ...creamInput, nome: 'Registro antigo corrigido' })
         });
         assert.equal(updated.status, 200);
-        assert.equal((await updated.json()).cremes[1].nome, 'Registro antigo corrigido');
+        const updatedCream = (await updated.json()).cremes[1];
+        assert.equal(updatedCream.nome, 'Registro antigo corrigido');
+        assert.equal(Object.hasOwn(updatedCream, 'created_at'), false);
+        assert.ok(Number.isFinite(Date.parse(updatedCream.updated_at)));
 
         const deleted = await fetch(`${baseUrl}/api/cremes/1`, {
             method: 'DELETE',
@@ -304,7 +318,12 @@ test('validates and replaces a cream catalog from a backup without altering lega
             body: JSON.stringify([legacyCream, validCream])
         });
         assert.equal(imported.status, 200);
-        assert.deepEqual((await imported.json()).cremes, [legacyCream, validCream]);
+        const importedCreams = (await imported.json()).cremes;
+        assert.deepEqual(importedCreams.map(({ id }) => id), [legacyCream.id, validCream.id]);
+        assert.ok(importedCreams.every((cream) =>
+            Number.isFinite(Date.parse(cream.created_at)) &&
+            Number.isFinite(Date.parse(cream.updated_at))
+        ));
         assert.equal(gist.requests.filter(({ options }) => options.method === 'PATCH').length, 1);
     });
 });
@@ -346,13 +365,22 @@ test('requires authentication and validates a full perfume backup before replaci
             body: JSON.stringify(replacement)
         });
         assert.equal(imported.status, 200);
-        assert.deepEqual(gist.getPerfumes(), replacement);
+        assert.equal(gist.getPerfumes()[0].id, replacement[0].id);
+        assert.ok(Number.isFinite(Date.parse(gist.getPerfumes()[0].created_at)));
+        assert.ok(Number.isFinite(Date.parse(gist.getPerfumes()[0].updated_at)));
     });
 });
 
 test('protects Gist CRUD and preserves the current perfume data shape', async () => {
+    const originalCreationDate = '2024-01-02T03:04:05.000Z';
     const gist = makeFetch([
-        { id: 1, ...perfumeInput, custom_note: 'Preservar este campo' },
+        {
+            id: 1,
+            ...perfumeInput,
+            created_at: originalCreationDate,
+            updated_at: originalCreationDate,
+            custom_note: 'Preservar este campo'
+        },
         { id: 2, ...perfumeInput, nome: 'Segundo perfume' }
     ]);
 
@@ -438,7 +466,10 @@ test('protects Gist CRUD and preserves the current perfume data shape', async ()
             body: JSON.stringify(perfumeInput)
         });
         assert.equal(added.status, 201);
-        assert.equal((await added.json()).perfumes.at(-1).id, 3);
+        const addedPerfume = (await added.json()).perfumes.at(-1);
+        assert.equal(addedPerfume.id, 3);
+        assert.ok(Number.isFinite(Date.parse(addedPerfume.created_at)));
+        assert.equal(addedPerfume.created_at, addedPerfume.updated_at);
 
         const concurrentAdds = await Promise.all([1, 2].map(() => fetch(`${baseUrl}/api/perfumes`, {
             method: 'POST',
@@ -462,6 +493,9 @@ test('protects Gist CRUD and preserves the current perfume data shape', async ()
         });
         assert.equal(updated.status, 200);
         assert.equal(gist.getPerfumes()[0].nome, 'Nome atualizado');
+        assert.equal(gist.getPerfumes()[0].created_at, originalCreationDate);
+        assert.ok(Number.isFinite(Date.parse(gist.getPerfumes()[0].updated_at)));
+        assert.ok(Date.parse(gist.getPerfumes()[0].updated_at) > Date.parse(originalCreationDate));
         assert.equal(gist.getPerfumes()[0].custom_note, 'Preservar este campo');
         assert.equal(Object.hasOwn(gist.getPerfumes()[0], 'temperatura_ideal'), false);
 

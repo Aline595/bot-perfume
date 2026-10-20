@@ -141,6 +141,7 @@ function updateComparisonControls() {
     close.addEventListener('click', () => {
         comparisonProducts = [];
         updateComparisonControls();
+        document.dispatchEvent(new Event('comparison-updated'));
     });
     panel.append(close);
 }
@@ -224,6 +225,7 @@ document.getElementById('resultado')?.addEventListener('click', (event) => {
         }
         if (saveFavorites()) {
             updateFavoriteControls();
+            document.dispatchEvent(new Event('favorites-updated'));
             announceUtility(productIsFavorite(type, id) ? 'Produto salvo nos favoritos deste navegador.' : 'Produto removido dos favoritos.');
             if (showingFavoritesType === type && !productIsFavorite(type, id)) showFavorites(type);
         } else {
@@ -240,6 +242,7 @@ document.getElementById('resultado')?.addEventListener('click', (event) => {
             comparisonProducts.push({ type, id });
         }
         updateComparisonControls();
+        document.dispatchEvent(new Event('comparison-updated'));
         announceUtility(comparisonProducts.length === 2
             ? 'Comparação atualizada.'
             : 'Seleção da comparação atualizada.');
@@ -248,7 +251,42 @@ document.getElementById('resultado')?.addEventListener('click', (event) => {
     }
 });
 
-document.getElementById('resultado')?.addEventListener('error', (event) => {
+document.getElementById('dashboard-inventory-grid')?.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-product-action]');
+    if (!button) return;
+    const { type, productAction } = button.dataset;
+    const id = Number(button.dataset.id);
+    if (!getProduct(type, id)) return;
+    if (productAction === 'favorite') {
+        favoriteProducts = favoriteProducts.filter((item) => !(item.type === type && item.id === id));
+        if (saveFavorites()) {
+            updateFavoriteControls();
+            document.dispatchEvent(new Event('favorites-updated'));
+            announceUtility('Produto removido dos favoritos.');
+        } else {
+            announceUtility('Não foi possível atualizar os favoritos neste navegador.', true);
+        }
+    } else if (productAction === 'compare') {
+        if (productIsCompared(type, id)) {
+            comparisonProducts = comparisonProducts.filter((item) => !(item.type === type && item.id === id));
+        } else if (comparisonProducts.length >= 2) {
+            announceUtility('A comparação aceita até dois produtos. Remova um para escolher outro.', true);
+            return;
+        } else if (comparisonProducts.length && comparisonProducts[0].type !== type) {
+            announceUtility('Compare produtos da mesma categoria.', true);
+            return;
+        } else {
+            comparisonProducts.push({ type, id });
+        }
+        updateComparisonControls();
+        document.dispatchEvent(new Event('comparison-updated'));
+        announceUtility('Seleção da comparação atualizada.');
+    } else if (productAction === 'share') {
+        shareProduct(type, id);
+    }
+});
+
+document.addEventListener('error', (event) => {
     const image = event.target;
     if (!(image instanceof HTMLImageElement) || !image.hasAttribute('data-image-fallback')) return;
     image.hidden = true;

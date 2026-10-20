@@ -3,66 +3,421 @@
     "id": 1,
     "nome": "Flor de carambola",
     "imagem": "1WLc_ILZvgY31dXW-1CM5NZt_Mb6fTPW3",
-    "vibe": ["frutado", "tropical", "fresco", "citrico", "rosa"],
-    "clima": ["Primavera", "Verão"],
-    "periodo": ["dia"],
-    "intensidade": "Moderado",
+    "vibe": [
+      "frutado",
+      "tropical",
+      "fresco",
+      "citrico",
+      "rosa"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
     "marca": "Loccitane",
-    "duracao": 4
+    "duracao": 4,
+    "temperatura_ideal": "Acima de 25°C"
   },
   {
     "id": 2,
     "nome": "Intense",
     "imagem": "16nR9fzn5S6O2mgDrbyOmkxJIfsImTofn",
-    "vibe": ["frutado", "doce", "baunilha", "ambar", "amaderado"],
-    "clima": ["Inverno", "Outono", "Primavera"],
-    "periodo": ["dia", "noite"],
+    "vibe": [
+      "frutado",
+      "doce",
+      "baunilha",
+      "ambar",
+      "amaderado"
+    ],
+    "clima": [
+      "Inverno",
+      "Outono",
+      "Primavera"
+    ],
+    "periodo": [
+      "dia",
+      "noite"
+    ],
     "intensidade": "forte",
-    "marca": "boticario",
-    "duracao": 7
+    "marca": "Boticario",
+    "duracao": 7,
+    "temperatura_ideal": "Abaixo de 22°C"
   },
   {
     "id": 3,
     "nome": "Good girl hair mist",
     "imagem": "1FDtu6wusKLmjaX8NTh1O3fZ-BXSSHS48",
-    "vibe": ["floral branco", "doce", "citrico", "baunilha", "picante"],
-    "clima": ["Inverno", "Primavera", "Verão", "Outono"],
-    "periodo": ["dia", "noite"],
+    "vibe": [
+      "floral branco",
+      "doce",
+      "citrico",
+      "baunilha",
+      "picante"
+    ],
+    "clima": [
+      "Inverno",
+      "Primavera",
+      "Verão",
+      "Outono"
+    ],
+    "periodo": [
+      "dia",
+      "noite"
+    ],
     "intensidade": "forte",
     "marca": "Carolina Herreira",
-    "duracao": 6
+    "duracao": 6,
+    "temperatura_ideal": "Entre 15°C e 24°C"
   },
   {
     "id": 4,
     "nome": "Florata red blosson",
     "imagem": "1VNddag2p-gGCbRRj6525GXC3L_b-OYEV",
-    "vibe": ["frutado", "fresco", "floral branco", "atalcado", "doce"],
-    "clima": ["Primavera", "Verão"],
-    "periodo": ["dia"],
-    "intensidade": "Moderado",
-    "marca": "boticario",
-    "duracao": 5
+    "vibe": [
+      "frutado",
+      "fresco",
+      "floral branco",
+      "atalcado",
+      "doce"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Boticario",
+    "duracao": 5,
+    "temperatura_ideal": "Acima de 22°C"
   },
   {
     "id": 5,
     "nome": "Hello Kitty estilosa",
     "imagem": "1huc8p45DrpiWbgnZmyqMZiwuG31oyRfk",
-    "vibe": ["frutado", "doce", "caramelo", "amendoa", "floral"],
-    "clima": ["Primavera"],
-    "periodo": ["dia"],
-    "intensidade": "Moderado",
-    "marca": "jequiti",
-    "duracao": 4
+    "vibe": [
+      "frutado",
+      "doce",
+      "caramelo",
+      "amendoa",
+      "floral"
+    ],
+    "clima": [
+      "Primavera"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Jequiti",
+    "duracao": 4,
+    "temperatura_ideal": "Entre 18°C e 26°C"
   },
   {
     "id": 6,
     "nome": "Cuide se bem morango e leite",
     "imagem": "1f4mh_9Vc_7Zab1IH5NCHpWSkgm84M3IW",
-    "vibe": ["frutado", "doce", "baunilha", "verde", "fresco"],
-    "clima": ["Primavera"],
-    "periodo": ["dia"],
+    "vibe": [
+      "frutado",
+      "doce",
+      "baunilha",
+      "verde",
+      "fresco"
+    ],
+    "clima": [
+      "Primavera"
+    ],
+    "periodo": [
+      "dia"
+    ],
     "intensidade": "moderado",
-    "marca": "boticario",
-    "duracao": 5
+    "marca": "Boticario",
+    "duracao": 5,
+    "temperatura_ideal": "Entre 20°C e 27°C"
+  },
+  {
+    "id": 7,
+    "nome": "Ekos Amazô",
+    "imagem": "1DvMY7_sIalufj6dgm4vkgiiU8FeGjyi0",
+    "vibe": [
+      "frutado",
+      "verde",
+      "doce",
+      "amaderado",
+      "atalcado"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Natura",
+    "duracao": 4,
+    "temperatura_ideal": "Acima de 24°C"
+  },
+  {
+    "id": 8,
+    "nome": "Compotas corporais romã",
+    "imagem": "1i-G0QyUPGhiDXNJ8yBUqBxiZ-YFhu2Rl1",
+    "vibe": [
+      "frutado",
+      "amaderado",
+      "floral branco",
+      "fresco",
+      "pimenta fresca"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Loccitane",
+    "duracao": 4,
+    "temperatura_ideal": "Acima de 23°C"
+  },
+  {
+    "id": 9,
+    "nome": "Her Code Clímax",
+    "imagem": "1XyoCz2Uleg4zWypGj5zE125Ogy1NAUcD",
+    "vibe": [
+      "pimenta quente",
+      "amaderado",
+      "chocolate",
+      "floral",
+      "frutado"
+    ],
+    "clima": [
+      "Inverno",
+      "Outono"
+    ],
+    "periodo": [
+      "noite"
+    ],
+    "intensidade": "forte",
+    "marca": "Boticario",
+    "duracao": 7,
+    "temperatura_ideal": "Abaixo de 20°C"
+  },
+  {
+    "id": 10,
+    "nome": "Lily Lumière",
+    "imagem": "1NZ2RzGBABgQSL1PkjXXPv3Mguc5lFpSr",
+    "vibe": [
+      "citrico",
+      "floral branco",
+      "doce",
+      "amaderado",
+      "baunilha"
+    ],
+    "clima": [
+      "Inverno",
+      "Outono",
+      "Primavera"
+    ],
+    "periodo": [
+      "noite"
+    ],
+    "intensidade": "forte",
+    "marca": "Boticario",
+    "duracao": 7,
+    "temperatura_ideal": "Abaixo de 24°C"
+  },
+  {
+    "id": 11,
+    "nome": "Egeo Choc High",
+    "imagem": "1QVJg9fMLjt5tO27lf22ghe8QUli8V9NA",
+    "vibe": [
+      "doce",
+      "frutado",
+      "chocolate",
+      "pimenta quente",
+      "lacteo"
+    ],
+    "clima": [
+      "Inverno",
+      "Outono"
+    ],
+    "periodo": [
+      "noite"
+    ],
+    "intensidade": "moderado",
+    "marca": "Boticario",
+    "duracao": 6,
+    "temperatura_ideal": "Abaixo de 18°C"
+  },
+  {
+    "id": 12,
+    "nome": "Celebre Agora",
+    "imagem": "18q0sOKmrvSaK4N4AxymR-opYIR44c0T-",
+    "vibe": [
+      "citrico",
+      "fresco",
+      "floral",
+      "doce",
+      "aquatico"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Boticario",
+    "duracao": 5,
+    "temperatura_ideal": "Acima de 25°C"
+  },
+  {
+    "id": 13,
+    "nome": "Sweet Thooth",
+    "imagem": "1CyxENyc_8Dy6hNblTNv61R8DssjJRmUF",
+    "vibe": [
+      "doce",
+      "baunilha",
+      "atalcado",
+      "musk",
+      "pimenta quente"
+    ],
+    "clima": [
+      "Primavera",
+      "Outono",
+      "Inverno"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Sabrina Carpenter",
+    "duracao": 5,
+    "temperatura_ideal": "Entre 16°C e 23°C"
+  },
+  {
+    "id": 14,
+    "nome": "Sweet Thooth Caramel Dream",
+    "imagem": "1l9YKw1Lreo-u8p8spzvmHD8hxB2WDriZ",
+    "vibe": [
+      "doce",
+      "caramelo",
+      "baunilha",
+      "pimenta quente",
+      "atalcado"
+    ],
+    "clima": [
+      "Outono",
+      "Inverno"
+    ],
+    "periodo": [
+      "dia",
+      "noite"
+    ],
+    "intensidade": "moderado",
+    "marca": "Sabrina Carpenter",
+    "duracao": 5,
+    "temperatura_ideal": "Abaixo de 20°C"
+  },
+  {
+    "id": 15,
+    "nome": "Sweet Thooth Me Expressso",
+    "imagem": "1Gzl7ZqtV2ucdzOfU25pSNASn4vv_GLJA",
+    "vibe": [
+      "doce",
+      "cafe",
+      "floral branco",
+      "lacteo",
+      "caramelo"
+    ],
+    "clima": [
+      "Outono",
+      "Inverno"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Sabrina Carpenter",
+    "duracao": 5,
+    "temperatura_ideal": "Abaixo de 21°C"
+  },
+  {
+    "id": 16,
+    "nome": "Sweet Thooth Cherry Baby",
+    "imagem": "1jY1gq0aY0fppapJW0Zwa5kdYZ3iMVhTJ",
+    "vibe": [
+      "doce",
+      "cereja",
+      "frutado",
+      "musk",
+      "ambar"
+    ],
+    "clima": [
+      "Outono",
+      "Inverno"
+    ],
+    "periodo": [
+      "noite"
+    ],
+    "intensidade": "moderado",
+    "marca": "Sabrina Carpenter",
+    "duracao": 5,
+    "temperatura_ideal": "Abaixo de 22°C"
+  },
+  {
+    "id": 17,
+    "nome": "Sweet Thooth Lemon Pie",
+    "imagem": "1yT51-U5ASVbh-seJlYsFu1vonqSJ2yDR",
+    "vibe": [
+      "doce",
+      "baunilha",
+      "citrico",
+      "atalcado",
+      "lacteo"
+    ],
+    "clima": [
+      "Primavera",
+      "Verão"
+    ],
+    "periodo": [
+      "dia"
+    ],
+    "intensidade": "moderado",
+    "marca": "Sabrina Carpenter",
+    "duracao": 5,
+    "temperatura_ideal": "Entre 20°C e 28°C"
+  },
+  {
+    "id": 18,
+    "nome": "Cheirosa '62 Brazilian Crush",
+    "imagem": "",
+    "vibe": [
+      "gourmand",
+      "doce",
+      "pistache",
+      "caramelo",
+      "solar"
+    ],
+    "clima": [
+      "Verão",
+      "Primavera"
+    ],
+    "periodo": [
+      "dia",
+      "noite"
+    ],
+    "intensidade": "marcante",
+    "marca": "Sol de Janeiro",
+    "duracao": 6,
+    "temperatura_ideal": "Entre 15°C e 22°C"
   }
 ]

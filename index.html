@@ -15,24 +15,127 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Tela inicial com splash screen -->
-    <header id="tela-inicial">
-        <div class="boas-vindas">
-            <div class="brand-lockup" aria-label="Meu Consultor Pessoal">
-                <span class="brand-mark" aria-hidden="true">M</span>
-                <span class="brand-name">MEU CONSULTOR PESSOAL</span>
-            </div>
-            <h1>O que você busca hoje?</h1>
-            <p>Descubra sugestões de fragrâncias e acessórios que combinam com o seu momento.</p>
-            <p class="welcome-caption">Uma curadoria simples, feita a partir das suas preferências.</p>
-            <nav class="botoes-home" aria-label="Escolher categoria">
-                <button type="button" data-open-category="perfumes" class="btn-home"><span>🌸 Perfumes</span><small>Encontre sua próxima fragrância</small></button>
-                <button type="button" data-open-category="colares" class="btn-home btn-colar-home"><span>📿 Colares</span><small>Harmonize com seu decote</small></button>
-                <button type="button" data-open-category="cremes" class="btn-home"><span>🧴 Cremes</span><small>Explore texturas e aromas</small></button>
+    <header id="tela-inicial" class="dashboard-screen">
+        <div class="dashboard-topbar">
+            <a class="dashboard-brand" href="#" data-dashboard-action="home" aria-label="Meu Consultor Pessoal, início">
+                <span class="dashboard-brand-mark" aria-hidden="true">M</span>
+                <span>Meu Consultor <small>Pessoal</small></span>
+            </a>
+            <nav class="dashboard-nav" aria-label="Navegação principal">
+                <button type="button" class="dashboard-nav-item active" data-dashboard-action="home">Dashboard</button>
+                <button type="button" class="dashboard-nav-item" data-dashboard-action="manage">Gerenciar</button>
+                <button type="button" class="dashboard-nav-item" data-dashboard-action="compare">Comparações</button>
+                <button type="button" class="dashboard-nav-item" data-dashboard-action="favorites">Favoritos</button>
             </nav>
-            <p class="welcome-trust">Sem cadastro. Suas preferências permanecem no seu dispositivo.</p>
         </div>
+        <section class="dashboard-panel" aria-labelledby="dashboard-title">
+            <aside class="dashboard-weather-card" aria-label="Clima local">
+                <div class="dashboard-weather-meta">
+                    <span id="dashboard-location">São Paulo, Brasil</span>
+                    <time id="dashboard-date"></time>
+                </div>
+                <div class="dashboard-weather-temperature">
+                    <span class="dashboard-weather-icon" aria-hidden="true">☀</span>
+                    <div>
+                        <strong id="dashboard-temperature">--°C</strong>
+                        <span>Temperatura atual</span>
+                    </div>
+                </div>
+                <p id="dashboard-weather-status" class="dashboard-weather-status" role="status" aria-live="polite">Consultando o clima...</p>
+                <blockquote id="dashboard-weather-message" aria-live="polite">Consultando o clima para preparar uma dica para você...</blockquote>
+            </aside>
+            <div class="dashboard-combination">
+                <div class="dashboard-combination-heading">
+                    <div>
+                        <span class="dashboard-eyebrow">INSPIRAÇÃO DIÁRIA</span>
+                        <h1 id="dashboard-title">Sua combinação do dia</h1>
+                        <p>Sugestões pelo período do dia e pela temperatura atual, conforme os dados cadastrados.</p>
+                    </div>
+                    <div class="dashboard-actions" aria-label="Ações do dashboard">
+                        <button type="button" id="dashboard-dark-mode-toggle" class="dashboard-icon-button" aria-label="Alternar tema" title="Alternar tema">◐</button>
+                        <button type="button" class="dashboard-icon-button" data-dashboard-action="share" aria-label="Compartilhar o site" title="Compartilhar">↗</button>
+                        <button type="button" class="dashboard-icon-button" data-dashboard-action="favorites" aria-label="Ver favoritos" title="Favoritos">♡</button>
+                    </div>
+                </div>
+                <div id="daily-combination-grid" class="daily-combination-grid" aria-live="polite">
+                    <p class="dashboard-loading">Preparando suas sugestões...</p>
+                </div>
+                <p id="dashboard-recommendation-context" class="dashboard-privacy-note" aria-live="polite"></p>
+                <p id="dashboard-action-status" class="dashboard-action-status" role="status" aria-live="polite"></p>
+                <p class="dashboard-privacy-note">Sem cadastro. Seus favoritos permanecem neste dispositivo.</p>
+            </div>
+        </section>
     </header>
+
+    <section class="dashboard-lower dashboard-screen" aria-labelledby="dashboard-inventory-title">
+        <div class="dashboard-inventory-heading">
+            <div>
+                <h2 id="dashboard-inventory-title">Seu inventário</h2>
+                <p id="dashboard-inventory-count">Seus favoritos ficam salvos apenas neste dispositivo.</p>
+            </div>
+            <div class="dashboard-inventory-tools">
+                <label class="dashboard-inventory-search">
+                    <span class="visually-hidden">Buscar no inventário</span>
+                    <input id="dashboard-inventory-search" type="search" placeholder="Buscar nome, nota ou componente..." autocomplete="off">
+                </label>
+                <label class="dashboard-inventory-filter">
+                    <span class="visually-hidden">Filtrar categoria do inventário</span>
+                    <select id="dashboard-inventory-filter">
+                        <option value="todos">Todas as categorias</option>
+                        <option value="perfume">Perfumes</option>
+                        <option value="creme">Cremes</option>
+                        <option value="acessorio">Acessórios</option>
+                    </select>
+                </label>
+                <button type="button" class="dashboard-add-button" data-dashboard-action="add-product">＋ Novo</button>
+            </div>
+        </div>
+        <div id="dashboard-inventory-grid" class="dashboard-inventory-grid" aria-live="polite">
+            <p class="dashboard-loading">Preparando seu inventário...</p>
+        </div>
+
+        <section class="dashboard-compare-callout" aria-labelledby="dashboard-compare-title">
+            <div>
+                <span class="dashboard-eyebrow">COMPARE COM CALMA</span>
+                <h2 id="dashboard-compare-title">Escolha sem dúvidas</h2>
+                <p>Compare lado a lado até dois produtos da mesma categoria e veja os detalhes que ajudam na sua escolha.</p>
+                <button type="button" class="dashboard-compare-start" data-dashboard-action="compare">Iniciar comparação</button>
+            </div>
+            <div class="dashboard-summary">
+                <div class="dashboard-summary-item">
+                    <span class="dashboard-summary-icon" aria-hidden="true">⇄</span>
+                    <span><strong id="dashboard-comparison-count">0/2 produtos</strong><small>Na sua comparação</small></span>
+                </div>
+                <div class="dashboard-summary-item">
+                    <span class="dashboard-summary-icon suggestions" aria-hidden="true">✓</span>
+                    <span><strong id="dashboard-suggestion-count">0 sugestões</strong><small>Perfume, creme e acessório</small></span>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <footer class="dashboard-footer dashboard-screen">
+        <div class="dashboard-footer-main">
+            <div>
+                <a class="dashboard-footer-brand" href="#" data-dashboard-action="home">Meu Consultor Pessoal</a>
+                <p>Escolhas para o seu dia, com sugestões guiadas pelo clima e pelos seus favoritos.</p>
+            </div>
+            <div>
+                <strong>Plataforma</strong>
+                <button type="button" data-dashboard-action="home">Ver sugestões</button>
+                <button type="button" data-dashboard-action="favorites">Meus favoritos</button>
+            </div>
+            <div>
+                <strong>Suporte</strong>
+                <a href="https://github.com/Aline595/bot-perfume" target="_blank" rel="noopener noreferrer">Ajuda e contato</a>
+                <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Dados do clima</a>
+            </div>
+        </div>
+        <div class="dashboard-footer-bottom">
+            <span>© <span id="dashboard-year"></span> Meu Consultor Pessoal</span>
+            <span>Seus favoritos são armazenados neste dispositivo.</span>
+        </div>
+    </footer>
 
     <!-- Container principal da aplicação -->
     <main class="container app-hidden">
@@ -128,7 +231,7 @@
             </button>
             <button id="favoritos-perfumes" type="button" class="secondary-action favorites-toggle" data-show-favorites="perfume">♡ Ver favoritos</button>
 
-            <details class="perfume-admin">
+            <details class="perfume-admin" id="perfume-admin-section">
                 <summary>⚙️ Gerenciar perfumes do Gist</summary>
                 <p>Área restrita para administração. As alterações são salvas diretamente no catálogo compartilhado do GitHub Gist.</p>
                 <label for="perfume-admin-password">Senha de administração:</label>
@@ -265,7 +368,7 @@
             </div>
             <button id="favoritos-cremes" type="button" class="secondary-action favorites-toggle" data-show-favorites="creme">♡ Ver favoritos</button>
 
-            <details class="perfume-admin creme-admin">
+            <details class="perfume-admin creme-admin" id="creme-admin-section">
                 <summary>⚙️ Gerenciar catálogo de cremes</summary>
                 <p>Área administrativa protegida. As alterações são salvas no Gist compartilhado dos cremes.</p>
                 <label for="creme-admin-password">Senha de administração:</label>

@@ -123,8 +123,10 @@ async function carregarDados() {
         const respostaDecotes = await fetch("https://gist.githubusercontent.com/Aline595/5ac2d0a8490669152acf0d2ea5899620/raw/");
         decotes = await respostaDecotes.json();
         popularSelectBlusas(decotes);
+        document.dispatchEvent(new Event('decotes-carregados'));
     } catch (erro) {
         console.warn("⚠️ Erro nos decotes:", erro);
+        document.dispatchEvent(new Event('decotes-carregados'));
     }
 
     // 3. Carregar catálogo de cremes
@@ -132,6 +134,7 @@ async function carregarDados() {
 
     definirEstacaoInicial();
     exibirTemperaturaAtual(); // Exibir temperatura ao carregar
+    document.dispatchEvent(new Event('dashboard-catalogos-prontos'));
 }
 
 async function carregarCremes() {

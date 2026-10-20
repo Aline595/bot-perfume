@@ -13,10 +13,12 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 - **Temperatura indisponível**: Se o serviço de clima falhar, a tela avisa e usa 22°C como referência para os filtros que dependem da temperatura.
 - **Consulta de Colares/Decotes**: Filtre por tipo de blusa (select populado dinamicamente do JSON) para recomendações de colar, brinco e penteado ideais, com imagens específicas por id (.png).
 - **Consulta de Cremes**: Filtre opcionalmente por faixa de temperatura, estação, período e fragrância/notas; os resultados explicam por que cada creme combina e oferecem uma opção para ampliar a busca.
-- **Clima por cidade ou localização**: São Paulo é usado como padrão; também é possível buscar uma cidade ou solicitar a localização do dispositivo. A localização é opcional e não fica salva pelo site.
+- **Clima por cidade ou localização**: São Paulo é usado como padrão; também é possível buscar uma cidade ou solicitar a localização do dispositivo. A dica do dashboard varia com a temperatura, chuva e umidade consultadas. A localização é opcional e não fica salva pelo site.
 - **Feedback dos catálogos**: A interface mostra a origem e o horário de carregamento, explica falhas de rede/CORS e permite tentar novamente.
 - **Favoritos, comparação e compartilhamento**: Salve produtos no navegador, compare até dois itens da mesma categoria e compartilhe um link direto para uma recomendação.
 - **Transparência**: Consulte como as recomendações funcionam, quais dados meteorológicos são consultados e onde os favoritos são armazenados.
+- **Dashboard inicial**: Exibe temperatura e sugestões diárias de perfume e creme compatíveis com o período local (dia/noite) e, quando há temperatura ideal cadastrada, com a faixa atual; também sugere um acessório. O inventário prioriza favoritos, produtos criados ou editados nos últimos 30 dias e alternativas compatíveis com o clima, equilibra perfumes, cremes e acessórios, permite buscar também por notas/componentes e filtrar categoria, e mostra até quatro itens.
+- **Recência do inventário**: O backend registra `created_at` e `updated_at` em novos produtos, edições e importações. Produtos antigos sem essas datas passam a ter recência rastreável quando forem editados ou importados novamente.
 - **Recomendação Aleatória**: Botão "Me Surpreenda" para sugestões inesperadas.
 - **CRUD de Perfumes e Cremes**: Cadastre, edite e exclua os dois catálogos nos respectivos Gists usando uma API protegida.
 - **Manutenção dos catálogos**: pesquise, valide, exporte backups JSON e importe arquivos validados com confirmação antes de substituir o catálogo.
