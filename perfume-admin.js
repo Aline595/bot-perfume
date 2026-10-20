@@ -16,12 +16,7 @@
     let editingId = null;
 
     function getApiBase() {
-        const configured = window.PERFUMES_API_URL?.trim();
-        if (configured) return configured.replace(/\/+$/, '');
-        if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
-            return window.location.origin;
-        }
-        return null;
+        return CatalogAdmin.getApiBase();
     }
 
     function showStatus(message, isError = false) {
@@ -29,58 +24,24 @@
         status.classList.toggle('error', isError);
     }
 
-    passwordToggle.addEventListener('click', () => {
-        const isVisible = password.type === 'text';
-        password.type = isVisible ? 'password' : 'text';
-        passwordToggle.textContent = isVisible ? 'Mostrar' : 'Ocultar';
-        passwordToggle.setAttribute('aria-pressed', String(!isVisible));
-    });
+    CatalogAdmin.bindPasswordToggle(password, passwordToggle);
     searchInput.addEventListener('input', updateList);
 
     function updateList() {
-        list.replaceChildren();
-        const catalogLoaded = perfumesCarregados;
-        validateButton.disabled = !catalogLoaded;
-        exportButton.disabled = !catalogLoaded;
-        importButton.disabled = !catalogLoaded;
-        const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
-        const filteredPerfumes = perfumes.filter((perfume) =>
-            `${perfume.nome} ${perfume.marca}`.toLocaleLowerCase('pt-BR').includes(query)
-        );
-        count.textContent = query
-            ? `${filteredPerfumes.length} de ${perfumes.length} perfumes encontrados.`
-            : `${perfumes.length} ${perfumes.length === 1 ? 'perfume cadastrado' : 'perfumes cadastrados'}.`;
-
-        if (filteredPerfumes.length === 0) {
-            const emptyItem = document.createElement('li');
-            emptyItem.className = 'perfume-admin-empty';
-            emptyItem.textContent = query
-                ? 'Nenhum perfume corresponde à busca. Tente outro nome ou marca.'
-                : 'Nenhum perfume cadastrado.';
-            list.append(emptyItem);
-            return;
-        }
-
-        filteredPerfumes.forEach((perfume) => {
-            const item = document.createElement('li');
-            const description = document.createElement('span');
-            description.textContent = `#${perfume.id} — ${perfume.nome} (${perfume.marca})`;
-
-            const actions = document.createElement('div');
-            actions.className = 'perfume-admin-item-actions';
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.dataset.action = 'edit';
-            editButton.dataset.id = String(perfume.id);
-            editButton.textContent = 'Editar';
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.dataset.action = 'delete';
-            deleteButton.dataset.id = String(perfume.id);
-            deleteButton.textContent = 'Excluir';
-            actions.append(editButton, deleteButton);
-            item.append(description, actions);
-            list.append(item);
+        CatalogAdmin.renderList({
+            list,
+            count,
+            items: perfumes,
+            query: searchInput.value,
+            controls: [validateButton, exportButton, importButton],
+            isLoaded: perfumesCarregados,
+            getSearchText: (perfume) => `${perfume.nome} ${perfume.marca}`,
+            getDescription: (perfume) => `#${perfume.id} — ${perfume.nome} (${perfume.marca})`,
+            formatCount: (matches, total, hasQuery) => hasQuery
+                ? `${matches} de ${total} perfumes encontrados.`
+                : `${total} ${total === 1 ? 'perfume cadastrado' : 'perfumes cadastrados'}.`,
+            emptyMessage: 'Nenhum perfume cadastrado.',
+            noResultsMessage: 'Nenhum perfume corresponde à busca. Tente outro nome ou marca.'
         });
     }
 
@@ -150,28 +111,25 @@
     validateButton.addEventListener('click', () => {
         const errors = validateCatalog();
         if (errors.length) {
-            maintenanceStatus.textContent = `Catálogo inválido: ${errors.join('; ')}. Corrija os problemas antes de salvar alterações.`;
-            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+            CatalogAdmin.setMaintenanceStatus(
+                maintenanceStatus,
+                `Catálogo inválido: ${errors.join('; ')}. Corrija os problemas antes de salvar alterações.`,
+                true
+            );
             return;
         }
-        maintenanceStatus.textContent = `Catálogo válido: ${perfumes.length} ${perfumes.length === 1 ? 'perfume conferido' : 'perfumes conferidos'}.`;
-        maintenanceStatus.className = 'perfume-admin-maintenance-status success';
+        CatalogAdmin.setMaintenanceStatus(
+            maintenanceStatus,
+            `Catálogo válido: ${perfumes.length} ${perfumes.length === 1 ? 'perfume conferido' : 'perfumes conferidos'}.`
+        );
     });
 
     exportButton.addEventListener('click', () => {
-        const backup = new Blob([`${JSON.stringify(perfumes, null, 2)}\n`], {
-            type: 'application/json;charset=utf-8'
-        });
-        const downloadUrl = URL.createObjectURL(backup);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `perfumes-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        document.body.append(link);
-        link.click();
-        link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-        maintenanceStatus.textContent = `Cópia JSON exportada com ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`;
-        maintenanceStatus.className = 'perfume-admin-maintenance-status success';
+        CatalogAdmin.downloadBackup(perfumes, 'perfumes');
+        CatalogAdmin.setMaintenanceStatus(
+            maintenanceStatus,
+            `Cópia JSON exportada com ${perfumes.length} ${perfumes.length === 1 ? 'perfume' : 'perfumes'}.`
+        );
     });
 
     importButton.addEventListener('click', () => importFile.click());
@@ -179,17 +137,8 @@
         const file = importFile.files?.[0];
         importFile.value = '';
         if (!file) return;
-        if (file.size > 1024 * 1024) {
-            maintenanceStatus.textContent = 'O arquivo excede o limite de 1 MB.';
-            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
-            return;
-        }
-
         try {
-            const backup = JSON.parse(await file.text());
-            if (!Array.isArray(backup)) throw new Error('O arquivo precisa conter uma lista JSON de perfumes.');
-            const errors = validateCatalog(backup);
-            if (errors.length) throw new Error(`Backup inválido: ${errors.join('; ')}.`);
+            const backup = await CatalogAdmin.parseBackupFile(file, 'perfumes', validateCatalog);
             if (!window.confirm(`Importar ${backup.length} perfumes e substituir todo o catálogo atual? Esta alteração será compartilhada com todos os usuários.`)) return;
 
             const apiBase = getApiBase();
@@ -202,8 +151,11 @@
             maintenanceStatus.className = 'perfume-admin-maintenance-status success';
             showStatus('Catálogo de perfumes restaurado do backup.');
         } catch (error) {
-            maintenanceStatus.textContent = error.message || 'Não foi possível importar o backup.';
-            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+            CatalogAdmin.setMaintenanceStatus(
+                maintenanceStatus,
+                error.message || 'Não foi possível importar o backup.',
+                true
+            );
         } finally {
             importButton.disabled = !perfumesCarregados;
         }
@@ -254,29 +206,7 @@
     }
 
     async function sendMutation(url, method, body) {
-        const adminPassword = password.value;
-        if (!adminPassword) throw new Error('Informe a senha de administração.');
-
-        let response;
-        try {
-            response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Admin-Password': adminPassword
-                },
-                body: body ? JSON.stringify(body) : undefined
-            });
-        } catch {
-            throw new Error('Não foi possível conectar ao backend. Verifique se o serviço está ativo e se CORS permite a origem deste site.');
-        }
-        let result;
-        try {
-            result = await response.json();
-        } catch {
-            throw new Error(`O backend respondeu em formato inesperado (HTTP ${response.status}). Verifique os logs do serviço.`);
-        }
-        if (!response.ok) throw new Error(result.error || `Erro HTTP ${response.status}.`);
+        const result = await CatalogAdmin.sendMutation(url, method, body, password.value);
         perfumes = result.perfumes;
         document.dispatchEvent(new Event('perfumes-carregados'));
         updateList();

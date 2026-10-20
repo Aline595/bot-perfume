@@ -106,6 +106,7 @@ document.addEventListener('perfumes-carregados', () => {
 });
 
 document.addEventListener('cremes-carregados', () => {
+    cremesCarregados = true;
     cremesCarregadosEm = new Date();
     const status = document.getElementById('creme-load-status');
     if (!status || !Array.isArray(cremes)) return;
@@ -141,6 +142,7 @@ async function carregarCremes() {
         document.getElementById('surpreender-creme')
     ];
 
+    cremesCarregados = false;
     searchButtons.forEach((button) => {
         if (button) button.disabled = true;
     });
@@ -161,6 +163,7 @@ async function carregarCremes() {
             throw new Error('A resposta não contém uma lista válida de cremes.');
         }
         cremes = dadosCremes;
+        cremesCarregados = true;
         cremesCarregadosEm = new Date();
         document.dispatchEvent(new Event('cremes-carregados'));
         searchButtons.forEach((button) => {
@@ -173,6 +176,7 @@ async function carregarCremes() {
                 : 'perfume-load-status';
         }
     } catch (erro) {
+        cremesCarregados = false;
         console.error('Erro ao carregar catálogo de cremes:', erro);
         document.dispatchEvent(new Event('cremes-carregamento-falhou'));
         if (status) {

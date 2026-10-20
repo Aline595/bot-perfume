@@ -4,7 +4,7 @@ function buscarColares() {
     const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';
 
     if (decotes.length === 0) {
-        divResultado.innerHTML = "<p style='color: #999;' role='alert'>❌ Dados de decotes não carregados.</p>";
+        divResultado.innerHTML = '<p class="necklace-status-error" role="alert">❌ Dados de decotes não carregados.</p>';
         return;
     }
 
@@ -27,7 +27,7 @@ function surpreenderColares() {
     const tipoBlusa = document.getElementById('tipo-blusa')?.value || 'todos';
 
     if (decotes.length === 0) {
-        divResultado.innerHTML = "<p style='color: #999;' role='alert'>❌ Dados de decotes não carregados.</p>";
+        divResultado.innerHTML = '<p class="necklace-status-error" role="alert">❌ Dados de decotes não carregados.</p>';
         return;
     }
 
@@ -38,7 +38,7 @@ function surpreenderColares() {
     });
 
     if (candidatos.length === 0) {
-        divResultado.innerHTML = "<p style='color: #999;' role='alert'>❌ Nenhum colar disponível que esteja no guarda-roupa.</p>";
+        divResultado.innerHTML = '<p class="necklace-status-error" role="alert">❌ Nenhum colar disponível que esteja no guarda-roupa.</p>';
         return;
     }
 

@@ -16,12 +16,7 @@
     let editingId = null;
 
     function apiBase() {
-        const configured = window.PERFUMES_API_URL?.trim();
-        if (configured) return configured.replace(/\/+$/, '');
-        if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
-            return window.location.origin;
-        }
-        return null;
+        return CatalogAdmin.getApiBase();
     }
 
     function setStatus(message, isError = false) {
@@ -30,45 +25,20 @@
     }
 
     function updateList() {
-        list.replaceChildren();
-        const loaded = cremesCarregados;
-        validateButton.disabled = !loaded;
-        exportButton.disabled = !loaded;
-        importButton.disabled = !loaded;
-        const query = searchInput.value.trim().toLocaleLowerCase('pt-BR');
-        const matches = cremes.filter((cream) =>
-            `${cream.nome || ''} ${cream.marca || ''}`.toLocaleLowerCase('pt-BR').includes(query)
-        );
-        count.textContent = query
-            ? `${matches.length} de ${cremes.length} cremes encontrados.`
-            : `${cremes.length} ${cremes.length === 1 ? 'creme cadastrado' : 'cremes cadastrados'}.`;
-
-        if (!matches.length) {
-            const empty = document.createElement('li');
-            empty.className = 'perfume-admin-empty';
-            empty.textContent = query
-                ? 'Nenhum creme corresponde à busca. Tente outro nome ou marca.'
-                : 'Nenhum creme cadastrado.';
-            list.append(empty);
-            return;
-        }
-
-        matches.forEach((cream) => {
-            const item = document.createElement('li');
-            const description = document.createElement('span');
-            description.textContent = `#${cream.id} — ${cream.nome || 'Sem nome'} (${cream.marca || 'Sem marca'})`;
-            const actions = document.createElement('div');
-            actions.className = 'perfume-admin-item-actions';
-            for (const [action, label] of [['edit', 'Editar'], ['delete', 'Excluir']]) {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.dataset.action = action;
-                button.dataset.id = String(cream.id);
-                button.textContent = label;
-                actions.append(button);
-            }
-            item.append(description, actions);
-            list.append(item);
+        CatalogAdmin.renderList({
+            list,
+            count,
+            items: cremes,
+            query: searchInput.value,
+            controls: [validateButton, exportButton, importButton],
+            isLoaded: cremesCarregados,
+            getSearchText: (cream) => `${cream.nome || ''} ${cream.marca || ''}`,
+            getDescription: (cream) => `#${cream.id} — ${cream.nome || 'Sem nome'} (${cream.marca || 'Sem marca'})`,
+            formatCount: (matches, total, hasQuery) => hasQuery
+                ? `${matches} de ${total} cremes encontrados.`
+                : `${total} ${total === 1 ? 'creme cadastrado' : 'cremes cadastrados'}.`,
+            emptyMessage: 'Nenhum creme cadastrado.',
+            noResultsMessage: 'Nenhum creme corresponde à busca. Tente outro nome ou marca.'
         });
     }
 
@@ -187,60 +157,30 @@
     }
 
     async function mutate(url, method, body) {
-        if (!password.value) throw new Error('Informe a senha de administração.');
-        let response;
-        try {
-            response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Admin-Password': password.value
-                },
-                body: body ? JSON.stringify(body) : undefined
-            });
-        } catch {
-            throw new Error('Não foi possível conectar ao backend. Verifique se o serviço está ativo e se CORS permite a origem deste site.');
-        }
-        let result;
-        try {
-            result = await response.json();
-        } catch {
-            throw new Error(`O backend respondeu em formato inesperado (HTTP ${response.status}). Verifique os logs do serviço.`);
-        }
-        if (!response.ok) throw new Error(result.error || `Erro HTTP ${response.status}.`);
+        const result = await CatalogAdmin.sendMutation(url, method, body, password.value);
         cremes = result.cremes;
         document.dispatchEvent(new Event('cremes-carregados'));
         updateList();
     }
 
-    passwordToggle.addEventListener('click', () => {
-        const visible = password.type === 'text';
-        password.type = visible ? 'password' : 'text';
-        passwordToggle.textContent = visible ? 'Mostrar' : 'Ocultar';
-        passwordToggle.setAttribute('aria-pressed', String(!visible));
-    });
+    CatalogAdmin.bindPasswordToggle(password, passwordToggle);
     searchInput.addEventListener('input', updateList);
     validateButton.addEventListener('click', () => {
         const errors = validateCatalog();
-        maintenanceStatus.className = `perfume-admin-maintenance-status ${errors.length ? 'error' : 'success'}`;
-        maintenanceStatus.textContent = errors.length
-            ? `Catálogo inválido: ${errors.join('; ')}.`
-            : `Catálogo válido: ${cremes.length} ${cremes.length === 1 ? 'creme conferido' : 'cremes conferidos'}.`;
+        CatalogAdmin.setMaintenanceStatus(
+            maintenanceStatus,
+            errors.length
+                ? `Catálogo inválido: ${errors.join('; ')}.`
+                : `Catálogo válido: ${cremes.length} ${cremes.length === 1 ? 'creme conferido' : 'cremes conferidos'}.`,
+            errors.length > 0
+        );
     });
     exportButton.addEventListener('click', () => {
-        const backup = new Blob([`${JSON.stringify(cremes, null, 2)}\n`], {
-            type: 'application/json;charset=utf-8'
-        });
-        const downloadUrl = URL.createObjectURL(backup);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `cremes-backup-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-        document.body.append(link);
-        link.click();
-        link.remove();
-        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
-        maintenanceStatus.className = 'perfume-admin-maintenance-status success';
-        maintenanceStatus.textContent = `Cópia JSON exportada com ${cremes.length} ${cremes.length === 1 ? 'creme' : 'cremes'}.`;
+        CatalogAdmin.downloadBackup(cremes, 'cremes');
+        CatalogAdmin.setMaintenanceStatus(
+            maintenanceStatus,
+            `Cópia JSON exportada com ${cremes.length} ${cremes.length === 1 ? 'creme' : 'cremes'}.`
+        );
     });
 
     importButton.addEventListener('click', () => importFile.click());
@@ -248,17 +188,12 @@
         const file = importFile.files?.[0];
         importFile.value = '';
         if (!file) return;
-        if (file.size > 1024 * 1024) {
-            maintenanceStatus.textContent = 'O arquivo excede o limite de 1 MB.';
-            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
-            return;
-        }
-
         try {
-            const backup = JSON.parse(await file.text());
-            if (!Array.isArray(backup)) throw new Error('O arquivo precisa conter uma lista JSON de cremes.');
-            const errors = validateCatalog(backup, true);
-            if (errors.length) throw new Error(`Backup inválido: ${errors.join('; ')}.`);
+            const backup = await CatalogAdmin.parseBackupFile(
+                file,
+                'cremes',
+                (catalog) => validateCatalog(catalog, true)
+            );
             if (!window.confirm(`Importar ${backup.length} cremes e substituir todo o catálogo atual? Esta alteração será compartilhada com todos os usuários.`)) return;
 
             const base = apiBase();
@@ -271,8 +206,11 @@
             maintenanceStatus.textContent = `Backup importado: ${cremes.length} ${cremes.length === 1 ? 'creme restaurado' : 'cremes restaurados'}.`;
             setStatus('Catálogo de cremes restaurado do backup.');
         } catch (error) {
-            maintenanceStatus.textContent = error.message || 'Não foi possível importar o backup.';
-            maintenanceStatus.className = 'perfume-admin-maintenance-status error';
+            CatalogAdmin.setMaintenanceStatus(
+                maintenanceStatus,
+                error.message || 'Não foi possível importar o backup.',
+                true
+            );
         } finally {
             importButton.disabled = !cremesCarregados;
         }

@@ -3,6 +3,7 @@ let perfumes = [];
 let perfumesCarregados = false;
 let decotes = [];
 let cremes = [];
+let cremesCarregados = false;
 let perfumesCarregadosEm = null;
 let cremesCarregadosEm = null;
 let perfumesFonteCatalogo = 'GitHub Gist público';

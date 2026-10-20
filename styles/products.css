@@ -20,6 +20,10 @@
     font-weight: 700;
 }
 
+.necklace-status-error {
+    color: var(--text-secondary);
+}
+
 .card-perfume {
     position: relative;
     display: flex;

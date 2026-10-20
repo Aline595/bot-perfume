@@ -71,6 +71,10 @@ body {
     transition: background-color 180ms ease, color 180ms ease;
 }
 
+.app-hidden {
+    display: none !important;
+}
+
 button,
 input,
 select {

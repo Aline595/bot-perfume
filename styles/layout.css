@@ -216,6 +216,10 @@
     text-align: left;
 }
 
+.secao-aba.is-hidden {
+    display: none;
+}
+
 .secao-aba h2 {
     margin: 0 0 6px !important;
     color: var(--primary-color) !important;

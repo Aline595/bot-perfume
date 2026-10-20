@@ -50,10 +50,12 @@ Um aplicativo web interativo para consultar recomendações de perfumes, cremes 
 
 - `index.html`, `style.css` e `script.js` ficam na raiz para manter compatibilidade com o GitHub Pages.
 - `js/` reúne os scripts da interface por responsabilidade: clima, carregamento de catálogos, ações/renderização de produtos e navegação. A ordem das tags `<script>` no fim de `index.html` é intencional: os scripts atuais compartilham estado e funções no escopo global do navegador.
+- `js/catalog-admin-common.js` concentra utilitários compartilhados pelos administradores de perfumes e cremes; regras e validações específicas de cada catálogo permanecem em seus respectivos arquivos.
 - `styles/` separa os estilos base, layout, formulários, produtos, administração e utilitários. `style.css` importa esses arquivos na ordem necessária para preservar a cascata.
 - `server.js` e `server.test.js` contêm o backend e seus testes.
 - `assets/` guarda imagens e ícones.
-- Os catálogos em produção são lidos dos Gists configurados no código/backend. Os JSONs em `data/` são cópias locais de referência e não são carregados automaticamente pela aplicação.
+- Os catálogos em produção são lidos dos Gists configurados no código/backend. Os JSONs em `data/` são cópias locais de referência, não são carregados automaticamente e não substituem os Gists; após alterações no catálogo compartilhado, atualize essas cópias apenas se quiser mantê-las como backups locais.
+- O projeto não registra service worker; o arquivo antigo `sw.js` foi removido porque não era ativado pela aplicação.
 
 ## Link do Projeto
 

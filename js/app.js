@@ -7,18 +7,18 @@ function entrarNoApp(categoria) {
     const container = document.querySelector('.container');
 
     splash.classList.add('fade-out');
-    container.style.display = 'block';
+    container.classList.remove('app-hidden');
 
     const btn = document.getElementById(`tab-${categoria}`);
     alternarAba(categoria, btn);
 }
 
 function alternarAba(tipo, botao) {
-    document.getElementById('conteudo-perfumes').style.display = 'none';
-    document.getElementById('conteudo-colares').style.display = 'none';
-    document.getElementById('conteudo-cremes').style.display = 'none';
+    document.getElementById('conteudo-perfumes').classList.add('is-hidden');
+    document.getElementById('conteudo-colares').classList.add('is-hidden');
+    document.getElementById('conteudo-cremes').classList.add('is-hidden');
 
-    document.getElementById(`conteudo-${tipo}`).style.display = 'block';
+    document.getElementById(`conteudo-${tipo}`).classList.remove('is-hidden');
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -42,7 +42,7 @@ function voltarParaHome() {
     splash.classList.remove('fade-out');
 
     setTimeout(() => {
-        container.style.display = 'none';
+        container.classList.add('app-hidden');
         document.getElementById('resultado').innerHTML = '';
     }, 300);
 }
